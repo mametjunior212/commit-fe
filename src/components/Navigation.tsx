@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence, useMotionValue, useSpring } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 import MagneticButton from './MagneticButton';
+import logo from '@/assets/logo-Web.png';
 
 const navLinks = [
   { name: 'Work', href: '/work', number: '01' },
@@ -92,31 +93,18 @@ export const Navigation = () => {
                 className="flex items-center gap-2"
                 whileHover={{ scale: 1.02 }}
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
-              >
-                {/* Animated logo mark */}
-                <motion.div 
-                  className="relative w-10 h-10 flex items-center justify-center"
-                  whileHover={{ rotate: 90 }}
-                  transition={{ duration: 0.4, ease: [0.19, 1, 0.22, 1] }}
-                >
-                  <motion.div 
-                    className="absolute inset-0 border-2 border-foreground rounded-lg"
-                    whileHover={{ borderRadius: "50%" }}
-                    transition={{ duration: 0.3 }}
-                  />
-                  <span className="font-syne font-black text-lg">S</span>
-                </motion.div>
-                
+              > 
                 {/* Logo text - only on desktop */}
                 <div className="hidden sm:block overflow-hidden">
-                  <motion.span 
+                  {/* <motion.span 
                     className="font-syne text-lg font-bold tracking-tight block"
                     initial={{ x: -20, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
                     transition={{ delay: 0.3, duration: 0.6 }}
                   >
                     STUDIO
-                  </motion.span>
+                  </motion.span> */}
+                  <motion.img src={logo} alt="CommIT Logo"/>
                 </div>
               </motion.div>
               
@@ -215,7 +203,7 @@ export const Navigation = () => {
                       transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
                     />
                     
-                    <span className="relative z-10 text-sm font-semibold">Start a Project</span>
+                    <span className="relative z-10 text-sm font-semibold">Sign In Member</span>
                     
                     {/* Animated arrow */}
                     <motion.div

@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
+import logo from '@/assets/logo-Web.png';
 
 const phrases = [
   "Initializing...",
@@ -59,7 +60,7 @@ const Preloader = ({ onComplete }: { onComplete: () => void }) => {
          Slides up first, revealing the content underneath.
       */}
       <motion.div
-        className="absolute inset-0 bg-[#0a0a0a] z-30 flex flex-col justify-between p-8 md:p-12"
+        className="absolute inset-0 bg-[#ffffff] z-30 flex flex-col justify-between p-8 md:p-12"
         initial={{ y: "0%" }}
         exit={{ 
           y: "-100%",
@@ -75,8 +76,9 @@ const Preloader = ({ onComplete }: { onComplete: () => void }) => {
                  transition={{ duration: 0.8, ease: easeInOutExpo, delay: 0.2 }}
                  className="flex items-center gap-3"
               >
-                 <div className="w-2 h-2 bg-white rounded-full"></div>
-                 <span className="font-syne font-bold text-white tracking-tight text-xl">STUDIO.</span>
+                 <div className="w-2 h-2 bg-darkblue rounded-full"></div>
+                 {/* <span className="font-syne font-bold text-darkblue tracking-tight text-xl">CommIT.</span> */}
+                 <img src={logo} alt="CommIT Logo" />
               </motion.div>
            </div>
         </div>
@@ -89,7 +91,7 @@ const Preloader = ({ onComplete }: { onComplete: () => void }) => {
               animate={{ y: "0%", opacity: 1 }}
               exit={{ y: "-100%", opacity: 0 }}
               transition={{ duration: 0.4, ease: "easeOut" }}
-              className="font-mono text-xs md:text-sm text-white/50 uppercase tracking-widest"
+              className="font-mono text-xs md:text-sm text-darkblue uppercase tracking-widest"
            >
               {phrases[phraseIndex]}
            </motion.p>
@@ -103,10 +105,10 @@ const Preloader = ({ onComplete }: { onComplete: () => void }) => {
              animate={{ y: "0%" }}
              transition={{ duration: 0.8, ease: easeInOutExpo, delay: 0.3 }}
            >
-              <span className="text-[12vw] leading-none font-syne font-black text-white tracking-tighter">
+              <span className="text-[12vw] leading-none font-syne font-black text-darkblue tracking-tighter">
                  {count}
               </span>
-              <span className="text-[12vw] leading-none font-syne font-black text-transparent tracking-tighter" style={{ WebkitTextStroke: "1px rgba(255,255,255,0.2)" }}>
+              <span className="text-[12vw] leading-none mr-4 font-syne font-black text-transparent tracking-tighter-wide" style={{ WebkitTextStroke: "2px darkblue" }}>
                  100
               </span>
            </motion.div>
@@ -131,7 +133,7 @@ const Preloader = ({ onComplete }: { onComplete: () => void }) => {
          The last layer to leave, cleaning up the transition.
       */}
       <motion.div
-        className="absolute inset-0 bg-white z-10"
+        className="absolute inset-0 bg-black z-10"
         initial={{ y: "0%" }}
         exit={{ 
           y: "-100%", 

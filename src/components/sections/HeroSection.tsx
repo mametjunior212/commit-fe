@@ -2,7 +2,7 @@ import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'fram
 import { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import MagneticButton from '@/components/MagneticButton';
-import heroBg from '@/assets/hero-bg.jpg';
+import heroBg from '@/assets/hero-bg.png';
 
 const words = [
   { text: 'We', number: '01' },
@@ -68,7 +68,7 @@ export const HeroSection = () => {
         <img 
           src={heroBg} 
           alt="" 
-          className="w-full h-full object-cover opacity-40 scale-110"
+          className="w-full h-full object-cover opacity-100 scale-110"
         />
         <div className="absolute inset-x-0 top-0 bottom-0 bg-gradient-to-b from-background/60 via-background/40 to-background" />
       </motion.div>

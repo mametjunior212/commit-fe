@@ -33,14 +33,15 @@ const App = () => {
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          
+
           <AnimatePresence mode="wait">
             {isLoading && <Preloader onComplete={() => setIsLoading(false)} />}
+            {/* <Preloader onComplete={() => { }} /> */}
           </AnimatePresence>
 
           {!isLoading && (
             <BrowserRouter>
-              <SmoothScroll>
+              {/* <SmoothScroll> */}
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/work" element={<Projects />} />
@@ -57,7 +58,7 @@ const App = () => {
               </Routes>
               <BackToTop />
               <CookieConsent />
-              </SmoothScroll>
+              {/* </SmoothScroll> */}
             </BrowserRouter>
           )}
         </TooltipProvider>

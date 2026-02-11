@@ -92,7 +92,7 @@ export const CustomCursor = () => {
     <>
       {/* Main cursor dot */}
       <motion.div
-        className="pointer-events-none fixed top-0 left-0 z-[9999] mix-blend-difference"
+        className="pointer-events-none fixed top-0 left-0 z-[9999] mix-blend-hard-light"
         style={{
           x: cursorXSpring,
           y: cursorYSpring,
@@ -110,7 +110,8 @@ export const CustomCursor = () => {
             stiffness: 300,
             mass: 0.5,
           }}
-          className="relative flex items-center justify-center rounded-full bg-foreground"
+          // className="relative flex items-center justify-center rounded-full bg-foreground"
+          className="relative flex items-center justify-center rounded-full bg-lightblue"
           style={{
             marginLeft: isHovering ? -40 : -6,
             marginTop: isHovering ? -40 : -6,
@@ -150,7 +151,8 @@ export const CustomCursor = () => {
             stiffness: 200,
             mass: 0.8,
           }}
-          className="rounded-full border border-foreground/50"
+          // className="rounded-full border border-foreground/50"
+          className="rounded-full border border-darkblue"
           style={{
             marginLeft: isHovering ? -45 : -20,
             marginTop: isHovering ? -45 : -20,

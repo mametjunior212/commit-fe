@@ -15,14 +15,14 @@ import { OrganizationSchema, WebsiteSchema, ProfessionalServiceSchema } from '@/
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
-      <SEO 
-        title="Award-Winning Digital Agency"
+      {/* <SEO 
+        title="CommIT."
         description="We craft exceptional digital experiences through strategic design, innovative development, and creative storytelling. Transform your brand with our award-winning team."
-        url="https://studio.design"
-      />
-      <OrganizationSchema />
+        url="https://commit-id.org"
+      /> */}
+      {/* <OrganizationSchema />
       <WebsiteSchema />
-      <ProfessionalServiceSchema />
+      <ProfessionalServiceSchema /> */}
 
       <CustomCursor />
 
