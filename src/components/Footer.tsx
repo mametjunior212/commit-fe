@@ -7,10 +7,10 @@ import logo from '@/assets/logo-Web.png';
 
 const footerLinks = {
    navigation: [
-      { name: 'Work', href: '/work' },
+      { name: 'Work', href: '/event' },
       { name: 'About', href: '/about' },
-      { name: 'Services', href: '/services' },
-      { name: 'Blog', href: '/blog' },
+      // { name: 'Services', href: '/services' },
+      // { name: 'Blog', href: '/blog' },
       { name: 'Contact', href: '/contact' },
    ],
    services: [
@@ -20,14 +20,14 @@ const footerLinks = {
       { name: 'Development', href: '/services#development' },
    ],
    social: [
-      { name: 'Instagram', href: '#' },
-      { name: 'Twitter', href: '#' },
-      { name: 'LinkedIn', href: '#' },
-      { name: 'Dribbble', href: '#' },
+      { name: 'Instagram', href: 'https://www.instagram.com/commit_indonesia/' },
+      // { name: 'Twitter', href: '#' },
+      // { name: 'LinkedIn', href: '#' },
+      // { name: 'Dribbble', href: '#' },
    ],
    legal: [
-      { name: 'Privacy Policy', href: '/privacy-policy' },
-      { name: 'Terms of Service', href: '/terms-of-service' },
+      // { name: 'Privacy Policy', href: '/privacy-policy' },
+      // { name: 'Terms of Service', href: '/terms-of-service' },
    ],
 };
 
@@ -45,7 +45,7 @@ export const Footer = () => {
          <div className="grid grid-cols-1 lg:grid-cols-4 border-l border-border">
 
             {/* Column 1: Brand & Time */}
-            <div className="lg:col-span-1 border-r border-border p-8 lg:p-12 flex flex-col justify-between min-h-[400px] lg:min-h-[600px]">
+            <div className="lg:col-span-1 border-r border-border p-8 lg:p-12 flex flex-col justify-between min-h-[400px] lg:min-h-[200px]">
                <div>
                   <Link to="/" className="inline-block mb-12">
                      {/* <span className="font-syne text-4xl font-bold tracking-tighter">
@@ -95,15 +95,14 @@ export const Footer = () => {
             <div className="lg:col-span-1 border-r border-border flex flex-col">
                <div className="flex-1 p-8 border-b border-border">
                   <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground mb-6 block">Contact</span>
-                  <a href="mailto:hello@studio.com" className="block text-xl font-bold hover:text-accent transition-colors mb-2">hello@studio.com</a>
-                  <a href="tel:+1234567890" className="block text-xl font-bold hover:text-accent transition-colors">+1 (555) 000-0000</a>
+                  <a href="mailto:commitjabar@gmail.com" className="block text-xl font-bold hover:text-accent transition-colors mb-2">commitjabar@gmail.com</a>
+                  <a href="tel:+6285182583624" className="block text-xl font-bold hover:text-accent transition-colors">+62 851-8258-3624</a>
                </div>
 
                <div className="flex-1 p-8 border-b border-border">
                   <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground mb-6 block">Location</span>
                   <address className="not-italic text-lg text-muted-foreground">
-                     123 Innovation Dr.<br />
-                     Tech City, NY 10012
+                     Bandung, Indonesia
                   </address>
                </div>
 
@@ -139,11 +138,11 @@ export const Footer = () => {
                   <div className="w-20 h-20 rounded-full bg-background flex items-center justify-center mx-auto mb-6 group-hover:scale-125 transition-transform duration-500">
                      <ArrowUpRight className="w-8 h-8 text-foreground group-hover:text-accent transition-colors" />
                   </div>
-                  <h3 className="text-4xl lg:text-5xl font-syne font-black uppercase leading-none mb-4 group-hover:text-accent-foreground transition-colors">
-                     Start a<br />Project
+                  <h3 className="text-4xl lg:text-4xl font-syne font-black uppercase leading-none mb-4 group-hover:text-accent-foreground transition-colors">
+                     Contact<br />Us
                   </h3>
                   <p className="font-mono text-sm text-muted-foreground group-hover:text-accent-foreground/80 transition-colors">
-                     Have an idea? We'd love to help.
+                     Want Join?
                   </p>
                </div>
             </div>
@@ -152,7 +151,7 @@ export const Footer = () => {
          {/* Bottom Legal Bar */}
          <div className="border-t border-border p-6 flex flex-col md:flex-row justify-between items-center gap-4 bg-background">
             <p className="text-xs font-mono text-muted-foreground uppercase">
-               © {new Date().getFullYear()} Studio Agency.
+               © {new Date().getFullYear()} CommIT.
             </p>
             <div className="flex gap-8">
                {footerLinks.legal.map((link) => (

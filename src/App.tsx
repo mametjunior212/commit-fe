@@ -44,15 +44,15 @@ const App = () => {
               {/* <SmoothScroll> */}
               <Routes>
                 <Route path="/" element={<Index />} />
-                <Route path="/work" element={<Projects />} />
-                <Route path="/work/:id" element={<CaseStudy />} />
+                <Route path="/event" element={<Projects />} />
+                <Route path="/event/:id" element={<CaseStudy />} />
                 <Route path="/contact" element={<Contact />} />
-                <Route path="/services" element={<Services />} />
+                {/* <Route path="/services" element={<Services />} /> */}
                 <Route path="/about" element={<About />} />
-                <Route path="/blog" element={<Blog />} />
-                <Route path="/blog/:id" element={<BlogPost />} />
-                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                <Route path="/terms-of-service" element={<TermsOfService />} />
+                {/* <Route path="/blog" element={<Blog />} /> */}
+                {/* <Route path="/blog/:id" element={<BlogPost />} /> */}
+                {/* <Route path="/privacy-policy" element={<PrivacyPolicy />} /> */}
+                {/* <Route path="/terms-of-service" element={<TermsOfService />} /> */}
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

@@ -193,7 +193,7 @@ export const CTASection = () => {
 
               <MagneticButton>
                 <Link 
-                  to="/work" 
+                  to="/event" 
                   className="group relative inline-flex items-center gap-3 px-8 py-4 border border-foreground/20 text-foreground font-semibold rounded-full overflow-hidden hover:border-accent/50 transition-colors duration-300"
                 >
                   <span className="relative z-10">View Our Work</span>

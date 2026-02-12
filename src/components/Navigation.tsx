@@ -5,11 +5,11 @@ import MagneticButton from './MagneticButton';
 import logo from '@/assets/logo-Web.png';
 
 const navLinks = [
-  { name: 'Work', href: '/work', number: '01' },
+  { name: 'Event', href: '/event', number: '01' },
   { name: 'About', href: '/about', number: '02' },
-  { name: 'Services', href: '/services', number: '03' },
-  { name: 'Blog', href: '/blog', number: '04' },
-  { name: 'Contact', href: '/contact', number: '05' },
+  // { name: 'Services', href: '/services', number: '03' },
+  // { name: 'Blog', href: '/blog', number: '04' },
+  { name: 'Contact', href: '/contact', number: '03' },
 ];
 
 export const Navigation = () => {
@@ -79,7 +79,7 @@ export const Navigation = () => {
         <motion.div 
           className={`mx-auto transition-all duration-700 ${
             isScrolled 
-              ? 'mt-4 max-w-5xl rounded-2xl bg-background/60 backdrop-blur-2xl border border-border/40 shadow-2xl shadow-background/20' 
+              ? 'mt-4 max-w-5xl rounded-2xl bg-gray-300/50 backdrop-blur-2xl border border-border/40 shadow-2xl shadow-background/20' 
               : 'mt-0 max-w-full bg-transparent border-none shadow-none backdrop-blur-none'
           }`}
         >
@@ -186,14 +186,14 @@ export const Navigation = () => {
               <div className={`w-px h-6 mx-4 transition-colors duration-500 ${isScrolled ? 'bg-border/50' : 'bg-transparent'}`} />
               
               <div className="flex items-center gap-2">
-                {/* CTA Button with unique design */}
-                <MagneticButton className="group relative ml-2">
-                  <Link 
+                {/* Sign In Member */}
+                {/* <MagneticButton className="group relative ml-2"> */}
+                  {/* <Link 
                     to="/contact" 
                     className="relative flex items-center gap-3 px-5 py-2.5 bg-foreground text-background rounded-full overflow-hidden"
-                  >
+                  > */}
                     {/* Rotating border effect */}
-                    <motion.div
+                    {/* <motion.div
                       className="absolute inset-0 rounded-full"
                       style={{
                         background: 'conic-gradient(from 0deg, transparent, hsl(var(--accent)), transparent)',
@@ -203,10 +203,10 @@ export const Navigation = () => {
                       transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
                     />
                     
-                    <span className="relative z-10 text-sm font-semibold">Sign In Member</span>
+                    <span className="relative z-10 text-sm font-semibold">Sign In Member</span> */}
                     
                     {/* Animated arrow */}
-                    <motion.div
+                    {/* <motion.div
                       className="relative z-10 w-5 h-5 rounded-full bg-background/20 flex items-center justify-center"
                       whileHover={{ scale: 1.2 }}
                     >
@@ -225,17 +225,17 @@ export const Navigation = () => {
                           strokeLinejoin="round"
                         />
                       </motion.svg>
-                    </motion.div>
+                    </motion.div> */}
                     
                     {/* Hover background */}
-                    <motion.div
+                    {/* <motion.div
                       className="absolute inset-0 bg-accent -z-0"
                       initial={{ y: '100%' }}
                       whileHover={{ y: 0 }}
                       transition={{ duration: 0.3, ease: [0.19, 1, 0.22, 1] }}
-                    />
-                  </Link>
-                </MagneticButton>
+                    /> */}
+                  {/* </Link> */}
+                {/* </MagneticButton> */}
               </div>
             </div>
 

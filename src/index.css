@@ -103,7 +103,7 @@
     --primary-foreground: 0 0% 98%;
 
     /* Secondary menjadi abu-abu terang */
-    --secondary: 0 0% 96.1%;
+    --secondary: 222 80% 60%;
     --secondary-foreground: 0 0% 9%;
 
     /* Muted menjadi abu-abu halus */
@@ -169,26 +169,26 @@
 }
 
 .text-darkblue {
-  color: darkblue;
+  color: hsl(240, 100%, 27%);
 }
 .text-lightblue {
-  color: rgb(0, 85, 255);
+  color: hsl(220, 100%, 50%);
 }
 
 .bg-darkblue {
-  background-color: darkblue;
+  background-color: hsl(240, 100%, 27%);
 }
 .bg-lightblue {
-  background-color: rgb(0, 85, 255);
+  background-color: hsl(220, 100%, 50%);
 }
 
 .border-darkblue {
   --tw-border-opacity: 1;
-  border-color: darkblue;
+  border-color: hsl(240, 100%, 27%);
 }
 .border-lightblue {
   --tw-border-opacity: 1;
-  border-color: rgb(0, 85, 255);
+  border-color: hsl(220, 100%, 50%);
 }
 
 @layer base {

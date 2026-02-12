@@ -3,6 +3,7 @@ import { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import MagneticButton from '@/components/MagneticButton';
 import heroBg from '@/assets/hero-bg.png';
+import video from '@/assets/dashboard.mp4';
 
 const words = [
   { text: 'We', number: '01' },
@@ -15,7 +16,7 @@ export const HeroSection = () => {
   const ref = useRef(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [currentTime, setCurrentTime] = useState('');
-  
+
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ['start start', 'end start'],
@@ -23,7 +24,7 @@ export const HeroSection = () => {
 
   const opacity = useTransform(scrollYProgress, [0.3, 0.8], [1, 0]);
   const scale = useTransform(scrollYProgress, [0.3, 0.8], [1, 0.95]);
-  
+
   const y = useTransform(scrollYProgress, [0, 0.5], ['0%', '10%']);
   const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '30%']);
 
@@ -35,10 +36,11 @@ export const HeroSection = () => {
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
-      setCurrentTime(now.toLocaleTimeString('en-US', { 
-        hour: '2-digit', 
+      setCurrentTime(now.toLocaleTimeString('en-US', {
+        hour: '2-digit',
         minute: '2-digit',
-        hour12: false 
+        hour12: false,
+        timeZone: 'Asia/Jakarta'
       }));
     };
     updateTime();
@@ -65,16 +67,16 @@ export const HeroSection = () => {
     >
       {/* Background */}
       <motion.div className="absolute inset-0" style={{ y: bgY }}>
-        <img 
-          src={heroBg} 
-          alt="" 
+        <img
+          src={heroBg}
+          alt=""
           className="w-full h-full object-cover opacity-100 scale-110"
         />
         <div className="absolute inset-x-0 top-0 bottom-0 bg-gradient-to-b from-background/60 via-background/40 to-background" />
       </motion.div>
 
       {/* Grid overlay */}
-      <div 
+      <div
         className="absolute inset-0 overflow-hidden pointer-events-none"
         style={{ paddingTop: 'var(--nav-offset)' }}
       >
@@ -99,18 +101,18 @@ export const HeroSection = () => {
           />
         ))}
       </div>
-      
+
       {/* Floating orb - hidden on mobile for performance */}
       <motion.div
         className="absolute w-[300px] h-[300px] md:w-[600px] md:h-[600px] rounded-none bg-accent/10 blur-[80px] md:blur-[120px] hidden sm:block"
-        style={{ 
-          x: springX, 
+        style={{
+          x: springX,
           y: springY,
           translateX: '-50%',
           translateY: '-50%',
         }}
       />
-      
+
       {/* Geometric shapes - hidden on mobile */}
       <motion.div
         initial={{ scale: 0, rotate: 0 }}
@@ -154,14 +156,14 @@ export const HeroSection = () => {
       />
 
       {/* Side decorators - desktop only */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, x: -50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 1.5, duration: 1 }}
         className="absolute left-8 top-1/2 -translate-y-1/2 hidden lg:flex flex-col items-center gap-4"
       >
         <div className="w-px h-20 bg-gradient-to-b from-transparent via-foreground/30 to-transparent" />
-        <motion.div 
+        <motion.div
           className="text-xs font-mono text-muted-foreground tracking-widest"
           style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
         >
@@ -170,7 +172,7 @@ export const HeroSection = () => {
         <div className="w-px h-20 bg-gradient-to-b from-transparent via-foreground/30 to-transparent" />
       </motion.div>
 
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, x: 50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 1.5, duration: 1 }}
@@ -178,22 +180,22 @@ export const HeroSection = () => {
       >
         <span className="text-xs font-mono text-muted-foreground">{currentTime}</span>
         <div className="w-px h-12 bg-foreground/20" />
-        <span className="text-xs font-mono text-muted-foreground">EST</span>
+        <span className="text-xs font-mono text-muted-foreground">WIB</span>
       </motion.div>
 
       {/* Main content */}
       <motion.div style={{ y }} className="w-full container-wide relative z-10 pt-24 sm:pt-32 pb-20 sm:pb-32 md:pb-48">
         {/* Inner content wrapper - full width on mobile, constrained on desktop */}
         <div className="md:max-w-5xl md:mx-auto">
-          
+
           {/* Top label */}
-          <motion.div
+          {/* <motion.div
             initial={{ opacity: 0, width: 0 }}
             animate={{ opacity: 1, width: 'auto' }}
             transition={{ duration: 1, delay: 0.5, ease: [0.19, 1, 0.22, 1] }}
             className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8 md:mb-12"
           >
-            <motion.div 
+            <motion.div
               className="h-px bg-accent flex-shrink-0"
               initial={{ width: 0 }}
               animate={{ width: 40 }}
@@ -202,13 +204,13 @@ export const HeroSection = () => {
             <span className="text-xs sm:text-sm font-mono text-muted-foreground tracking-wider">
               DIGITAL AGENCY — SINCE 2018
             </span>
-          </motion.div>
+          </motion.div> */}
 
           {/* Main Headline */}
-          <h1 className="mb-6 md:mb-8">
+          {/* <h1 className="mb-6 md:mb-8">
             {words.map((word, index) => (
-              <div 
-                key={word.text} 
+              <div
+                key={word.text}
                 className={`relative ${index === 0 ? '' : '-mt-1 sm:-mt-2 md:-mt-4'}`}
                 style={{ zIndex: words.length - index }}
               >
@@ -216,14 +218,14 @@ export const HeroSection = () => {
                   <motion.div
                     initial={{ opacity: 0, y: 40 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ 
-                      duration: 1, 
-                      delay: 0.7 + index * 0.15, 
-                      ease: [0.19, 1, 0.22, 1] 
+                    transition={{
+                      duration: 1,
+                      delay: 0.7 + index * 0.15,
+                      ease: [0.19, 1, 0.22, 1]
                     }}
                     className="flex items-baseline gap-2 sm:gap-4"
                   >
-                    <motion.span 
+                    <motion.span
                       className="text-xs sm:text-sm font-mono text-accent/60 hidden sm:inline-block"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
@@ -231,18 +233,17 @@ export const HeroSection = () => {
                     >
                       {word.number}
                     </motion.span>
-                    
-                    <span 
-                      className={`font-syne font-black text-[11vw] sm:text-6xl md:text-7xl lg:text-8xl xl:text-[120px] tracking-tight leading-[1] ${
-                        word.accent ? 'text-accent' : 'text-foreground'
-                      }`}
+
+                    <span
+                      className={`font-syne font-black text-[11vw] sm:text-6xl md:text-7xl lg:text-8xl xl:text-[120px] tracking-tight leading-[1] ${word.accent ? 'text-accent' : 'text-foreground'
+                        }`}
                     >
                       {word.text}
                     </span>
                   </motion.div>
                 </div>
-                
-                <motion.div 
+
+                <motion.div
                   className="absolute bottom-0 left-0 h-px bg-foreground/10"
                   initial={{ width: 0 }}
                   animate={{ width: '100%' }}
@@ -250,10 +251,20 @@ export const HeroSection = () => {
                 />
               </div>
             ))}
-          </h1>
+          </h1> */}
+          {/* Video Commit */}
+          <motion.video
+            src={video}
+            // autoPlay
+            loop
+            muted
+            controls={true}
+            controlsList='nodownload'
+            className="w-full rounded-lg object-cover mb-8"
+          />
 
           {/* Description and CTA */}
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 sm:gap-8 md:gap-12">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-12 sm:gap-12 md:gap-12">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -261,8 +272,7 @@ export const HeroSection = () => {
               className="max-w-md"
             >
               <p className="text-base sm:text-lg md:text-xl text-muted-foreground leading-relaxed">
-                A creative studio crafting immersive digital products, brands, 
-                and experiences that captivate and inspire.
+                CommIT Indonesia adalah Komunitas Perkumpulan IT Seluruh Indonesia yang didirikan pada tanggal 25 Agustus 2023.
               </p>
             </motion.div>
 
@@ -273,11 +283,11 @@ export const HeroSection = () => {
               className="flex flex-col sm:flex-row gap-3 sm:gap-4"
             >
               <MagneticButton>
-                <Link 
-                  to="/work" 
+                <Link
+                  to="/about"
                   className="group relative inline-flex items-center justify-center gap-3 px-6 sm:px-8 py-3 sm:py-4 bg-foreground text-background font-semibold rounded-full overflow-hidden text-sm sm:text-base w-full sm:w-auto"
                 >
-                  <span className="relative z-10">View Our Work</span>
+                  <span className="relative z-10">Tentang Kami</span>
                   <motion.div
                     className="relative z-10 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-background/20 flex items-center justify-center"
                     whileHover={{ rotate: 45 }}
@@ -301,14 +311,14 @@ export const HeroSection = () => {
                   />
                 </Link>
               </MagneticButton>
-              
+
               <MagneticButton>
-                <Link 
-                  to="/contact" 
+                <Link
+                  to="/contact"
                   className="group relative inline-flex items-center justify-center gap-3 px-6 sm:px-8 py-3 sm:py-4 border border-foreground/20 text-foreground font-semibold rounded-full overflow-hidden hover:border-accent/50 transition-colors duration-300 text-sm sm:text-base w-full sm:w-auto"
                 >
                   <span className="relative z-10">Start a Project</span>
-                  <motion.span 
+                  <motion.span
                     className="relative z-10 text-accent"
                     animate={{ x: [0, 5, 0] }}
                     transition={{ duration: 1.5, repeat: Infinity }}
@@ -321,7 +331,7 @@ export const HeroSection = () => {
           </div>
 
           {/* Stats row */}
-          <motion.div
+          {/* <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 2, ease: [0.19, 1, 0.22, 1] }}
@@ -334,7 +344,7 @@ export const HeroSection = () => {
                 { number: '12', label: 'Team Members' },
                 { number: '6+', label: 'Years Experience' },
               ].map((stat, i) => (
-                <motion.div 
+                <motion.div
                   key={stat.label}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -348,7 +358,7 @@ export const HeroSection = () => {
                 </motion.div>
               ))}
             </div>
-          </motion.div>
+          </motion.div> */}
         </div>
       </motion.div>
 

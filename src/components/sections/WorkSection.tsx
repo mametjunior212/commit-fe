@@ -23,7 +23,7 @@ const ProjectCard = ({ project, index }: ProjectCardProps) => {
       onMouseLeave={() => setIsHovered(false)}
       className={`group ${index % 2 === 1 ? 'md:mt-32' : ''}`}
     >
-      <Link to={`/work/${project.id}`} className="block h-full">
+      <Link to={`/event/${project.id}`} className="block h-full">
         {/* Image Container */}
         <div className="relative overflow-hidden aspect-[4/3] mb-8 rounded-none">
           <motion.img
@@ -86,7 +86,7 @@ export const WorkSection = () => {
       {/* Decorative large text background */}
       <div className="absolute top-20 left-0 w-full overflow-hidden opacity-[0.03] pointer-events-none select-none">
          <h2 className="text-[20vw] font-syne font-black leading-none whitespace-nowrap animate-marquee">
-            SELECTED PROJECTS — SELECTED PROJECTS —
+            SELECTED EVENTS — SELECTED EVENTS —
          </h2>
       </div>
 
@@ -96,7 +96,7 @@ export const WorkSection = () => {
           <div className="md:col-span-8">
             <div className="flex items-center gap-4 mb-6">
                <span className="w-3 h-3 bg-accent rounded-full animate-pulse"></span>
-               <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Featured Portfolio</span>
+               <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Featured Event</span>
             </div>
             <AnimatedLine>
               <h2 className="font-syne font-bold text-5xl md:text-7xl tracking-tighter leading-[0.9]">
@@ -107,10 +107,10 @@ export const WorkSection = () => {
           </div>
           <div className="md:col-span-4 md:text-right">
              <Link
-              to="/work"
+              to="/event"
               className="group inline-flex flex-col items-end gap-2"
             >
-              <span className="text-sm font-bold uppercase tracking-widest border-b border-foreground/20 pb-1 group-hover:border-accent transition-colors">View All Work</span>
+              <span className="text-sm font-bold uppercase tracking-widest border-b border-foreground/20 pb-1 group-hover:border-accent transition-colors">View All Event</span>
             </Link>
           </div>
         </div>

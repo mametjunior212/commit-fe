@@ -11,6 +11,25 @@ import MagneticButton from '@/components/MagneticButton';
 const ProjectCard = ({ project, index }: { project: typeof projects[0], index: number }) => {
   const [isHovered, setIsHovered] = useState(false);
 
+  const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp', '.avif', '.svg'];
+  const VIDEO_EXTENSIONS = ['.mp4', '.webm', '.ogg', '.ogv', '.mov', '.m4v'];
+
+  function endsWithExt(url: string, exts: string[]) {
+    const lower = url.split('?')[0].toLowerCase();
+    return exts.some((ext) => lower.endsWith(ext));
+  }
+  function isImageUrl(url?: string) {
+    if (!url) return false;
+    return endsWithExt(url, IMAGE_EXTENSIONS);
+  }
+  function isVideoUrl(url?: string) {
+    if (!url) return false;
+    return endsWithExt(url, VIDEO_EXTENSIONS);
+  }
+
+  const isImage = useMemo(() => isImageUrl(project.thumbnail), [project.thumbnail]);
+  const isVideo = useMemo(() => isVideoUrl(project.thumbnail), [project.thumbnail]);
+
   return (
     <motion.div
       layout
@@ -23,27 +42,52 @@ const ProjectCard = ({ project, index }: { project: typeof projects[0], index: n
       onMouseLeave={() => setIsHovered(false)}
     >
       <Link
-        to={`/work/${project.id}`}
+        to={`/event/${project.id}`}
         className="block"
       >
         {/* Image Container */}
         <div className="relative overflow-hidden aspect-[4/3] mb-8 rounded-sm">
-          <motion.img
+          {project.thumbnail && isImage ? (
+            <motion.img
+              src={project.thumbnail}
+              alt={project.title}
+              className="w-full h-full object-cover"
+              animate={{ scale: isHovered ? 1.05 : 1 }}
+              transition={{ duration: 0.7, ease: [0.19, 1, 0.22, 1] }}
+            />
+          ) : project.thumbnail && isVideo ? (
+            <video
+              src={project.thumbnail}
+              poster={project.title}
+              muted
+              playsInline
+              loop
+              preload="metadata"
+              className="block w-full h-auto object-cover"
+            />
+          ) : (<motion.img
             src={project.thumbnail}
             alt={project.title}
             className="w-full h-full object-cover"
             animate={{ scale: isHovered ? 1.05 : 1 }}
             transition={{ duration: 0.7, ease: [0.19, 1, 0.22, 1] }}
-          />
-          
+          />)}
+          {/* <motion.img
+            src={project.thumbnail}
+            alt={project.title}
+            className="w-full h-full object-cover"
+            animate={{ scale: isHovered ? 1.05 : 1 }}
+            transition={{ duration: 0.7, ease: [0.19, 1, 0.22, 1] }}
+          /> */}
+
           {/* Hover Overlay - Subtle Tint */}
-          <motion.div 
+          <motion.div
             className="absolute inset-0 bg-black/10"
             initial={{ opacity: 0 }}
             animate={{ opacity: isHovered ? 1 : 0 }}
             transition={{ duration: 0.3 }}
           />
-          
+
           {/* View Project Button - Centered */}
           <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
             <div className="w-24 h-24 rounded-full bg-background/90 backdrop-blur-md flex items-center justify-center">
@@ -101,19 +145,19 @@ const Projects = () => {
 
   const filteredProjects = useMemo(() => {
     let result = projects;
-    
+
     if (activeCategory !== 'All') {
       result = result.filter(p => p.category === activeCategory);
     }
-    
+
     if (searchQuery) {
-      result = result.filter(p => 
+      result = result.filter(p =>
         p.title.toLowerCase().includes(searchQuery) ||
         p.description.toLowerCase().includes(searchQuery) ||
         p.category.toLowerCase().includes(searchQuery)
       );
     }
-    
+
     return result;
   }, [activeCategory, searchQuery]);
 
@@ -184,15 +228,14 @@ const Projects = () => {
           </motion.div>
 
           <div className="max-w-4xl">
-            {['Selected', 'Works'].map((text, index) => (
+            {['Selected', 'Events'].map((text, index) => (
               <div key={text} className="overflow-hidden">
                 <motion.h1
                   initial={{ y: '100%' }}
                   animate={heroInView ? { y: 0 } : {}}
                   transition={{ duration: 1, delay: 0.2 + index * 0.1, ease: [0.19, 1, 0.22, 1] }}
-                  className={`font-syne font-black text-5xl sm:text-6xl md:text-7xl lg:text-8xl tracking-tight leading-[0.95] ${
-                    index === 1 ? 'text-accent' : 'text-foreground'
-                  }`}
+                  className={`font-syne font-black text-5xl sm:text-6xl md:text-7xl lg:text-8xl tracking-tight leading-[0.95] ${index === 1 ? 'text-accent' : 'text-foreground'
+                    }`}
                 >
                   {text}
                 </motion.h1>
@@ -206,8 +249,6 @@ const Projects = () => {
             transition={{ delay: 0.6, duration: 0.8 }}
             className="text-lg md:text-xl text-muted-foreground max-w-xl mt-8"
           >
-            Explore a selection of our recent projects where design meets innovation.
-            We craft digital experiences that leave a lasting impression.
           </motion.p>
         </div>
       </section>
@@ -236,11 +277,10 @@ const Projects = () => {
                       <button
                         key={category}
                         onClick={() => setActiveCategory(category)}
-                        className={`group relative h-16 px-8 flex items-center justify-center text-sm font-mono uppercase tracking-wider transition-all hover:bg-accent hover:text-accent-foreground whitespace-nowrap border-r border-border last:border-r-0 ${
-                          activeCategory === category 
-                            ? 'bg-accent text-accent-foreground' 
-                            : 'text-muted-foreground bg-transparent'
-                        }`}
+                        className={`group relative h-16 px-8 flex items-center justify-center text-sm font-mono uppercase tracking-wider transition-all hover:bg-accent hover:text-accent-foreground whitespace-nowrap border-r border-border last:border-r-0 ${activeCategory === category
+                          ? 'bg-accent text-accent-foreground'
+                          : 'text-muted-foreground bg-transparent'
+                          }`}
                       >
                         {category}
                       </button>
@@ -252,7 +292,7 @@ const Projects = () => {
                 <div className="w-full md:w-[400px] relative group bg-background/50 hover:bg-background transition-colors">
                   <div className="relative h-16 flex items-center px-6">
                     <Search className="w-5 h-5 text-muted-foreground mr-4" />
-                    <input 
+                    <input
                       type="text"
                       placeholder="Search projects..."
                       value={searchQuery}
@@ -270,7 +310,7 @@ const Projects = () => {
       {/* Projects Grid */}
       <section className="pb-24 md:pb-32" ref={projectsRef}>
         <div className="container-wide">
-          <motion.div 
+          <motion.div
             layout
             className="grid md:grid-cols-2 gap-8 md:gap-12 lg:gap-20"
           >
@@ -314,12 +354,12 @@ const Projects = () => {
               Have an idea in mind?
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto mb-10">
-              Let's collaborate to bring your vision to life. We're always looking for 
+              Let's collaborate to bring your vision to life. We're always looking for
               new challenges and innovative projects.
             </p>
             <MagneticButton>
-              <Link 
-                to="/contact" 
+              <Link
+                to="/contact"
                 className="group inline-flex items-center gap-3 px-8 py-4 bg-white text-black font-semibold rounded-full"
               >
                 Get in Touch
