@@ -2,34 +2,58 @@ import { motion, useInView } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
 import { AnimatedLine } from '@/components/AnimatedText';
 import { ChevronLeft, ChevronRight, Quote } from 'lucide-react';
-
 const testimonials = [
   {
     id: 1,
-    quote: "Working with STUDIO was transformative. They didn't just deliver a website—they crafted an experience that perfectly captures our brand's essence.",
-    author: 'Sarah Chen',
-    role: 'CEO, Luminary Tech',
-    avatar: 'SC',
+    quote: "Bergabung sebagai member CommIT Indonesia memberikan saya banyak insight baru di dunia IT. CommIT menjadi wadah komunikasi dan informasi yang sangat bermanfaat untuk berbagi pengalaman, berdiskusi, dan memperluas networking. Di sini saya tidak hanya mendapatkan pengetahuan, tetapi juga relasi dan kolaborasi yang positif.",
+    author: 'Ridwan Rahadiansyah',
+    role: 'IT Manager, Swiss-Bel Resort Dago Heritage Bandung',
+    avatar: 'RR',
   },
   {
     id: 2,
-    quote: "Their attention to detail and creative vision exceeded every expectation. The results speak for themselves—our engagement has never been higher.",
-    author: 'Michael Rivera',
-    role: 'Founder, Cascade Ventures',
-    avatar: 'MR',
+    quote: "CommIT Indonesia bukan sekadar komunitas, tapi tempat bertemunya para profesional IT yang ingin maju bersama. Banyak kesempatan kolaborasi dan bertukar ide yang sangat bermanfaat untuk pengembangan skill maupun bisnis.",
+    author: 'Angga T Yanuar',
+    role: 'IT Manager, Grand Sunshine Bandung',
+    avatar: 'AY',
   },
-  {
-    id: 3,
-    quote: "A true partnership from day one. They challenged our thinking, pushed boundaries, and delivered work we're incredibly proud of.",
-    author: 'Emma Watson',
-    role: 'CMO, Ethereal Design',
-    avatar: 'EW',
-  },
+  // {
+  //   id: 3,
+  //   quote: "A true partnership from day one. They challenged our thinking, pushed boundaries, and delivered work we're incredibly proud of.",
+  //   author: 'Emma Watson',
+  //   role: 'CMO, Ethereal Design',
+  //   avatar: 'EW',
+  // },
 ];
 
 const clients = [
-  'LUMINARY', 'ETHEREAL', 'ZENITH', 'CASCADE', 'AURORA', 'NEXUS',
-  'VERTEX', 'PRISM', 'ORBIT', 'STELLAR',
+  'Bandung24jam',
+  'Businessinasia',
+  'Elshinta',
+  'Jabar Exspress',
+  'SWA',
+  'TribunJabarID',
+  'Biskom',
+  'IT works',
+  'Itech',
+  'Radarbandung',
+  'Trijaya',
+  'Info komputer',
+  'Ayo bandung',
+  'Bussines news',
+  'Berita kbb',
+  'Mahavira',
+  'CBN',
+  'Fibernet',
+  'Gadingnet',
+  'Iforte',
+  'Indosat',
+  'InfiniTV',
+  'Lintas Arta',
+  'Melvar Prima Solusi',
+  'Mynetfiber',
+  'Solusi Jaringan Integrasi',
+  'Zeus',
 ];
 
 export const TestimonialsSection = () => {
@@ -90,7 +114,7 @@ export const TestimonialsSection = () => {
 
             <AnimatedLine delay={0.3}>
               <h2 className="font-syne font-bold text-4xl sm:text-5xl md:text-6xl tracking-tight leading-[1.1]">
-                Words from those we've worked with.
+                Apa kata member kami.
               </h2>
             </AnimatedLine>
           </div>
@@ -140,7 +164,7 @@ export const TestimonialsSection = () => {
                   </div>
 
                   {/* Quote text */}
-                  <blockquote className="font-syne text-xl md:text-2xl lg:text-3xl font-medium leading-relaxed mb-8">
+                  <blockquote className="font-syne text-l font-medium leading-relaxed mb-8">
                     "{testimonial.quote}"
                   </blockquote>
 
@@ -164,16 +188,15 @@ export const TestimonialsSection = () => {
           </div>
 
           {/* Indicators */}
-          <div className="flex justify-center gap-3 mt-8">
+          <div className="flex justify-center gap-3 mt-[13rem] md:mt-28">
             {testimonials.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setActiveIndex(index)}
                 className="group relative h-2 transition-all duration-300"
               >
-                <div className={`w-12 h-full transition-all duration-300 ${
-                  activeIndex === index ? 'bg-accent' : 'bg-border hover:bg-border/80'
-                }`} />
+                <div className={`w-12 h-full transition-all duration-300 ${activeIndex === index ? 'bg-accent' : 'bg-border hover:bg-border/80'
+                  }`} />
                 {activeIndex === index && (
                   <motion.div
                     className="absolute inset-0 bg-accent"
@@ -190,26 +213,26 @@ export const TestimonialsSection = () => {
           initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 0.6, duration: 0.8 }}
-          className="mt-20 md:mt-28 relative"
+          className="mt-[12rem] md:mt-28 relative"
         >
           <div className="flex items-center justify-between mb-8">
-            <span className="text-sm font-mono text-muted-foreground">TRUSTED BY</span>
+            <span className="text-sm font-mono text-muted-foreground">Our Partner</span>
             <div className="flex-1 h-px bg-border/50 ml-8" />
           </div>
 
           <div className="relative overflow-hidden">
             <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-secondary/30 to-transparent z-10" />
             <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-secondary/30 to-transparent z-10" />
-            
+
             <motion.div
-              animate={{ x: ['0%', '-50%'] }}
+              animate={{ x: ['0%', '-500%'] }}
               transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
               className="flex gap-16 whitespace-nowrap py-4"
             >
               {[...clients, ...clients].map((client, index) => (
                 <span
                   key={index}
-                  className="text-xl font-syne font-bold text-muted-foreground/40 hover:text-foreground transition-colors duration-300 cursor-default"
+                  className="text-xl font-syne font-bold text-muted-foreground/40 hover:text-foreground transition-colors duration-1000 cursor-default"
                 >
                   {client}
                 </span>

@@ -100,8 +100,8 @@ export const WorkSection = () => {
             </div>
             <AnimatedLine>
               <h2 className="font-syne font-bold text-5xl md:text-7xl tracking-tighter leading-[0.9]">
-                Crafting digital<br />
-                <span className="text-accent">masterpieces.</span>
+                Kegiatan<br />
+                <span className="text-accent">Yang sudah kami lakukan.</span>
               </h2>
             </AnimatedLine>
           </div>

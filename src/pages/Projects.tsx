@@ -1,14 +1,21 @@
-import { useState, useMemo, useCallback, useRef } from 'react';
-import { motion, AnimatePresence, useInView, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { useState, useMemo, useCallback, useRef, forwardRef } from 'react';
+import { motion, AnimatePresence, useInView } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { projects } from '@/data/projects';
-import SearchInput from '@/components/SearchInput';
 import Footer from '@/components/Footer';
 import Navigation from '@/components/Navigation';
 import { ArrowUpRight, ArrowRight, Search } from 'lucide-react';
-import MagneticButton from '@/components/MagneticButton';
+import { ref } from 'process';
 
-const ProjectCard = ({ project, index }: { project: typeof projects[0], index: number }) => {
+type ProjectCardProps = {
+  project: typeof projects[0];
+  index: number;
+};
+
+
+
+const ProjectCard = forwardRef<HTMLDivElement, ProjectCardProps>(({ project, index }, ref) => {
+
   const [isHovered, setIsHovered] = useState(false);
 
   const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp', '.avif', '.svg'];
@@ -30,8 +37,10 @@ const ProjectCard = ({ project, index }: { project: typeof projects[0], index: n
   const isImage = useMemo(() => isImageUrl(project.thumbnail), [project.thumbnail]);
   const isVideo = useMemo(() => isVideoUrl(project.thumbnail), [project.thumbnail]);
 
+
   return (
     <motion.div
+      ref={ref}
       layout
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
@@ -41,6 +50,7 @@ const ProjectCard = ({ project, index }: { project: typeof projects[0], index: n
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
+
       <Link
         to={`/event/${project.id}`}
         className="block"
@@ -72,13 +82,6 @@ const ProjectCard = ({ project, index }: { project: typeof projects[0], index: n
             animate={{ scale: isHovered ? 1.05 : 1 }}
             transition={{ duration: 0.7, ease: [0.19, 1, 0.22, 1] }}
           />)}
-          {/* <motion.img
-            src={project.thumbnail}
-            alt={project.title}
-            className="w-full h-full object-cover"
-            animate={{ scale: isHovered ? 1.05 : 1 }}
-            transition={{ duration: 0.7, ease: [0.19, 1, 0.22, 1] }}
-          /> */}
 
           {/* Hover Overlay - Subtle Tint */}
           <motion.div
@@ -125,7 +128,8 @@ const ProjectCard = ({ project, index }: { project: typeof projects[0], index: n
       </Link>
     </motion.div>
   );
-};
+}
+);
 
 const categories = ['All', ...Array.from(new Set(projects.map(p => p.category)))];
 
@@ -224,7 +228,7 @@ const Projects = () => {
           >
             <span className="text-sm font-mono text-accent">01</span>
             <div className="h-px w-12 bg-accent" />
-            <span className="text-sm font-mono text-muted-foreground tracking-wider">PORTFOLIO</span>
+            <span className="text-sm font-mono text-muted-foreground tracking-wider">ACTIVITY</span>
           </motion.div>
 
           <div className="max-w-4xl">
@@ -265,7 +269,7 @@ const Projects = () => {
             <div className="flex items-center gap-4 mb-8">
               <span className="text-sm font-mono text-accent">02</span>
               <div className="h-px w-12 bg-accent" />
-              <span className="text-sm font-mono text-muted-foreground tracking-wider">ALL PROJECTS</span>
+              <span className="text-sm font-mono text-muted-foreground tracking-wider">ALL Activity</span>
             </div>
 
             <div className="border border-border bg-card">
@@ -294,7 +298,7 @@ const Projects = () => {
                     <Search className="w-5 h-5 text-muted-foreground mr-4" />
                     <input
                       type="text"
-                      placeholder="Search projects..."
+                      placeholder="Search ..."
                       value={searchQuery}
                       onChange={(e) => handleSearch(e.target.value)}
                       className="flex-1 bg-transparent border-none outline-none text-sm font-mono text-foreground placeholder:text-muted-foreground/50 h-full"
@@ -342,7 +346,7 @@ const Projects = () => {
           transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
         />
 
-        <div className="container-wide text-center relative z-10">
+        {/* <div className="container-wide text-center relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -372,7 +376,7 @@ const Projects = () => {
               </Link>
             </MagneticButton>
           </motion.div>
-        </div>
+        </div> */}
       </section>
 
       <Footer />

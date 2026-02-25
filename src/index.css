@@ -103,7 +103,7 @@
     --primary-foreground: 0 0% 98%;
 
     /* Secondary menjadi abu-abu terang */
-    --secondary: 222 80% 60%;
+    --secondary: 0 0% 96.1%;
     --secondary-foreground: 0 0% 9%;
 
     /* Muted menjadi abu-abu halus */
@@ -121,6 +121,7 @@
 
     /* Border dan Input menjadi abu-abu tipis */
     --border: 0 0% 89.8%;
+    --border-blue: 242 100% 50%;
     --input: 0 0% 89.8%;
 
     /* Ring mengikuti warna Accent */
@@ -168,6 +169,12 @@
   }
 }
 
+.shadow-andrika {
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 3px 10px -2px rgba(0, 0, 0, 0.1);
+}
+
 .text-darkblue {
   color: hsl(240, 100%, 27%);
 }
@@ -181,6 +188,12 @@
 .bg-lightblue {
   background-color: hsl(220, 100%, 50%);
 }
+.bg-lightblue-soft {
+  background-color: #edf5fd;
+}
+.bg-top-andrika {
+  background-color: #fff;
+}
 
 .border-darkblue {
   --tw-border-opacity: 1;
@@ -189,6 +202,15 @@
 .border-lightblue {
   --tw-border-opacity: 1;
   border-color: hsl(220, 100%, 50%);
+}
+
+.text-andrika {
+  color: hsla(215, 20%, 65%, 1);
+}
+
+.border-andrika {
+  --tw-border-opacity: 1;
+  border-color: hsla(214, 32%, 91%, 1);
 }
 
 @layer base {

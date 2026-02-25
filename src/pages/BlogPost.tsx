@@ -23,7 +23,7 @@ const BlogPost = () => {
     return (
       <div className="min-h-screen bg-background flex flex-col">
         <Navigation />
-        <div className="flex-1 flex items-center justify-center min-h-[60vh]">
+        <div className="flex-1 flex items-center justify-center min-h-full">
           <div className="text-center">
             <h1 className="text-[60px] font-syne font-bold mb-4 leading-tight">Post not found</h1>
             <Link to="/blog" className="text-accent hover:underline flex items-center justify-center gap-2 link-hover">

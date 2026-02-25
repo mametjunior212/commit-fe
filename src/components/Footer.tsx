@@ -2,12 +2,12 @@ import { Link } from 'react-router-dom';
 import { ArrowUpRight, ArrowRight } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import logo from '@/assets/logo-Web.png';
+import logo from '../../public/assets/logo-Web.png';
 
 
 const footerLinks = {
    navigation: [
-      { name: 'Work', href: '/event' },
+      { name: 'Event', href: '/event' },
       { name: 'About', href: '/about' },
       // { name: 'Services', href: '/services' },
       // { name: 'Blog', href: '/blog' },
@@ -57,9 +57,9 @@ export const Footer = () => {
                         className="w-32 h-auto"
                      />
                   </Link>
-                  <p className="text-muted-foreground font-mono text-sm leading-relaxed max-w-[200px]">
+                  {/* <p className="text-muted-foreground font-mono text-sm leading-relaxed max-w-[200px]">
                      Crafting digital experiences that defy the ordinary.
-                  </p>
+                  </p> */}
                </div>
 
                <div className="space-y-2">

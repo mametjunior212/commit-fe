@@ -1,11 +1,21 @@
 {
   "files": [],
-  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ],
   "compilerOptions": {
     "baseUrl": ".",
+    "target": "ES2022", // boleh tetap
+    "module": "ESNext",
+    "lib": ["ES2024", "DOM"],
     "paths": {
       "@/*": ["./src/*"]
     },
+
+    "moduleResolution": "Bundler",
+    "strict": true,
+
     "noImplicitAny": false,
     "noUnusedParameters": false,
     "skipLibCheck": true,

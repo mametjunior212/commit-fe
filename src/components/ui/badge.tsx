@@ -22,9 +22,20 @@ const badgeVariants = cva(
 
 export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof badgeVariants> {}
 
-function Badge({ className, variant, ...props }: BadgeProps) {
-  return <div className={cn(badgeVariants({ variant }), className)} {...props} />;
-}
+// Kita ubah menjadi forwardRef agar bisa menerima ref dari Framer Motion
+const Badge = React.forwardRef<HTMLDivElement, BadgeProps>(
+  ({ className, variant, ...props }, ref) => {
+    return (
+      <div 
+        ref={ref} // Ref diteruskan ke div asli di sini
+        className={cn(badgeVariants({ variant }), className)} 
+        {...props} 
+      />
+    );
+  }
+);
+
+Badge.displayName = "Badge";
 
 // eslint-disable-next-line react-refresh/only-export-components
 export { Badge, badgeVariants };

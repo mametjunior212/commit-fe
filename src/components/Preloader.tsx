@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import logo from '@/assets/logo-Web.png';
+import logo from '../../public/assets/logo-Web.png';
 
 const phrases = [
   "Initializing...",

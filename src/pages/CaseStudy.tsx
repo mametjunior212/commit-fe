@@ -43,7 +43,7 @@ const CaseStudy = () => {
     return (
       <div className="min-h-screen bg-background flex flex-col">
         <Navigation />
-        <div className="flex-1 flex items-center justify-center min-h-[60vh]">
+        <div className="flex-1 flex items-center justify-center min-h-full">
           <div className="text-center">
             <h1 className="text-4xl font-syne font-bold mb-4">Project Not Found</h1>
             <Link to="/" className="text-accent hover:underline flex items-center justify-center gap-2">
@@ -106,36 +106,40 @@ const CaseStudy = () => {
             {/* 2. Title Section */}
             <div className="grid grid-cols-1 lg:grid-cols-12">
               <div className="lg:col-span-12 p-6 md:p-12 lg:p-16 border-b border-foreground/10">
-                <motion.h1
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6 }}
-                  className="text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-syne font-bold leading-[0.9] tracking-tight text-foreground uppercase"
-                >
-                  {project.title}
-                </motion.h1>
+                {project.title && project.title !== '' && (
+                  <motion.h1
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                    className="text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-syne font-bold leading-[0.9] tracking-tight text-foreground uppercase"
+                  >
+                    {project.title}
+                  </motion.h1>
+                )}
 
                 <div className="mt-8 md:mt-12 flex flex-col md:flex-row md:items-center justify-between gap-6">
                   <p className="text-lg md:text-xl text-foreground/60 max-w-4xl leading-relaxed">
                     {project.description}
                   </p>
-                  <div className="flex items-center gap-3">
-                    <div className="px-4 py-2 rounded-full border border-foreground/10 text-xs font-bold uppercase tracking-widest bg-foreground/5">
-                      Event
+                  {project.category && project.category !== '' && (
+                    <div className="flex items-center gap-3">
+                      <div className="px-4 py-2 rounded-full border border-foreground/10 text-xs font-bold uppercase tracking-widest bg-foreground/5">
+                        {project.category}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
             </div>
 
             {/* 3. Hero Image - Full Grid Width */}
-            {project.template == '1' ?
+            {project.template == 'Template 1' ?
               (<div className="w-full border-b border-foreground/10 overflow-hidden bg-foreground/5">
                 <motion.div
                   initial={{ scale: 1.05, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ duration: 0.8 }}
-                  className="aspect-[16/9] w-full relative"
+                  className="aspect-[21/9] w-full relative"
                 >
                   <img
                     src={project.heroImage ?? ''}
@@ -145,8 +149,7 @@ const CaseStudy = () => {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
                 </motion.div>
               </div>)
-              : project.template == '2' ? (<>
-
+              : project.template == 'Template 2' ? (<>
                 <motion.div
                   initial={{ scale: 1.05, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
@@ -156,12 +159,12 @@ const CaseStudy = () => {
                   <motion.img
                     src={project.heroImage ?? ''}
                     alt={project.title ?? ''}
-                    className="w-full h-full object-cover md:col-span-9 rounded-lg"
+                    className="w-full h-full object-cover md:col-span-8 rounded-lg"
                   />
 
                   <motion.video
                     src={project.herovideo ?? ''}
-                    className="w-full h-full object-cover mt-5 md:mt-0 md:col-span-3 rounded-lg"
+                    className="w-full h-full object-cover mt-5 md:mt-0 md:col-span-4 rounded-lg"
                     // autoPlay
                     loop
                     // muted
@@ -180,29 +183,33 @@ const CaseStudy = () => {
                 <div className="sticky top-24">
                   <div className="flex flex-col">
                     {/* Client Block */}
-                    <div className="p-6 border-b border-foreground/10 relative group hover:bg-foreground/5 transition-colors">
-                      <span className="absolute top-6 right-6 text-[10px] font-mono text-accent opacity-0 group-hover:opacity-100 transition-opacity">01</span>
-                      <h4 className="text-[10px] font-mono uppercase tracking-widest text-foreground/40 mb-3">Client</h4>
-                      <p className="text-lg font-syne font-bold leading-tight group-hover:translate-x-1 transition-transform duration-300">
-                        {project.client}
-                      </p>
-                    </div>
+                    {project.client && project.client !== '' && (
+                      <div className="p-6 border-b border-foreground/10 relative group hover:bg-foreground/5 transition-colors">
+                        <span className="absolute top-6 right-6 text-[10px] font-mono text-accent opacity-0 group-hover:opacity-100 transition-opacity">01</span>
+                        <h4 className="text-[10px] font-mono uppercase tracking-widest text-foreground/40 mb-3">Client</h4>
+                        <p className="text-lg font-syne font-bold leading-tight group-hover:translate-x-1 transition-transform duration-300">
+                          {project.client}
+                        </p>
+                      </div>
+                    )}
 
                     {/* Services Block - Digital Tags */}
-                    <div className="p-6 relative group hover:bg-foreground/5 transition-colors">
-                      <span className="absolute top-6 right-6 text-[10px] font-mono text-accent opacity-0 group-hover:opacity-100 transition-opacity">02</span>
-                      <h4 className="text-[10px] font-mono uppercase tracking-widest text-foreground/40 mb-4">Scope of Work</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {project.services.map((service, idx) => (
-                          <span
-                            key={idx}
-                            className="inline-block px-3 py-1 border border-foreground/10 text-[11px] font-mono uppercase tracking-wide rounded-sm text-foreground/70 hover:border-accent hover:text-accent hover:bg-background transition-colors cursor-default"
-                          >
-                            {service}
-                          </span>
-                        ))}
+                    {project.services && project.services.length !== 0 && (
+                      <div className="p-6 relative group hover:bg-foreground/5 transition-colors">
+                        <span className="absolute top-6 right-6 text-[10px] font-mono text-accent opacity-0 group-hover:opacity-100 transition-opacity">02</span>
+                        <h4 className="text-[10px] font-mono uppercase tracking-widest text-foreground/40 mb-4">Scope of Work</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {project.services.map((service, idx) => (
+                            <span
+                              key={idx}
+                              className="inline-block px-3 py-1 border border-foreground/10 text-[11px] font-mono uppercase tracking-wide rounded-sm text-foreground/70 hover:border-accent hover:text-accent hover:bg-background transition-colors cursor-default"
+                            >
+                              {service}
+                            </span>
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -266,15 +273,15 @@ const CaseStudy = () => {
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
                       {project.gallery.map((item: any, i: number) => {
                         const isObj = typeof item === 'object' && item !== null;
                         const type = isObj ? item.type : undefined;
-                        const src = isObj ? item.src : item;
-                        const poster = isObj ? item.poster : undefined;
+                        const src = isObj ? item.img : item;
+                        const poster = isObj ? item.img : undefined;
                         const isVideo = type ? type === 'video' : isVideoUrl(src);
-                        const aspectClass = i === 0 ? 'aspect-[21/9]' : 'aspect-square';
+                        const aspectClass = item.type === '3' ? 'aspect-[21/9]' : item.type === '2' ? 'aspect-[18.8/9]' : 'aspect-square';
 
                         return (
                           <ViewFull
@@ -282,7 +289,7 @@ const CaseStudy = () => {
                             src={src}
                             poster={poster}
                             title={project.title}
-                            className={`group ${i === 0 ? 'md:col-span-2' : ''}`}
+                            className={`group ${item.type === '3' ? 'md:col-span-3' : item.type === '2' ? 'md:col-span-2' : 'md:col-span-1'} ${aspectClass} relative overflow-hidden rounded-lg cursor-pointer`}
                             renderTrigger={(open) => (
                               <div className={`relative overflow-hidden bg-foreground/5 ${aspectClass}`}>
                                 {isVideo ? (
@@ -373,18 +380,19 @@ const CaseStudy = () => {
                         <h3 className="text-3xl font-syne font-bold">Partner</h3>
                       </div>
                       <span className="hidden md:block text-xs font-mono uppercase tracking-widest text-foreground/40">
-                        {project.partner.length} Partner
+                        {project.partner.length}Partner
                       </span>
                     </div>
-                    <motion.div className="grid grid-cols-1 md:grid-cols-5 gap-3 mt-10">
+                    <motion.div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-10">
                       {project.partner.map((e: { img: string; partner: string; link: string; }, index: number) => {
-                        return <motion.a href={e.link} className='rounded-xl border-[#f1f0f8] relative min-w-2 p-2 border-[3px]'>
+                        return <motion.div key={index} className='rounded-xl border-[#f1f0f8] relative min-w-2 border-[3px]'>
                           <motion.img
+                            key={index}
                             src={e.img}
                             alt={e.partner}
-                            className="block w-full h-auto object-cover"
+                            className="block w-full h-auto object-cover rounded-xl"
                           ></motion.img>
-                        </motion.a>
+                        </motion.div>
                       })}
                     </motion.div>
                   </motion.div>
@@ -401,13 +409,14 @@ const CaseStudy = () => {
                         {project.media.length} Media Partner
                       </span>
                     </div>
-                    <motion.div className="grid grid-cols-1 md:grid-cols-5 gap-3 mt-10">
+                    <motion.div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-10">
                       {project.media.map((e: { img: string; media: string; link: string; }, index: number) => {
-                        return <motion.a href={e.link} className='rounded-xl border-[#f1f0f8] relative min-w-2 p-2 border-[3px]'>
+                        return <motion.a key={index} href={e.link} className='rounded-xl border-[#f1f0f8] relative min-w-2 border-[3px]'>
                           <motion.img
+                            key={index}
                             src={e.img}
                             alt={e.media}
-                            className="block w-full h-auto object-cover"
+                            className="block w-full h-auto object-cover rounded-xl"
                           ></motion.img>
                         </motion.a>
                       })}
@@ -452,6 +461,53 @@ const CaseStudy = () => {
                         </div>
                         <h3 className="text-3xl md:text-5xl font-syne font-bold leading-tight group-hover:text-accent transition-colors mb-6">
                           {nextProject.title}
+                        </h3>
+                        <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest">
+                          View Event <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                ) : (
+                  <div className="text-center py-12 text-foreground/40 italic">
+                    End of portfolio.
+                  </div>
+                )}
+              </div>
+            </section>
+          )
+        }
+        {
+          project.prevProject && project.prevProject !== '' && (
+            <section className="border-t border-foreground/10 bg-foreground/5 py-20">
+              <div className="container-wide max-w-[90rem] mx-auto px-4 sm:px-6">
+                <div className="flex items-end justify-between mb-12">
+                  <h2 className="text-3xl md:text-4xl font-syne font-bold uppercase">Previous Project</h2>
+                  <Link to="/event" className="hidden md:flex items-center gap-2 text-sm font-bold uppercase tracking-widest hover:text-accent transition-colors">
+                    View All Event <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </div>
+
+                {prevProject ? (
+                  <Link
+                    to={`/event/${prevProject.id}`}
+                    className="group block border border-foreground/10 bg-background p-8 hover:border-accent transition-colors relative overflow-hidden"
+                  >
+                    <div className="grid md:grid-cols-2 gap-8 items-center">
+                      <div className="aspect-[16/9] overflow-hidden bg-foreground/5">
+                        <img
+                          src={prevProject.heroImage}
+                          alt={prevProject.title}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-foreground/40 mb-4">
+                          <span className="text-accent">{prevProject.category}</span>
+                          <span>{prevProject.year}</span>
+                        </div>
+                        <h3 className="text-3xl md:text-5xl font-syne font-bold leading-tight group-hover:text-accent transition-colors mb-6">
+                          {prevProject.title}
                         </h3>
                         <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest">
                           View Event <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />

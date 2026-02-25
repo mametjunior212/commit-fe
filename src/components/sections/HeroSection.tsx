@@ -2,8 +2,6 @@ import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'fram
 import { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import MagneticButton from '@/components/MagneticButton';
-import heroBg from '@/assets/hero-bg.png';
-import video from '@/assets/dashboard.mp4';
 
 const words = [
   { text: 'We', number: '01' },
@@ -68,7 +66,7 @@ export const HeroSection = () => {
       {/* Background */}
       <motion.div className="absolute inset-0" style={{ y: bgY }}>
         <img
-          src={heroBg}
+          src="/assets/hero-bg.png"
           alt=""
           className="w-full h-full object-cover opacity-100 scale-110"
         />
@@ -254,7 +252,7 @@ export const HeroSection = () => {
           </h1> */}
           {/* Video Commit */}
           <motion.video
-            src={video}
+            src="/assets/dashboard.mp4"
             // autoPlay
             loop
             muted
@@ -314,10 +312,10 @@ export const HeroSection = () => {
 
               <MagneticButton>
                 <Link
-                  to="/contact"
+                  to="/event"
                   className="group relative inline-flex items-center justify-center gap-3 px-6 sm:px-8 py-3 sm:py-4 border border-foreground/20 text-foreground font-semibold rounded-full overflow-hidden hover:border-accent/50 transition-colors duration-300 text-sm sm:text-base w-full sm:w-auto"
                 >
-                  <span className="relative z-10">Start a Project</span>
+                  <span className="relative z-10">Mulai Jelajahi</span>
                   <motion.span
                     className="relative z-10 text-accent"
                     animate={{ x: [0, 5, 0] }}
