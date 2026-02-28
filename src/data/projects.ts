@@ -328,9 +328,9 @@ export const projects: Project[] = [
     ],
     services: ['Opening Ceremony'],
     gallery: [
-      { img: "assets/event7/CommIT-images001-web001-720x407.png", alt: 'Event 7 Image 1', type: '1', orderBy: 1 },
-      { img: "assets/event7/CommIT-images001-web002-720x407.png", alt: 'Event 7 Image 2', type: '1', orderBy: 2 },
-      { img: "assets/event7/CommIT-images001-web003-720x407.png", alt: 'Event 7 Image 3', type: '1', orderBy: 3 },
+      { img: "/assets/event7/CommIT-images001-web001-720x407.png", alt: 'Event 7 Image 1', type: '3', orderBy: 1 },
+      { img: "/assets/event7/CommIT-images001-web002-720x407.png", alt: 'Event 7 Image 2', type: '3', orderBy: 2 },
+      { img: "/assets/event7/CommIT-images001-web003-720x407.png", alt: 'Event 7 Image 3', type: '3', orderBy: 3 },
       // { img: event7.event7_img4, alt: 'Event 7 Image 4', type: '1', orderBy: 4 },
     ],
     media: [],

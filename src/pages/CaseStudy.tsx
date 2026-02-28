@@ -67,7 +67,7 @@ const CaseStudy = () => {
         <meta name="description" content={project.description} />
       </Helmet>
 
-      <CustomCursor />
+      {/* <CustomCursor /> */}
 
       {/* Reading Progress Bar */}
       <motion.div

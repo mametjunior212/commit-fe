@@ -7,9 +7,10 @@ import NotFound from "./pages/NotFound";
 import Projects from "./pages/Projects";
 import Contact from "./pages/Contact";
 import Register from "./pages/Register";
+import VerifyOtp from "./pages/VerifyOtpSection";
 
 const RoutePage = () => {
-    
+
     return (
         <Routes>
             <Route path="/" element={<Index />} />
@@ -19,6 +20,7 @@ const RoutePage = () => {
             <Route path="/calendar" element={<CalendarPage />} />
             <Route path="/about" element={<About />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/verifikasi/:id" element={<VerifyOtp />} />
             {/* <Route path="/blog" element={<Blog />} /> */}
             {/* <Route path="/blog/:id" element={<BlogPost />} /> */}
             {/* <Route path="/privacy-policy" element={<PrivacyPolicy />} /> */}
