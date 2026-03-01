@@ -19,13 +19,9 @@ import {
   transition,
 } from "@/components/features/calendar/animations";
 import { useCalendar } from "@/components/features/calendar/contexts/calendar-context";
-import { AddEditEventDialog } from "@/components/features/calendar/dialogs/add-edit-event-dialog";
 import { DateNavigator } from "@/components/features/calendar/header/date-navigator";
 import FilterEvents from "@/components/features/calendar/header/filter";
 import { TodayButton } from "@/components/features/calendar/header/today-button";
-import { UserSelect } from "@/components/features/calendar/header/user-select";
-import { Settings } from "@/components/features/calendar/settings/settings";
-import Views from "./view-tabs";
 
 export function CalendarHeader() {
   const { view, events } = useCalendar();

@@ -3,9 +3,10 @@
 import type React from "react";
 import { createContext, useContext, useState } from "react";
 import { toTEventColor, useLocalStorage } from "@/components/features/calendar/hooks";
-import type { IEvent, IUser } from "@/components/features/calendar/interfaces";
+import type { IUser } from "@/components/features/calendar/interfaces";
 import type { TCalendarView, TEventColor } from "@/components/features/calendar/types";
 import { COLORS } from "../constants";
+import { Project } from '@/components/type/projectType';
 
 interface ICalendarContext {
   selectedDate: Date;
@@ -16,17 +17,17 @@ interface ICalendarContext {
   use24HourFormat: boolean;
   toggleTimeFormat: () => void;
   setSelectedDate: (date: Date | undefined) => void;
-  selectedUserId: IUser["id"] | "all";
-  setSelectedUserId: (userId: IUser["id"] | "all") => void;
+  selectedUserId: IUser["uuid"] | "all";
+  setSelectedUserId: (userId: IUser["uuid"] | "all") => void;
   badgeVariant: "dot" | "colored";
   setBadgeVariant: (variant: "dot" | "colored") => void;
   selectedColors: TEventColor[];
   filterEventsBySelectedColors: (colors: TEventColor) => void;
-  filterEventsBySelectedUser: (userId: IUser["id"] | "all") => void;
+  filterEventsBySelectedUser: (userId: IUser["uuid"] | "all") => void;
   users: IUser[];
-  events: IEvent[];
-  addEvent: (event: IEvent) => void;
-  updateEvent: (event: IEvent) => void;
+  events: Project[];
+  addEvent: (event: Project) => void;
+  updateEvent: (event: Project) => void;
   removeEvent: (eventId: string) => void;
   clearFilter: () => void;
 }
@@ -56,7 +57,7 @@ export function CalendarProvider({
 }: {
   children: React.ReactNode;
   users?: IUser[];
-  events: IEvent[];
+  events: Project[];
   view?: TCalendarView;
   badge?: "dot" | "colored";
 }) {
@@ -83,13 +84,13 @@ export function CalendarProvider({
   >(settings.agendaModeGroupBy);
 
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [selectedUserId, setSelectedUserId] = useState<IUser["id"] | "all">(
+  const [selectedUserId, setSelectedUserId] = useState<IUser["uuid"] | "all">(
     "all",
   );
   const [selectedColors, setSelectedColors] = useState<TEventColor[]>([]);
 
-  const [allEvents, setAllEvents] = useState<IEvent[]>(events || []);
-  const [filteredEvents, setFilteredEvents] = useState<IEvent[]>(events || []);
+  const [allEvents, setAllEvents] = useState<Project[]>(events || []);
+  const [filteredEvents, setFilteredEvents] = useState<Project[]>(events || []);
 
   const updateSettings = (newPartialSettings: Partial<CalendarSettings>) => {
     setSettings({
@@ -138,12 +139,12 @@ export function CalendarProvider({
     setSelectedColors(newColors);
   };
 
-  const filterEventsBySelectedUser = (userId: IUser["id"] | "all") => {
+  const filterEventsBySelectedUser = (userId: IUser["uuid"] | "all") => {
     setSelectedUserId(userId);
     if (userId === "all") {
       setFilteredEvents(allEvents);
     } else {
-      const filtered = allEvents.filter((event) => event.user.id === userId);
+      const filtered = allEvents.filter((event) => event?.user && "uuid" in event.user && event.user.uuid === userId);
       setFilteredEvents(filtered);
     }
   };
@@ -153,27 +154,27 @@ export function CalendarProvider({
     setSelectedDate(date);
   };
 
-  const addEvent = (event: IEvent) => {
+  const addEvent = (event: Project) => {
     setAllEvents((prev) => [...prev, event]);
     setFilteredEvents((prev) => [...prev, event]);
   };
 
-  const updateEvent = (event: IEvent) => {
+  const updateEvent = (event: Project) => {
     const updated = {
       ...event,
       startDate: new Date(event.startDate).toISOString(),
       endDate: new Date(event.endDate).toISOString(),
     };
 
-    setAllEvents((prev) => prev.map((e) => (e.id === event.id ? updated : e)));
+    setAllEvents((prev) => prev.map((e) => (e.uuid === event.uuid ? updated : e)));
     setFilteredEvents((prev) =>
-      prev.map((e) => (e.id === event.id ? updated : e)),
+      prev.map((e) => (e.uuid === event.uuid ? updated : e)),
     );
   };
 
   const removeEvent = (eventId: string) => {
-    setAllEvents((prev) => prev.filter((e) => e.id !== eventId));
-    setFilteredEvents((prev) => prev.filter((e) => e.id !== eventId));
+    setAllEvents((prev) => prev.filter((e) => e.uuid !== eventId));
+    setFilteredEvents((prev) => prev.filter((e) => e.uuid !== eventId));
   };
 
   const clearFilter = () => {

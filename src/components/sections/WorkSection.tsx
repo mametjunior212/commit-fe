@@ -1,18 +1,18 @@
 import { motion, useInView } from 'framer-motion';
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatedLine } from '@/components/AnimatedText';
-import { projects } from '@/data/projects';
 import { ArrowUpRight } from 'lucide-react';
+import { Project } from '@/components/type/projectType'
+import { useEvent } from '@/hooks/useEvent';
 
 interface ProjectCardProps {
-  project: typeof projects[0];
+  project: Project;
   index: number;
 }
 
 const ProjectCard = ({ project, index }: ProjectCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 50 }}
@@ -23,7 +23,7 @@ const ProjectCard = ({ project, index }: ProjectCardProps) => {
       onMouseLeave={() => setIsHovered(false)}
       className={`group ${index % 2 === 1 ? 'md:mt-32' : ''}`}
     >
-      <Link to={`/event/${project.id}`} className="block h-full">
+      <Link to={`/event/${project.uuid}`} className="block h-full">
         {/* Image Container */}
         <div className="relative overflow-hidden aspect-[4/3] mb-8 rounded-none">
           <motion.img
@@ -33,15 +33,15 @@ const ProjectCard = ({ project, index }: ProjectCardProps) => {
             animate={{ scale: isHovered ? 1.05 : 1 }}
             transition={{ duration: 0.7, ease: [0.19, 1, 0.22, 1] }}
           />
-          
+
           {/* Hover Overlay - Subtle Tint */}
-          <motion.div 
+          <motion.div
             className="absolute inset-0 bg-black/10"
             initial={{ opacity: 0 }}
             animate={{ opacity: isHovered ? 1 : 0 }}
             transition={{ duration: 0.3 }}
           />
-          
+
           {/* View Project Button - Centered */}
           <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
             <div className="w-24 h-24 rounded-full bg-background/90 backdrop-blur-md flex items-center justify-center">
@@ -79,15 +79,19 @@ const ProjectCard = ({ project, index }: ProjectCardProps) => {
 export const WorkSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
+  // ---- React Query: cukup panggil hook yang sudah dipisah
+  const { data: apiMenus = [], isLoading, error } = useEvent();
 
+  // Derived links
+  const event = useMemo(() => apiMenus, [apiMenus]);
   return (
     <section id="work" ref={ref} className="section-padding bg-secondary/30 relative overflow-hidden">
-      
+
       {/* Decorative large text background */}
       <div className="absolute top-20 left-0 w-full overflow-hidden opacity-[0.03] pointer-events-none select-none">
-         <h2 className="text-[20vw] font-syne font-black leading-none whitespace-nowrap animate-marquee">
-            SELECTED EVENTS — SELECTED EVENTS —
-         </h2>
+        <h2 className="text-[20vw] font-syne font-black leading-none whitespace-nowrap animate-marquee">
+          SELECTED EVENTS — SELECTED EVENTS —
+        </h2>
       </div>
 
       <div className="container-wide relative z-10">
@@ -95,8 +99,8 @@ export const WorkSection = () => {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-24 items-end">
           <div className="md:col-span-8">
             <div className="flex items-center gap-4 mb-6">
-               <span className="w-3 h-3 bg-accent rounded-full animate-pulse"></span>
-               <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Featured Event</span>
+              <span className="w-3 h-3 bg-accent rounded-full animate-pulse"></span>
+              <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Featured Event</span>
             </div>
             <AnimatedLine>
               <h2 className="font-syne font-bold text-5xl md:text-7xl tracking-tighter leading-[0.9]">
@@ -106,7 +110,7 @@ export const WorkSection = () => {
             </AnimatedLine>
           </div>
           <div className="md:col-span-4 md:text-right">
-             <Link
+            <Link
               to="/event"
               className="group inline-flex flex-col items-end gap-2"
             >
@@ -117,8 +121,8 @@ export const WorkSection = () => {
 
         {/* Projects Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 lg:gap-20">
-          {projects.slice(0, 4).map((project, index) => (
-            <ProjectCard key={project.id} project={project} index={index} />
+          {event.slice(0, 4).map((events, index) => (
+            <ProjectCard key={events.uuid} project={events} index={index} />
           ))}
         </div>
       </div>

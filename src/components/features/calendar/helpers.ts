@@ -28,12 +28,12 @@ import {
 import { useCalendar } from "@/components/features/calendar/contexts/calendar-context";
 import type {
 	ICalendarCell,
-	IEvent,
 } from "@/components/features/calendar/interfaces";
 import type {
 	TCalendarView,
 	TEventColor,
 } from "@/components/features/calendar/types";
+import { Project } from '@/components/type/projectType';
 
 const FORMAT_STRING = "MMM d, yyyy";
 
@@ -84,7 +84,7 @@ export function navigateDate(
 }
 
 export function getEventsCount(
-	events: IEvent[],
+	events: Project[],
 	date: Date,
 	view: TCalendarView,
 ): number {
@@ -101,11 +101,11 @@ export function getEventsCount(
 		.length;
 }
 
-export function groupEvents(dayEvents: IEvent[]): IEvent[][] {
+export function groupEvents(dayEvents: Project[]): Project[][] {
 	const sortedEvents = dayEvents.sort(
 		(a, b) => parseISO(a.startDate).getTime() - parseISO(b.startDate).getTime(),
 	);
-	const groups: IEvent[][] = [];
+	const groups: Project[][] = [];
 
 	for (const event of sortedEvents) {
 		const eventStart = parseISO(event.startDate);
@@ -129,7 +129,7 @@ export function groupEvents(dayEvents: IEvent[]): IEvent[][] {
 }
 
 export function getEventBlockStyle(
-	event: IEvent,
+	event: Project,
 	day: Date,
 	groupIndex: number,
 	groupSize: number,
@@ -180,8 +180,8 @@ export function getCalendarCells(selectedDate: Date): ICalendarCell[] {
 }
 
 export function calculateMonthEventPositions(
-	multiDayEvents: IEvent[],
-	singleDayEvents: IEvent[],
+	multiDayEvents: Project[],
+	singleDayEvents: Project[],
 	selectedDate: Date,
 ): Record<string, number> {
 	const monthStart = startOfMonth(selectedDate);
@@ -242,7 +242,7 @@ export function calculateMonthEventPositions(
 				const dayKey = startOfDay(day).toISOString();
 				occupiedPositions[dayKey][position] = true;
 			});
-			eventPositions[event.id] = position;
+			eventPositions[event.uuid] = position;
 		}
 	});
 
@@ -251,7 +251,7 @@ export function calculateMonthEventPositions(
 
 export function getMonthCellEvents(
 	date: Date,
-	events: IEvent[],
+	events: Project[],
 	eventPositions: Record<string, number>,
 ) {
 	const dayStart = startOfDay(date);
@@ -268,7 +268,7 @@ export function getMonthCellEvents(
 	return eventsForDate
 		.map((event) => ({
 			...event,
-			position: eventPositions[event.id] ?? -1,
+			position: eventPositions[event.uuid] ?? -1,
 			isMultiDay: event.startDate !== event.endDate,
 		}))
 		.sort((a, b) => {
@@ -295,10 +295,10 @@ export const getFirstLetters = (str: string): string => {
 };
 
 export const getEventsForDay = (
-	events: IEvent[],
+	events: Project[],
 	date: Date,
 	isWeek = false,
-): IEvent[] => {
+): Project[] => {
 	const targetDate = startOfDay(date);
 	return events
 		.filter((event) => {
@@ -338,7 +338,7 @@ export const getWeekDates = (date: Date): Date[] => {
 	return Array.from({ length: 7 }, (_, i) => addDays(startDate, i));
 };
 
-export const getEventsForWeek = (events: IEvent[], date: Date): IEvent[] => {
+export const getEventsForWeek = (events: Project[], date: Date): Project[] => {
 	const weekDates = getWeekDates(date);
 	const startOfWeekDate = weekDates[0];
 	const endOfWeekDate = weekDates[6];
@@ -355,7 +355,7 @@ export const getEventsForWeek = (events: IEvent[], date: Date): IEvent[] => {
 	});
 };
 
-export const getEventsForMonth = (events: IEvent[], date: Date): IEvent[] => {
+export const getEventsForMonth = (events: Project[], date: Date): Project[] => {
 	const startOfMonthDate = startOfMonth(date);
 	const endOfMonthDate = endOfMonth(date);
 
@@ -371,7 +371,7 @@ export const getEventsForMonth = (events: IEvent[], date: Date): IEvent[] => {
 	});
 };
 
-export const getEventsForYear = (events: IEvent[], date: Date): IEvent[] => {
+export const getEventsForYear = (events: Project[], date: Date): Project[] => {
 	if (!events || !Array.isArray(events) || !isValid(date)) return [];
 
 	const startOfYearDate = startOfYear(date);
@@ -417,7 +417,7 @@ export const getBgColor = (color: string): string => {
 	return colorClasses[color as TEventColor] || "";
 };
 
-export const useGetEventsByMode = (events: IEvent[]) => {
+export const useGetEventsByMode = (events: Project[]) => {
 	const { view, selectedDate } = useCalendar();
 
 	switch (view) {

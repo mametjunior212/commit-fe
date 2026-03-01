@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { transition } from "@/components/features/calendar/animations";
 import type { TEventColor } from "@/components/features/calendar/types";
+import { toTEventColor } from "../../hooks";
 
 const eventBulletVariants = cva("size-2 rounded-full", {
   variants: {
@@ -25,12 +26,12 @@ export function EventBullet({
   color,
   className,
 }: {
-  color: TEventColor;
+  color: string;
   className?: string;
 }) {
   return (
     <motion.div
-      className={cn(eventBulletVariants({ color, className }))}
+      className={cn(eventBulletVariants({ color: toTEventColor(color), className }))}
       initial={{ scale: 0, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       whileHover={{ scale: 1.2 }}

@@ -62,7 +62,7 @@ export const media2: { img: string; media: string; link: string; }[] = [
     {
         img: "/assets/media/itech-300x116.jpg",
         media: 'itech',
-        link: 'https://itechmagz.id/2023/09/03/mahavira-sysware-dan-engenius-gelar-jabar-ict-summit-2023/   '
+        link: 'https://itechmagz.id/2023/09/03/mahavira-sysware-dan-engenius-gelar-jabar-ict-summit-2023/'
     },
     {
         img: "/assets/media/it-works-300x116.jpg",

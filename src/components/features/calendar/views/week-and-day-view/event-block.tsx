@@ -8,7 +8,7 @@ import { EventDetailsDialog } from "@/components/features/calendar/dialogs/event
 import { DraggableEvent } from "@/components/features/calendar/dnd/draggable-event";
 import { ResizableEvent } from "@/components/features/calendar/dnd/resizable-event";
 import { formatTime } from "@/components/features/calendar/helpers";
-import type { IEvent } from "@/components/features/calendar/interfaces";
+import { Project } from '@/components/type/projectType';
 
 const calendarWeekEventCardVariants = cva(
   "flex select-none flex-col gap-0.5 truncate whitespace-nowrap rounded-md border border-andrika px-2 py-1.5 text-xs focus-visible:outline-offset-2",
@@ -52,7 +52,7 @@ interface IProps
   extends
     HTMLAttributes<HTMLDivElement>,
     Omit<VariantProps<typeof calendarWeekEventCardVariants>, "color"> {
-  event: IEvent;
+  event: Project;
 }
 
 export function EventBlock({ event, className }: IProps) {

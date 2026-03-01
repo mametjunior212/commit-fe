@@ -6,11 +6,11 @@ import { useCalendar } from "@/components/features/calendar/contexts/calendar-co
 import { EventDetailsDialog } from "@/components/features/calendar/dialogs/event-details-dialog";
 import { DraggableEvent } from "@/components/features/calendar/dnd/draggable-event";
 import { formatTime } from "@/components/features/calendar/helpers";
-import type { IEvent } from "@/components/features/calendar/interfaces";
 import { EventBullet } from "@/components/features/calendar/views/month-view/event-bullet";
+import { Project } from '@/components/type/projectType';
 
 const eventBadgeVariants = cva(
-  "flex w-full h-6.5 select-none items-center justify-between gap-1.5 truncate whitespace-nowrap rounded-md border border-andrika px-2 text-xs cursor-grab",
+  "flex w-full h-6.5 select-none items-center justify-between gap-1.5 truncate whitespace-nowrap rounded-md border border-andrika px-2 text-xs",
   {
     variants: {
       color: {
@@ -52,7 +52,7 @@ interface IProps extends Omit<
   VariantProps<typeof eventBadgeVariants>,
   "color" | "multiDayPosition"
 > {
-  event: IEvent;
+  event: Project;
   cellDate: Date;
   eventCurrentDay?: number;
   eventTotalDays?: number;

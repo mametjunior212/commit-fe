@@ -5,17 +5,16 @@ import { DayPicker } from "@/components/ui/day-picker";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCalendar } from "@/components/features/calendar/contexts/calendar-context";
 
-import { AddEditEventDialog } from "@/components/features/calendar/dialogs/add-edit-event-dialog";
 import { DroppableArea } from "@/components/features/calendar/dnd/droppable-area";
 import { groupEvents } from "@/components/features/calendar/helpers";
-import type { IEvent } from "@/components/features/calendar/interfaces";
 import { CalendarTimeline } from "@/components/features/calendar/views/week-and-day-view/calendar-time-line";
 import { DayViewMultiDayEventsRow } from "@/components/features/calendar/views/week-and-day-view/day-view-multi-day-events-row";
 import { RenderGroupedEvents } from "@/components/features/calendar/views/week-and-day-view/render-grouped-events";
+import { Project } from '@/components/type/projectType';
 
 interface IProps {
-  singleDayEvents: IEvent[];
-  multiDayEvents: IEvent[];
+  singleDayEvents: Project[];
+  multiDayEvents: Project[];
 }
 
 export function CalendarDayView({ singleDayEvents, multiDayEvents }: IProps) {
@@ -52,7 +51,7 @@ export function CalendarDayView({ singleDayEvents, multiDayEvents }: IProps) {
     };
   }, []);
 
-  const getCurrentEvents = (events: IEvent[]) => {
+  const getCurrentEvents = (events: Project[]) => {
     const now = new Date();
 
     return (
@@ -138,12 +137,9 @@ export function CalendarDayView({ singleDayEvents, multiDayEvents }: IProps) {
                       minute={0}
                       className="absolute inset-x-0 top-0 h-[48px]"
                     >
-                      <AddEditEventDialog
-                        startDate={selectedDate}
-                        startTime={{ hour, minute: 0 }}
-                      >
-                        <div className="absolute inset-0 cursor-pointer transition-colors hover:bg-secondary" />
-                      </AddEditEventDialog>
+
+                      <div className="absolute inset-0 cursor-pointer transition-colors hover:bg-secondary" />
+
                     </DroppableArea>
 
                     <div className="pointer-events-none absolute inset-x-0 top-1/2 border-b border-dashed border-b-tertiary"></div>
@@ -154,12 +150,7 @@ export function CalendarDayView({ singleDayEvents, multiDayEvents }: IProps) {
                       minute={30}
                       className="absolute inset-x-0 bottom-0 h-[48px]"
                     >
-                      <AddEditEventDialog
-                        startDate={selectedDate}
-                        startTime={{ hour, minute: 30 }}
-                      >
-                        <div className="absolute inset-0 cursor-pointer transition-colors hover:bg-secondary" />
-                      </AddEditEventDialog>
+                      <div className="absolute inset-0 cursor-pointer transition-colors hover:bg-secondary" />
                     </DroppableArea>
                   </div>
                 ))}
@@ -207,10 +198,10 @@ export function CalendarDayView({ singleDayEvents, multiDayEvents }: IProps) {
             <ScrollArea className="h-[422px] px-4" type="always">
               <div className="space-y-6 pb-4">
                 {currentEvents.map((event) => {
-                  const user = users.find((user) => user.id === event.user.id);
+                  const user = users.find((user) => user.uuid === (event?.user && "uuid" in event.user && event.user.uuid));
 
                   return (
-                    <div key={event.id} className="space-y-1.5">
+                    <div key={event.uuid} className="space-y-1.5">
                       <p className="line-clamp-2 text-sm font-semibold">
                         {event.title}
                       </p>

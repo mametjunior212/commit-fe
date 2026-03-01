@@ -9,12 +9,12 @@ import {
 	startOfWeek,
 } from "date-fns";
 import { useMemo } from "react";
-import type { IEvent } from "@/components/features/calendar/interfaces";
 import { MonthEventBadge } from "@/components/features/calendar/views/month-view/month-event-badge";
+import { Project } from '@/components/type/projectType';
 
 interface IProps {
 	selectedDate: Date;
-	multiDayEvents: IEvent[];
+	multiDayEvents: Project[];
 }
 
 export function WeekViewMultiDayEventsRow({
@@ -128,7 +128,7 @@ export function WeekViewMultiDayEventsRow({
 
 							return (
 								<MonthEventBadge
-									key={`${event.id}-${dayIndex}`}
+									key={`${event.uuid}-${dayIndex}`}
 									event={event}
 									cellDate={startOfDay(day)}
 									position={position}

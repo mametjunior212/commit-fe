@@ -19,7 +19,7 @@ const RoutePage = () => {
             <Route path="/contact" element={<Contact />} />
             <Route path="/calendar" element={<CalendarPage />} />
             <Route path="/about" element={<About />} />
-            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Register />} />
             <Route path="/verifikasi/:id" element={<VerifyOtp />} />
             {/* <Route path="/blog" element={<Blog />} /> */}
             {/* <Route path="/blog/:id" element={<BlogPost />} /> */}

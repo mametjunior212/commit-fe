@@ -2,10 +2,10 @@ import { motion } from "framer-motion";
 import type React from "react";
 import type { ReactNode } from "react";
 import { useDragDrop } from "@/components/features/calendar/contexts/dnd-context";
-import type { IEvent } from "@/components/features/calendar/interfaces";
+import { Project } from '@/components/type/projectType';
 
 interface DraggableEventProps {
-  event: IEvent;
+  event: Project;
   children: ReactNode;
   className?: string;
 }
@@ -17,7 +17,7 @@ export function DraggableEvent({
 }: DraggableEventProps) {
   const { startDrag, endDrag, isDragging, draggedEvent } = useDragDrop();
 
-  const isCurrentlyDragged = isDragging && draggedEvent?.id === event.id;
+  const isCurrentlyDragged = isDragging && draggedEvent?.uuid === event.uuid;
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
@@ -25,7 +25,7 @@ export function DraggableEvent({
 
   return (
     <motion.div
-      className={`${className || ""} ${isCurrentlyDragged ? "opacity-50 cursor-grabbing" : "cursor-grab"}`}
+      className={`${className || ""} ${isCurrentlyDragged ? "opacity-50 cursor-grabbing" : ""}`}
       draggable
       onClick={(e: React.MouseEvent<HTMLDivElement>) => handleClick(e)}
       // onDragStart={(e) => {

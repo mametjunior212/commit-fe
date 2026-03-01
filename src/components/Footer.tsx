@@ -1,18 +1,13 @@
 import { Link } from 'react-router-dom';
 import { ArrowUpRight, ArrowRight } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect, useMemo } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import logo from '../../public/assets/logo-Web.png';
+import { useMenus } from '@/hooks/useMenu';
+import { mapApiToNav } from '@/lib/utils';
 
 
 const footerLinks = {
-   navigation: [
-      { name: 'Event', href: '/event' },
-      { name: 'About', href: '/about' },
-      // { name: 'Services', href: '/services' },
-      // { name: 'Blog', href: '/blog' },
-      { name: 'Contact', href: '/contact' },
-   ],
    services: [
       { name: 'Web Design', href: '/services#web-design' },
       { name: 'Branding', href: '/services#branding' },
@@ -33,7 +28,11 @@ const footerLinks = {
 
 export const Footer = () => {
    const [currentTime, setCurrentTime] = useState(new Date());
+   // ---- React Query: cukup panggil hook yang sudah dipisah
+   const { data: apiMenus = [], isLoading, error } = useMenus();
 
+   // Derived links
+   const navLinks = useMemo(() => mapApiToNav(apiMenus), [apiMenus]);
    useEffect(() => {
       const interval = setInterval(() => setCurrentTime(new Date()), 1000);
       return () => clearInterval(interval);
@@ -75,20 +74,69 @@ export const Footer = () => {
 
             {/* Column 2: Navigation - Mega Type */}
             <div className="lg:col-span-1 border-r border-border">
-               {footerLinks.navigation.map((link) => (
-                  <Link
-                     key={link.name}
-                     to={link.href}
-                     className="block p-8 border-b border-border hover:bg-accent hover:text-accent-foreground transition-all duration-300 group last:border-b-0"
-                  >
-                     <div className="flex items-center justify-between">
-                        <span className="font-syne text-2xl font-bold group-hover:translate-x-2 transition-transform duration-300">
-                           {link.name}
-                        </span>
-                        <ArrowRight className="w-5 h-5 opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
-                     </div>
-                  </Link>
-               ))}
+               {!isLoading &&
+                  !error &&
+
+                  navLinks.map((link) => {
+                     const hasChildren = Array.isArray(link.children) && link.children.length > 0;
+
+                     // Komponen item generik (tanpa status aktif/hover state)
+                     const Item = ({ to, label, isChild = false }: { to?: string | null; label: string; isChild?: boolean }) => {
+                        const classBase =
+                           "block border-b border-border transition-all duration-300 group last:border-b-0";
+                        const padding = "p-8";
+                        const textSize = "text-2xl";
+
+                        const inner = (
+                           <div className="flex items-center justify-between">
+                              <span className={`font-syne ${textSize} font-bold group-hover:translate-x-2 transition-transform duration-300`}>
+                                 {label}
+                              </span>
+                              <ArrowRight className="w-5 h-5 opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                           </div>
+                        );
+
+                        // jika tidak ada href, jadikan non-clickable (div) tapi tetap gaya sama
+                        if (!to) {
+                           return (
+                              <></>
+                              // <div
+                              //    className={`${classBase} ${padding} hover:bg-accent hover:text-accent-foreground cursor-default`}
+                              // >
+                              //    {inner}
+                              // </div>
+                           );
+                        }
+
+                        return (
+                           <Link
+                              to={to}
+                              className={`${classBase} ${padding} hover:bg-accent hover:text-accent-foreground`}
+                           >
+                              {inner}
+                           </Link>
+                        );
+                     };
+
+                     return (
+                        <div key={link.uuid} className="group/menu">
+                           <Item to={link.href ?? undefined} label={link.name} />
+
+                           {hasChildren && (
+                              <div className="ml-2">
+                                 {link.children.map((child) => (
+                                    <Item
+                                       key={child.uuid}
+                                       to={child.href ?? undefined}
+                                       label={child.name}
+                                       isChild
+                                    />
+                                 ))}
+                              </div>
+                           )}
+                        </div>
+                     );
+                  })}
             </div>
 
             {/* Column 3: Contact & Social */}

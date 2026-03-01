@@ -5,12 +5,12 @@ import { staggerContainer, transition } from "@/components/features/calendar/ani
 import { useCalendar } from "@/components/features/calendar/contexts/calendar-context";
 import { EventListDialog } from "@/components/features/calendar/dialogs/events-list-dialog";
 import { getCalendarCells } from "@/components/features/calendar/helpers";
-import type { IEvent } from "@/components/features/calendar/interfaces";
 import { EventBullet } from "@/components/features/calendar/views/month-view/event-bullet";
+import { Project } from '@/components/type/projectType';
 
 interface IProps {
-  singleDayEvents: IEvent[];
-  multiDayEvents: IEvent[];
+  singleDayEvents: Project[];
+  multiDayEvents: Project[];
 }
 
 const MONTHS = [
@@ -115,7 +115,7 @@ export function CalendarYearView({ singleDayEvents, multiDayEvents }: IProps) {
                                   .slice(0, 2)
                                   .map((event) => (
                                     <EventBullet
-                                      key={event.id}
+                                      key={event.uuid}
                                       color={event.color}
                                       className="size-1.5"
                                     />

@@ -1,41 +1,37 @@
-
-
-export interface MenuApiResponse {
-    code: string;     // "00"
-    message: string;  // "Berhasil Login"
-    data: ApiRoute[]; // top-level menu array
-}
-
-
 export interface ApiRoute {
     uuid: string;
     name: string;
-    url: string | null;
-    route: string;
-    method: string;
-    is_public: string;
-};
+    url: string;   // e.g. "/event"
+    route: string; // e.g. "event.route"
+    method: string; // "GET" | "POST" | ...
+    is_public: 'y' | 'n';
+}
 
 export interface ApiMenu {
     uuid: string;
-    parent_id: string | number | null;
+    parent_id: number | null;
     name: string;
     order: number;
-    icon_id: string | number | null;
-    route_id: string | number | null;
+    icon_id: string | null;
+    route_id: number | null;
     active: 'y' | 'n';
-    type: string;
+    type: string;       // "landing" | dll
     is_public: 'y' | 'n';
-    route: ApiRoute | null;
-    routes: any[];
-    children: ApiMenu[];
-};
+    route: ApiRoute | null; // parent bisa null
+    routes: unknown[];      // belum dipakai
+    children: ApiMenu[];    // nested
+}
 
+export interface MenuApiResponse {
+    code: string;
+    message: string;
+    data: ApiMenu[];
+}
 
-export interface NavLink {
+export type NavItem = {
     uuid: string;
     name: string;
     href: string | null;
-    number: string;
-    children: NavLink[];
+    number: string;    // "01", "02", ...
+    children: NavItem[];
 };

@@ -1,10 +1,10 @@
 import { areIntervalsOverlapping, parseISO } from "date-fns";
 import { getEventBlockStyle } from "@/components/features/calendar/helpers";
-import type { IEvent } from "@/components/features/calendar/interfaces";
 import { EventBlock } from "@/components/features/calendar/views/week-and-day-view/event-block";
+import { Project } from '@/components/type/projectType';
 
 interface RenderGroupedEventsProps {
-  groupedEvents: IEvent[][];
+  groupedEvents: Project[][];
   day: Date;
 }
 
@@ -40,7 +40,7 @@ export function RenderGroupedEvents({
       if (!hasOverlap) style = { ...style, width: "100%", left: "0%" };
 
       return (
-        <div key={event.id} className="absolute p-1" style={style}>
+        <div key={event.uuid} className="absolute p-1" style={style}>
           <EventBlock event={event} />
         </div>
       );

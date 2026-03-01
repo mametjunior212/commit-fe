@@ -11,12 +11,12 @@ import {
 	getCalendarCells,
 } from "@/components/features/calendar/helpers";
 
-import type { IEvent } from "@/components/features/calendar/interfaces";
 import { DayCell } from "@/components/features/calendar/views/month-view/day-cell";
+import { Project } from '@/components/type/projectType';
 
 interface IProps {
-	singleDayEvents: IEvent[];
-	multiDayEvents: IEvent[];
+	singleDayEvents: Project[];
+	multiDayEvents: Project[];
 }
 
 const WEEK_DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];

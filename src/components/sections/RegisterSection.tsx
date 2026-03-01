@@ -12,9 +12,11 @@ import { registerSchema } from '../z/registerSchema';
 import { LoginFormData } from '../type/loginType';
 import { JobItem } from '../type/pekerjaanType';
 import { RegisterFormData } from '../type/registerType';
+import { useNavigate } from 'react-router-dom';
 
 
 export const HeroSection = () => {
+    const navigate = useNavigate();
     const ref = useRef(null);
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const [currentTime, setCurrentTime] = useState('');
@@ -84,6 +86,9 @@ export const HeroSection = () => {
                     apiErr.message ||
                     (typeof payload === 'string' ? payload : undefined) ||
                     `Login gagal (status ${resp.status})`;
+                if (message === 'User Belum Terverifikasi Mohon Buka Email Untuk Memverifikasi.') {
+                    navigate(`/verifikasi/${payload?.data?.uuid ?? ""}`);
+                }
 
                 toast({
                     title: 'Login gagal',
@@ -239,7 +244,7 @@ export const HeroSection = () => {
             });
             setIsLogin(true); // Kembali ke form login setelah register sukses
             // Opsional: redirect atau trigger state global (Zustand/Redux)
-            // navigate('/dashboard');
+            navigate(`/verifikasi/${payload?.data?.uuid ?? ""}`);
             resetregist();
         } catch (err: unknown) {
             if ((err as Error).name === 'AbortError') {
@@ -263,9 +268,6 @@ export const HeroSection = () => {
             resetregist();
         }
     };
-
-
-
 
     // Pengisian ListPekerjaan (contoh statis, bisa diganti dengan fetch dari API)
     const {
@@ -454,7 +456,7 @@ export const HeroSection = () => {
                                     id="login_username"
                                     type="text"
                                     {...signin('username')}
-                                    className={`w-full px-4 py-4 bg-background border-2 transition-colors focus:outline-none ${login_errors.username
+                                    className={`w-full px-4 py-4 caret-black bg-background border-2 transition-colors focus:outline-none ${login_errors.username
                                         ? 'border-destructive focus:border-destructive'
                                         : 'border-border focus:border-accent'
                                         }`}
@@ -474,7 +476,7 @@ export const HeroSection = () => {
                                     id="login_password"
                                     type="password"
                                     {...signin('password')}
-                                    className={`w-full px-4 py-4 bg-background border-2 transition-colors focus:outline-none ${login_errors.password
+                                    className={`w-full caret-black px-4 py-4 bg-background border-2 transition-colors focus:outline-none ${login_errors.password
                                         ? 'border-destructive focus:border-destructive'
                                         : 'border-border focus:border-accent'
                                         }`}
@@ -528,18 +530,18 @@ export const HeroSection = () => {
                             {/* Username Field */}
                             <div>
                                 <label htmlFor="register_username" className="block text-sm font-medium mb-2">
-                                    username <span className="text-accent">*</span>
+                                    Username <span className="text-accent">*</span>
                                 </label>
                                 <input
                                     id="register_username"
                                     type="text"
                                     disabled={isSubmitting}
                                     {...regist('username')}
-                                    className={`w-full px-4 py-4 bg-background border-2 transition-colors focus:outline-none ${regist_errors.username
+                                    className={`w-full caret-black px-4 py-4 bg-background border-2 transition-colors focus:outline-none ${regist_errors.username
                                         ? 'border-destructive focus:border-destructive'
                                         : 'border-border focus:border-accent'
                                         }`}
-                                    placeholder="Your name"
+                                    placeholder="Your username"
                                 />
                                 {regist_errors.username && (
                                     <p className="mt-2 text-sm text-destructive">{regist_errors.username.message}</p>
@@ -549,14 +551,14 @@ export const HeroSection = () => {
                             {/* Nama Field */}
                             <div>
                                 <label htmlFor="register_nama" className="block text-sm font-medium mb-2">
-                                    nama <span className="text-accent">*</span>
+                                    Nama <span className="text-accent">*</span>
                                 </label>
                                 <input
                                     id="register_nama"
                                     type="text"
                                     disabled={isSubmitting}
                                     {...regist('nama')}
-                                    className={`w-full px-4 py-4 bg-background border-2 transition-colors focus:outline-none ${regist_errors.nama
+                                    className={`w-full caret-black px-4 py-4 bg-background border-2 transition-colors focus:outline-none ${regist_errors.nama
                                         ? 'border-destructive focus:border-destructive'
                                         : 'border-border focus:border-accent'
                                         }`}
@@ -577,7 +579,7 @@ export const HeroSection = () => {
                                     type="email"
                                     disabled={isSubmitting}
                                     {...regist('email')}
-                                    className={`w-full px-4 py-4 bg-background border-2 transition-colors focus:outline-none ${regist_errors.email
+                                    className={`w-full caret-black px-4 py-4 bg-background border-2 transition-colors focus:outline-none ${regist_errors.email
                                         ? 'border-destructive focus:border-destructive'
                                         : 'border-border focus:border-accent'
                                         }`}
@@ -598,7 +600,7 @@ export const HeroSection = () => {
                                     type="text"
                                     disabled={isSubmitting}
                                     {...regist('nomorwa')}
-                                    className={`w-full px-4 py-4 bg-background border-2 transition-colors focus:outline-none ${regist_errors.nomorwa
+                                    className={`w-full caret-black px-4 py-4 bg-background border-2 transition-colors focus:outline-none ${regist_errors.nomorwa
                                         ? 'border-destructive focus:border-destructive'
                                         : 'border-border focus:border-accent'
                                         }`}
@@ -616,7 +618,7 @@ export const HeroSection = () => {
                                     type="text"
                                     disabled={isSubmitting}
                                     {...regist('namaperushaan')}
-                                    className={`w-full px-4 py-4 bg-background border-2 transition-colors focus:outline-none ${regist_errors.namaperushaan
+                                    className={`w-full caret-black px-4 py-4 bg-background border-2 transition-colors focus:outline-none ${regist_errors.namaperushaan
                                         ? 'border-destructive focus:border-destructive'
                                         : 'border-border focus:border-accent'
                                         }`}
@@ -686,7 +688,7 @@ export const HeroSection = () => {
                                                     }}
                                                     onFocus={() => setOpen(true)}
                                                     disabled={disabled}
-                                                    className="w-full px-4 py-4 bg-background border-2 border-border focus:border-accent transition-colors focus:outline-none"
+                                                    className="w-full caret-black px-4 py-4 bg-background border-2 border-border focus:border-accent transition-colors focus:outline-none"
                                                     aria-autocomplete="list"
                                                     role="combobox"
                                                     aria-expanded={open}
@@ -740,7 +742,7 @@ export const HeroSection = () => {
                                     type="password"
                                     disabled={isSubmitting}
                                     {...regist('password')}
-                                    className={`w-full px-4 py-4 bg-background border-2 transition-colors focus:outline-none ${regist_errors.password
+                                    className={`w-full caret-black px-4 py-4 bg-background border-2 transition-colors focus:outline-none ${regist_errors.password
                                         ? 'border-destructive focus:border-destructive'
                                         : 'border-border focus:border-accent'
                                         }`}

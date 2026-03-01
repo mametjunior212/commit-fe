@@ -10,15 +10,15 @@ import {
 import { cn } from "@/lib/utils";
 import { useCalendar } from "@/components/features/calendar/contexts/calendar-context";
 import { formatTime } from "@/components/features/calendar/helpers";
-import type { IEvent } from "@/components/features/calendar/interfaces";
 import { dayCellVariants } from "@/components/features/calendar/views/month-view/day-cell";
 import { EventBullet } from "@/components/features/calendar/views/month-view/event-bullet";
 import { EventDetailsDialog } from "@/components/features/calendar/dialogs/event-details-dialog";
 import { toTEventColor } from "../hooks";
+import { Project } from '@/components/type/projectType';
 
 interface EventListDialogProps {
   date: Date;
-  events: IEvent[];
+  events: Project[];
   maxVisibleEvents?: number;
   children?: ReactNode;
 }
@@ -60,7 +60,7 @@ export function EventListDialog({
         <div className="max-h-full overflow-y-auto space-y-2">
           {cellEvents.length > 0 ? (
             cellEvents.map((event) => (
-              <EventDetailsDialog event={event} key={event.id}>
+              <EventDetailsDialog event={event} key={event.uuid}>
                 <div
                   className={cn(
                     "flex items-center gap-2 p-2 border border-andrika rounded-md hover:bg-muted cursor-pointer",

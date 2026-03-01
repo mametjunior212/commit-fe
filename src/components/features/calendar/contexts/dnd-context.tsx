@@ -11,12 +11,12 @@ import React, {
 } from "react";
 import { toast } from "sonner";
 import { useCalendar } from "@/components/features/calendar/contexts/calendar-context";
-import type { IEvent } from "@/components/features/calendar/interfaces";
+import { Project } from '@/components/type/projectType';
 
 interface DragDropContextType {
-  draggedEvent: IEvent | null;
+  draggedEvent: Project | null;
   isDragging: boolean;
-  startDrag: (event: IEvent) => void;
+  startDrag: (event: Project) => void;
   endDrag: () => void;
   handleEventDrop: (date: Date, hour?: number, minute?: number) => void;
 }
@@ -32,15 +32,15 @@ const DragDropContext = createContext<DragDropContextType | undefined>(
 export function DndProvider({ children }: DndProviderProps) {
   const { updateEvent } = useCalendar();
   const [dragState, setDragState] = useState<{
-    draggedEvent: IEvent | null;
+    draggedEvent: Project | null;
     isDragging: boolean;
   }>({ draggedEvent: null, isDragging: false });
 
   const onEventDroppedRef = useRef<
-    ((event: IEvent, newStartDate: Date, newEndDate: Date) => void) | null
+    ((event: Project, newStartDate: Date, newEndDate: Date) => void) | null
   >(null);
 
-  const startDrag = useCallback((event: IEvent) => {
+  const startDrag = useCallback((event: Project) => {
     setDragState({ draggedEvent: event, isDragging: true });
   }, []);
 
@@ -49,7 +49,7 @@ export function DndProvider({ children }: DndProviderProps) {
   }, []);
 
   const calculateNewDates = useCallback(
-    (event: IEvent, targetDate: Date, hour?: number, minute?: number) => {
+    (event: Project, targetDate: Date, hour?: number, minute?: number) => {
       const originalStart = new Date(event.startDate);
       const originalEnd = new Date(event.endDate);
       const duration = originalEnd.getTime() - originalStart.getTime();
@@ -109,7 +109,7 @@ export function DndProvider({ children }: DndProviderProps) {
 
   // Default event update handler
   const handleEventUpdate = useCallback(
-    (event: IEvent, newStartDate: Date, newEndDate: Date) => {
+    (event: Project, newStartDate: Date, newEndDate: Date) => {
       try {
         const updatedEvent = {
           ...event,

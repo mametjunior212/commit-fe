@@ -11,85 +11,15 @@ import { useQuery } from '@tanstack/react-query';
 
 import MagneticButton from './MagneticButton';
 import Url from '../Uri/url'; // pastikan Url.MENU_API tersedia
-
-// =====================
-// Tipe data lokal (sesuaikan jika kamu sudah punya file tipe sendiri)
-// =====================
-interface ApiRoute {
-  uuid: string;
-  name: string;
-  url: string;      // e.g., "/event"
-  route: string;    // e.g., "event.route"
-  method: string;   // e.g., "GET"
-  is_public: 'y' | 'n';
-}
-
-interface ApiMenu {
-  uuid: string;
-  parent_id: number | null;
-  name: string;
-  order: number;
-  icon_id: string | null;
-  route_id: number | null;
-  active: 'y' | 'n';
-  type: string;            // "landing" | ...
-  is_public: 'y' | 'n';
-  route: ApiRoute | null;  // parent bisa null
-  routes: unknown[];       // tidak dipakai sekarang
-  children: ApiMenu[];
-}
-
-interface MenuApiResponse {
-  code: string;
-  message: string;
-  data: ApiMenu[];
-}
-
-type NavItem = {
-  uuid: string;
-  name: string;
-  href: string | null;
-  number: string;       // "01", "02", ...
-  children: NavItem[];
-};
-
-// =====================
-// Fetcher API (menggunakan signal dari React Query v5 untuk abort otomatis)
-// =====================
-async function fetchMenu(signal?: AbortSignal): Promise<ApiMenu[]> {
-  const res = await fetch(Url.MENU_API ?? '/api/menu', { signal });
-  if (!res.ok) {
-    throw new Error(`Gagal mengambil menu: ${res.status} ${res.statusText}`);
-  }
-  const json = (await res.json()) as MenuApiResponse | { data?: ApiMenu[] };
-  return Array.isArray((json as any)?.data) ? ((json as any).data as ApiMenu[]) : [];
-}
-
-// =====================
-// Util mapping API -> NavItem
-// =====================
-const sortByOrderThenName = (a: ApiMenu, b: ApiMenu) => {
-  if (a.order !== b.order) return a.order - b.order;
-  return a.name.localeCompare(b.name);
-};
-
-const toTwoDigits = (n: number) => String(n).padStart(2, '0');
-
-function mapApiToNav(items: ApiMenu[], level = 0): NavItem[] {
-  const sorted = [...items].sort(sortByOrderThenName);
-  return sorted.map((item, idx) => ({
-    uuid: item.uuid,
-    name: item.name,
-    href: item.route?.url ?? null, // parent bisa null
-    number: toTwoDigits(idx + 1),
-    children: item.children?.length ? mapApiToNav(item.children, level + 1) : [],
-  }));
-}
+import { useMenus } from '@/hooks/useMenu';
+import { mapApiToNav } from '@/lib/utils';
 
 // =====================
 // Komponen Navigation
 // =====================
 export const Navigation: React.FC = () => {
+
+
   const navRef = useRef<HTMLElement | null>(null);
   const location = useLocation();
 
@@ -98,73 +28,53 @@ export const Navigation: React.FC = () => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [mobileOpenIndex, setMobileOpenIndex] = useState<number | null>(null);
 
-  // Smooth cursor follower (desktop glow)
+  // motion values
   const cursorX = useMotionValue(0);
   const cursorY = useMotionValue(0);
   const springX = useSpring(cursorX, { stiffness: 500, damping: 28 });
   const springY = useSpring(cursorY, { stiffness: 500, damping: 28 });
 
-  // Scroll effect (background/nav offset)
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Update CSS --nav-offset saat tinggi nav berubah
   useEffect(() => {
     const el = navRef.current;
     if (!el) return;
-
     const setOffset = () => {
       const height = el.getBoundingClientRect().height;
       document.documentElement.style.setProperty('--nav-offset', `${height}px`);
     };
-
     setOffset();
     const ro = new ResizeObserver(setOffset);
     ro.observe(el);
     window.addEventListener('resize', setOffset);
-
     return () => {
       ro.disconnect();
       window.removeEventListener('resize', setOffset);
     };
   }, [isScrolled]);
 
-  // Tutup menu mobile saat pindah route
   useEffect(() => {
     setIsMobileMenuOpen(false);
     setMobileOpenIndex(null);
   }, [location.pathname]);
 
-  // Active link helper
   const isActiveLink = (href?: string | null) => Boolean(href) && location.pathname === href;
 
-  // Mouse move (desktop glow)
   const handleMouseMove = (e: ReactMouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     cursorX.set(e.clientX - rect.left);
     cursorY.set(e.clientY - rect.top);
   };
 
-  // =====================
-  // React Query: fetch menu (1x per sesi)
-  // =====================
-  const {
-    data: apiMenus = [],
-    isLoading,
-    error,
-  } = useQuery<ApiMenu[]>({
-    queryKey: ['menu'] as const,
-    queryFn: ({ signal }) => fetchMenu(signal),
-    staleTime: Infinity,         // data selalu fresh
-    gcTime: Infinity,            // cache tidak dibersihkan selama sesi
-    refetchOnWindowFocus: false, // tidak refetch otomatis
-  });
+  // ---- React Query: cukup panggil hook yang sudah dipisah
+  const { data: apiMenus = [], isLoading, error } = useMenus();
 
   // Derived links
-  const navLinks = useMemo<NavItem[]>(() => mapApiToNav(apiMenus), [apiMenus]);
+  const navLinks = useMemo(() => mapApiToNav(apiMenus), [apiMenus]);
 
   // =====================
   // Render
@@ -405,7 +315,7 @@ export const Navigation: React.FC = () => {
               <div className="flex items-center gap-2">
                 <MagneticButton className="group relative ml-2">
                   <Link
-                    to="/register"
+                    to="/login"
                     className="relative flex items-center gap-3 px-5 py-2.5 bg-foreground text-background rounded-full overflow-hidden"
                   >
                     <motion.div
@@ -638,6 +548,37 @@ export const Navigation: React.FC = () => {
                     );
                   })}
               </div>
+              {/* Bottom section */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                transition={{ delay: 0.5, duration: 0.5 }}
+                className="mt-12 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6"
+              >
+
+                <Link
+                  to="/login"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="group inline-flex items-center gap-3 px-6 py-3 bg-accent text-accent-foreground font-semibold rounded-full"
+                >
+                  Sign In Member
+                  <motion.div
+                    className="w-6 h-6 rounded-full bg-accent-foreground/20 flex items-center justify-center"
+                    whileHover={{ rotate: 45 }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                      <path
+                        d="M3 11L11 3M11 3H5M11 3V9"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </motion.div>
+                </Link>
+              </motion.div>
             </nav>
           </motion.div>
         )}

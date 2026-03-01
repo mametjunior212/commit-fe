@@ -1,7 +1,7 @@
 import type { TEventColor } from "@/components/features/calendar/types";
 
 export interface IUser {
-	id: string;
+	uuid: string;
 	name: string;
 	picturePath: string | null;
 }

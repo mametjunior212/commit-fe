@@ -1,5 +1,5 @@
 import { COLORS } from "@/components/features/calendar/constants";
-import type { IEvent, IUser } from "@/components/features/calendar/interfaces";
+import type { Project, IUser } from "@/components/features/calendar/interfaces";
 import { uuid } from "zod";
 
 export const USERS_MOCK: IUser[] = [
@@ -116,8 +116,8 @@ const events = [
 	"Home renovation meeting",
 ];
 
-const mockGenerator = (numberOfEvents: number): IEvent[] => {
-	const result: IEvent[] = [];
+const mockGenerator = (numberOfEvents: number): Project[] => {
+	const result: Project[] = [];
 	let currentId = 1;
 
 	const randomUser = USERS_MOCK[Math.floor(Math.random() * USERS_MOCK.length)];
@@ -198,4 +198,4 @@ const mockGenerator = (numberOfEvents: number): IEvent[] => {
 	return result;
 };
 
-export const CALENDAR_ITEMS_MOCK: IEvent[] = mockGenerator(0);
+export const CALENDAR_ITEMS_MOCK: Project[] = mockGenerator(0);

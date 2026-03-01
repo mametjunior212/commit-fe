@@ -44,6 +44,7 @@ export default function FilterEvents() {
 							className={`size-3.5 rounded-full bg-${color}-600 dark:bg-${color}-700`}
 						/>
 						<span className="capitalize flex justify-center items-center gap-2">
+							{/* Ini Filter Per Event */}
 							{color}
 							<span>
 								{selectedColors.includes(color) && (

@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { useCalendar } from "@/components/features/calendar/contexts/calendar-context";
 
 interface DeleteEventDialogProps {
-  eventId: number;
+  eventId: string;
 }
 
 export default function DeleteEventDialog({ eventId }: DeleteEventDialogProps) {

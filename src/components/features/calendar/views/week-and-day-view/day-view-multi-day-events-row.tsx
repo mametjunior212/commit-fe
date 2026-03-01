@@ -5,12 +5,12 @@ import {
   parseISO,
   startOfDay,
 } from "date-fns";
-import type { IEvent } from "@/components/features/calendar/interfaces";
 import { MonthEventBadge } from "@/components/features/calendar/views/month-view/month-event-badge";
+import { Project } from '@/components/type/projectType';
 
 interface IProps {
   selectedDate: Date;
-  multiDayEvents: IEvent[];
+  multiDayEvents: Project[];
 }
 
 export function DayViewMultiDayEventsRow({
@@ -59,7 +59,7 @@ export function DayViewMultiDayEventsRow({
 
           return (
             <MonthEventBadge
-              key={event.id}
+              key={event.uuid}
               event={event}
               cellDate={selectedDate}
               eventCurrentDay={eventCurrentDay}

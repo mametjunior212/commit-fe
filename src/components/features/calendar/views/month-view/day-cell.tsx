@@ -11,16 +11,16 @@ import { EventListDialog } from "@/components/features/calendar/dialogs/events-l
 import { DroppableArea } from "@/components/features/calendar/dnd/droppable-area";
 import { getMonthCellEvents } from "@/components/features/calendar/helpers";
 import { toTEventColor, useMediaQuery } from "@/components/features/calendar/hooks";
-import type { ICalendarCell, IEvent } from "@/components/features/calendar/interfaces";
+import type { ICalendarCell } from "@/components/features/calendar/interfaces";
 import { EventBullet } from "@/components/features/calendar/views/month-view/event-bullet";
 import { MonthEventBadge } from "@/components/features/calendar/views/month-view/month-event-badge";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { AddEditEventDialog } from "@/components/features/calendar/dialogs/add-edit-event-dialog";
+import { Project } from '@/components/type/projectType';
 
 interface IProps {
   cell: ICalendarCell;
-  events: IEvent[];
+  events: Project[];
   eventPositions: Record<string, number>;
 }
 
@@ -97,7 +97,7 @@ export function DayCell({ cell, events, eventPositions }: IProps) {
 
       return (
         <motion.div
-          key={`event-${event.id}-${position}`}
+          key={`event-${event.uuid}-${position}`}
           className="lg:flex-1"
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}

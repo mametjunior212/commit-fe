@@ -1,43 +1,85 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { motion, useScroll, useSpring, useInView } from 'framer-motion';
+import { motion, useScroll, useSpring } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { ArrowLeft, ArrowRight, Play } from 'lucide-react';
-import { getProjectById, projects } from '@/data/projects';
-import CustomCursor from '@/components/CustomCursor';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { ViewFull } from '@/components/ViewGallery';
+import { Project } from '@/components/type/projectType';
+import { useEvent } from '@/hooks/useEvent';
 
+
+// Helper: ekstrak uuid dari URL /verifikasi/:id
+function getUuidFromPath(): string | null {
+  if (typeof window === 'undefined') return null;
+  const match = window.location.pathname.match(/\/event\/([^\/?#]+)/i);
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
+
+// Helper murni (tanpa hooks)
+const getProjectById = (list: Project[], uuid?: string) =>
+  uuid ? list.find((p) => p.uuid === uuid) : undefined;
 
 const CaseStudy = () => {
-  const { id } = useParams<{ id: string }>();
+  // ✅ Hooks SELALU di atas dan tanpa syarat
   const navigate = useNavigate();
-  const project = getProjectById(id || '');
+  const { id } = useParams<{ id: string }>(); // Kalau tetap pakai getUuidFromPath(), taruh dia DI LUAR hooks
 
-  const heroRef = useRef(null);
-  const contentRef = useRef(null);
-  const isContentInView = useInView(contentRef, { once: true, margin: '-100px' });
+  const { data: apiMenus = [], isLoading, error } = useEvent();
 
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 100,
     damping: 30,
-    restDelta: 0.001
+    restDelta: 0.001,
   });
 
+  // Semua derivasi pakai useMemo, TETAP dipanggil sebelum guard
+  const project = useMemo(() => getProjectById(apiMenus, id), [apiMenus, id]);
 
-  const VIDEO_EXTENSIONS = ['.mp4', '.webm', '.ogg', '.ogv', '.mov', '.m4v'];
-  const isVideoUrl = (url?: string) => {
-    if (!url) return false;
-    const lower = url.split('?')[0].toLowerCase();
-    return VIDEO_EXTENSIONS.some((ext) => lower.endsWith(ext));
-  };
+  const nextProject = useMemo(
+    () => getProjectById(apiMenus, project?.nextProject),
+    [apiMenus, project?.nextProject]
+  );
 
+  const prevProject = useMemo(
+    () => getProjectById(apiMenus, project?.prevProject),
+    [apiMenus, project?.prevProject]
+  );
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [id]);
+  }, [id]); // tidak perlu depend on project
+
+  const VIDEO_EXTENSIONS = [".mp4", ".webm", ".ogg", ".ogv", ".mov", ".m4v"];
+  const isVideoUrl = (url?: string) => {
+    if (!url) return false;
+    const lower = url.split("?")[0].toLowerCase();
+    return VIDEO_EXTENSIONS.some((ext) => lower.endsWith(ext));
+  };
+
+  // ⬇️ Setelah SEMUA hooks dipanggil, baru lakukan guard dan return
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <Navigation />
+        <div className="flex-1 flex items-center justify-center">Loading…</div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <Navigation />
+        <div className="flex-1 flex items-center justify-center">Terjadi kesalahan memuat data.</div>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!project) {
     return (
@@ -56,12 +98,10 @@ const CaseStudy = () => {
     );
   }
 
-  const nextProject = getProjectById(project.nextProject);
-  const prevProject = getProjectById(project.prevProject);
 
   return (
-    <div className="min-h-screen bg-background selection:bg-accent/20 flex flex-col">
-      <Navigation />
+    <div className="min-h-screen bg-background selection:bg-accent/20 flex flex-col" >
+      < Navigation />
       <Helmet>
         <title>{project.title} | CommIT</title>
         <meta name="description" content={project.description} />
@@ -72,39 +112,40 @@ const CaseStudy = () => {
       {/* Reading Progress Bar */}
       <motion.div
         className="fixed top-0 left-0 right-0 h-1 bg-accent origin-left z-50"
-        style={{ scaleX }}
+        style={{ scaleX }
+        }
       />
 
-      <main className="flex-1 pt-24 md:pt-32">
+      < main className="flex-1 pt-24 md:pt-32" >
         {/* Swiss Grid Layout Wrapper (Similar to Blog, but adapted for Project) */}
-        <div className="container-wide max-w-[90rem] mx-auto px-4 sm:px-6 mb-20">
+        < div className="container-wide max-w-[90rem] mx-auto px-4 sm:px-6 mb-20" >
 
           {/* Grid Container */}
-          <div className="border border-foreground/10 bg-background relative z-10">
+          < div className="border border-foreground/10 bg-background relative z-10" >
 
             {/* 1. Header Grid Row */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 border-b border-foreground/10">
+            < div className="grid grid-cols-1 lg:grid-cols-4 border-b border-foreground/10" >
               {/* Breadcrumbs / Back */}
-              <div className="col-span-1 lg:col-span-3 p-6 border-b lg:border-b-0 lg:border-r border-foreground/10 flex items-center">
+              < div className="col-span-1 lg:col-span-3 p-6 border-b lg:border-b-0 lg:border-r border-foreground/10 flex items-center" >
                 <Link to="/event" className="group inline-flex items-center gap-2 text-sm font-medium text-foreground/60 hover:text-accent transition-colors">
                   <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
                   Back to Work
                 </Link>
                 <span className="mx-4 text-foreground/20">/</span>
                 <span className="text-sm text-foreground/40 uppercase tracking-wider">{project.category}</span>
-              </div>
+              </div >
 
               {/* Year Cell */}
-              <div className="col-span-1 p-6 flex items-center justify-between lg:justify-center text-sm font-medium text-foreground/80">
+              < div className="col-span-1 p-6 flex items-center justify-between lg:justify-center text-sm font-medium text-foreground/80" >
                 <span className="lg:hidden text-foreground/40 uppercase tracking-wider">Year</span>
                 <div className="flex items-center gap-2 font-mono">
                   {project.year}
                 </div>
-              </div>
-            </div>
+              </div >
+            </div >
 
             {/* 2. Title Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-12">
+            < div className="grid grid-cols-1 lg:grid-cols-12" >
               <div className="lg:col-span-12 p-6 md:p-12 lg:p-16 border-b border-foreground/10">
                 {project.title && project.title !== '' && (
                   <motion.h1
@@ -130,50 +171,51 @@ const CaseStudy = () => {
                   )}
                 </div>
               </div>
-            </div>
+            </div >
 
             {/* 3. Hero Image - Full Grid Width */}
-            {project.template == 'Template 1' ?
-              (<div className="w-full border-b border-foreground/10 overflow-hidden bg-foreground/5">
-                <motion.div
-                  initial={{ scale: 1.05, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.8 }}
-                  className="aspect-[21/9] w-full relative"
-                >
-                  <img
-                    src={project.heroImage ?? ''}
-                    alt={project.title ?? ''}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-                </motion.div>
-              </div>)
-              : project.template == 'Template 2' ? (<>
-                <motion.div
-                  initial={{ scale: 1.05, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.8 }}
-                  className="aspect-[16/9] w-full relative md:grid md:grid-cols-12 gap-2"
-                >
-                  <motion.img
-                    src={project.heroImage ?? ''}
-                    alt={project.title ?? ''}
-                    className="w-full h-full object-cover md:col-span-8 rounded-lg"
-                  />
+            {
+              project.template == 'Template 1' ?
+                (<div className="w-full border-b border-foreground/10 overflow-hidden bg-foreground/5">
+                  <motion.div
+                    initial={{ scale: 1.05, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ duration: 0.8 }}
+                    className="aspect-[21/9] w-full relative"
+                  >
+                    <img
+                      src={project.heroImage ?? ''}
+                      alt={project.title ?? ''}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                  </motion.div>
+                </div>)
+                : project.template == 'Template 2' ? (<>
+                  <motion.div
+                    initial={{ scale: 1.05, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ duration: 0.8 }}
+                    className="aspect-[16/9] w-full relative md:grid md:grid-cols-12 gap-2"
+                  >
+                    <motion.img
+                      src={project.heroImage ?? ''}
+                      alt={project.title ?? ''}
+                      className="w-full h-full object-cover md:col-span-8 rounded-lg"
+                    />
 
-                  <motion.video
-                    src={project.herovideo ?? ''}
-                    className="w-full h-full object-cover mt-5 md:mt-0 md:col-span-4 rounded-lg"
-                    // autoPlay
-                    loop
-                    // muted
-                    controls={true}
-                    controlsList='nodownload'
-                  ></motion.video>
-                </motion.div>
-              </>)
-                : <></>
+                    <motion.video
+                      src={project.herovideo ?? ''}
+                      className="w-full h-full object-cover mt-5 md:mt-0 md:col-span-4 rounded-lg"
+                      // autoPlay
+                      loop
+                      // muted
+                      controls={true}
+                      controlsList='nodownload'
+                    ></motion.video>
+                  </motion.div>
+                </>)
+                  : <></>
             }
             {/* 4. Content Area Split */}
             <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[50vh]">
@@ -234,18 +276,8 @@ const CaseStudy = () => {
                     </>
                   }
 
-                  {/* Solution Section */}
-                  {project.solution && project.solution !== '' &&
-                    <>
-                      <h3 className="text-2xl md:text-3xl font-syne font-bold mb-6">The Solution</h3>
-                      <p className="mb-12 text-foreground/80 leading-relaxed">
-                        {project.solution}
-                      </p>
-                    </>
-                  }
-
                   {/* Impact / Results Highlight */}
-                  {project.results.length !== 0 ? (
+                  {project.results[0] !== "" ? (
                     <div className="my-16 p-8 border border-foreground/10 bg-foreground/5 rounded-none">
                       <h4 className="text-sm font-bold uppercase tracking-widest text-accent mb-8">Key Results</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 not-prose">
@@ -275,101 +307,77 @@ const CaseStudy = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-                      {project.gallery.map((item: any, i: number) => {
+                      {project.gallery.map((item: { uuid: string, path: string, alt?: string, grid: string | number, orderBy: number, type: string, show_gallery: string }, i: number) => {
                         const isObj = typeof item === 'object' && item !== null;
-                        const type = isObj ? item.type : undefined;
-                        const src = isObj ? item.img : item;
-                        const poster = isObj ? item.img : undefined;
-                        const isVideo = type ? type === 'video' : isVideoUrl(src);
-                        const aspectClass = item.type === '3' ? 'aspect-[21/9]' : item.type === '2' ? 'aspect-[18.8/9]' : 'aspect-square';
-
-                        return (
-                          <ViewFull
-                            key={src || i}
-                            src={src}
-                            poster={poster}
-                            title={project.title}
-                            className={`group ${item.type === '3' ? 'md:col-span-3' : item.type === '2' ? 'md:col-span-2' : 'md:col-span-1'} ${aspectClass} relative overflow-hidden rounded-lg cursor-pointer`}
-                            renderTrigger={(open) => (
-                              <div className={`relative overflow-hidden bg-foreground/5 ${aspectClass}`}>
-                                {isVideo ? (
-                                  // Preview video (muted loop) atau cukup poster
-                                  poster ? (
-                                    <img
-                                      src={poster}
-                                      alt={`Gallery video ${i + 1}`}
-                                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                                      loading="lazy"
-                                    />
-                                  ) : (
+                        const type = isObj ? item.path : undefined;
+                        const poster = isObj ? item.path : undefined;
+                        const isVideo = type ? item.type === 'video' : isVideoUrl(item.path);
+                        const aspectClass = item.grid === 3 ? 'aspect-[21/9]' : item.grid === 2 ? 'aspect-[18.8/9]' : 'aspect-square';
+                        if (item.show_gallery == 'y') {
+                          return (
+                            <ViewFull
+                              key={item.uuid}
+                              src={item.path}
+                              poster={poster}
+                              title={project.title}
+                              className={`group ${item.grid === 3 ? 'md:col-span-3' : item.grid === 2 ? 'md:col-span-2' : 'md:col-span-1'} ${aspectClass} relative overflow-hidden rounded-lg cursor-pointer`}
+                              renderTrigger={(open) => (
+                                <div className={`relative overflow-hidden bg-foreground/5 ${aspectClass}`}>
+                                  {isVideo ? (
+                                    // Preview video (muted loop) atau cukup poster
+                                    // poster ? (
+                                    //   <img
+                                    //     src={poster}
+                                    //     alt={`Gallery video ${i + 1}`}
+                                    //     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                    //     loading="lazy"
+                                    //   />
+                                    // ) : (
                                     <video
-                                      src={src}
+                                      src={item.path}
                                       muted
                                       playsInline
                                       loop
                                       preload="metadata"
                                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                                     />
-                                  )
-                                ) : (
-                                  <img
-                                    src={src}
-                                    alt={`Gallery image ${i + 1}`}
-                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                                    loading="lazy"
-                                  />
-                                )}
+                                    // )
+                                  ) : (
+                                    <img
+                                      src={item.path}
+                                      alt={`Gallery image ${i + 1}`}
+                                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                      loading="lazy"
+                                    />
+                                  )}
 
-                                {/* Overlay button */}
-                                <div
-                                  role="button"
-                                  tabIndex={0}
-                                  onClick={open}
-                                  onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && open()}
-                                  data-cursor="view"
-                                  className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center cursor-pointer"
-                                >
-                                  <div className="px-4 py-2 bg-background text-foreground text-xs font-bold uppercase tracking-widest transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 inline-flex items-center gap-2">
-                                    {isVideo ? (
-                                      <>
-                                        <Play className="w-4 h-4" />
-                                        Play Video
-                                      </>
-                                    ) : (
-                                      <>View Full</>
-                                    )}
+                                  {/* Overlay button */}
+                                  <div
+                                    role="button"
+                                    tabIndex={0}
+                                    onClick={open}
+                                    onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && open()}
+                                    data-cursor="view"
+                                    className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center cursor-pointer"
+                                  >
+                                    <div className="px-4 py-2 bg-background text-foreground text-xs font-bold uppercase tracking-widest transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 inline-flex items-center gap-2">
+                                      {isVideo ? (
+                                        <>
+                                          <Play className="w-4 h-4" />
+                                          Play Video
+                                        </>
+                                      ) : (
+                                        <>View Full</>
+                                      )}
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                            )}
-                          />
-                        );
+                              )}
+                            />
+                          );
+                        } 
                       })}
                     </div>
-
-                    {/* Key Takeaways - Compact Accent Card (No Border) */}
-                    {project.keyTakeaways.title && project.keyTakeaways.title !== '' && (
-                      <div className="mt-24 relative overflow-hidden bg-accent text-accent-foreground p-8 md:p-12 selection:bg-white selection:text-accent rounded-sm">
-                        {/* Background Pattern */}
-                        <div className="absolute inset-0 opacity-10 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
-
-                        <div className="relative z-10 flex flex-col md:flex-row gap-8 md:gap-12 md:items-start">
-                          <div className="md:w-1/4 pb-6 md:pb-0">
-                            <span className="text-5xl md:text-6xl font-syne font-black block leading-none mb-2">The Shift.</span>
-                            <span className="text-xs font-mono uppercase tracking-widest font-bold opacity-70">Retrospective</span>
-                          </div>
-                          <div className="md:w-3/4 md:pl-4">
-                            <p className="text-xl md:text-2xl font-syne font-bold leading-snug mb-4">
-                              "{project.keyTakeaways.isi}"
-                            </p>
-                            <div className="flex items-center gap-4">
-                              <div className="h-px w-8 bg-accent-foreground"></div>
-                              <span className="text-xs font-mono uppercase tracking-widest font-bold">Insights</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
                   </div>
                 )}
                 {/* Partner */}
@@ -426,8 +434,8 @@ const CaseStudy = () => {
               </div>
 
             </div>
-          </div>
-        </div>
+          </div >
+        </div >
 
         {/* Footer Navigation */}
         {
@@ -443,7 +451,7 @@ const CaseStudy = () => {
 
                 {nextProject ? (
                   <Link
-                    to={`/event/${nextProject.id}`}
+                    to={`/event/${nextProject.uuid}`}
                     className="group block border border-foreground/10 bg-background p-8 hover:border-accent transition-colors relative overflow-hidden"
                   >
                     <div className="grid md:grid-cols-2 gap-8 items-center">
@@ -490,7 +498,7 @@ const CaseStudy = () => {
 
                 {prevProject ? (
                   <Link
-                    to={`/event/${prevProject.id}`}
+                    to={`/event/${prevProject.uuid}`}
                     className="group block border border-foreground/10 bg-background p-8 hover:border-accent transition-colors relative overflow-hidden"
                   >
                     <div className="grid md:grid-cols-2 gap-8 items-center">
@@ -528,7 +536,7 @@ const CaseStudy = () => {
 
       <Footer />
     </div >
-  );
+  )
 };
 
 export default CaseStudy;

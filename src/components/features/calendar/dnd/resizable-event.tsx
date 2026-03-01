@@ -14,11 +14,11 @@ import type React from "react";
 import { useCallback, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useCalendar } from "@/components/features/calendar/contexts/calendar-context";
+import { Project } from '@/components/type/projectType';
 
-import type { IEvent } from "@/components/features/calendar/interfaces";
 
 interface ResizableEventBlockProps {
-  event: IEvent;
+  event: Project;
   children: React.ReactNode;
   className?: string;
 }

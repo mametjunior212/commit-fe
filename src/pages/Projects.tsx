@@ -1,23 +1,20 @@
 import { useState, useMemo, useCallback, useRef, forwardRef } from 'react';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { projects } from '@/data/projects';
 import Footer from '@/components/Footer';
 import Navigation from '@/components/Navigation';
 import { ArrowUpRight, ArrowRight, Search } from 'lucide-react';
-import { ref } from 'process';
+import { Project } from '@/components/type/projectType';
+import { useEvent } from '@/hooks/useEvent';
 
 type ProjectCardProps = {
-  project: typeof projects[0];
+  project: Project;
   index: number;
 };
-
-
 
 const ProjectCard = forwardRef<HTMLDivElement, ProjectCardProps>(({ project, index }, ref) => {
 
   const [isHovered, setIsHovered] = useState(false);
-
   const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp', '.avif', '.svg'];
   const VIDEO_EXTENSIONS = ['.mp4', '.webm', '.ogg', '.ogv', '.mov', '.m4v'];
 
@@ -52,7 +49,7 @@ const ProjectCard = forwardRef<HTMLDivElement, ProjectCardProps>(({ project, ind
     >
 
       <Link
-        to={`/event/${project.id}`}
+        to={`/event/${project.uuid}`}
         className="block"
       >
         {/* Image Container */}
@@ -131,9 +128,17 @@ const ProjectCard = forwardRef<HTMLDivElement, ProjectCardProps>(({ project, ind
 }
 );
 
-const categories = ['All', ...Array.from(new Set(projects.map(p => p.category)))];
 
 const Projects = () => {
+
+  // ---- React Query: cukup panggil hook yang sudah dipisah
+  const { data: apiMenus = [], isLoading, error } = useEvent();
+
+  // Derived links
+  const event = useMemo(() => apiMenus, [apiMenus]);
+
+  const categories = ['All', ...Array.from(new Set(event.map(p => p.category)))];
+
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -148,7 +153,7 @@ const Projects = () => {
   }, []);
 
   const filteredProjects = useMemo(() => {
-    let result = projects;
+    let result = event;
 
     if (activeCategory !== 'All') {
       result = result.filter(p => p.category === activeCategory);
@@ -163,7 +168,7 @@ const Projects = () => {
     }
 
     return result;
-  }, [activeCategory, searchQuery]);
+  }, [event, activeCategory, searchQuery]);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     setMousePosition({
@@ -320,7 +325,7 @@ const Projects = () => {
           >
             <AnimatePresence mode="popLayout">
               {filteredProjects.map((project, index) => (
-                <ProjectCard key={project.id} project={project} index={index} />
+                <ProjectCard key={project.uuid} project={project} index={index} />
               ))}
             </AnimatePresence>
           </motion.div>

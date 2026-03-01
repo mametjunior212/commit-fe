@@ -13,12 +13,12 @@ import {
   rangeText,
 } from "@/components/features/calendar/helpers";
 
-import type { IEvent } from "@/components/features/calendar/interfaces";
 import type { TCalendarView } from "@/components/features/calendar/types";
+import { Project } from '@/components/type/projectType';
 
 interface IProps {
   view: TCalendarView;
-  events: IEvent[];
+  events: Project[];
 }
 
 const MotionButton = motion.create(Button);

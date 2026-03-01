@@ -5,7 +5,7 @@ export const eventSchema = z.object({
 	description: z.string().min(1, "Description is required"),
 	startDate: z.date("Start date is required"),
 	endDate: z.date("End date is required"),
-	color: z.enum(["blue", "green", "red", "yellow", "purple", "orange"]),
+	color: z.string(),
 });
 
 export type TEventFormData = z.infer<typeof eventSchema>;
