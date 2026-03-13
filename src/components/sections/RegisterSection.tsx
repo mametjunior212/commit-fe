@@ -110,7 +110,8 @@ export const HeroSection = () => {
             }
 
             // Simpan token (disesuaikan kebutuhanmu)
-            localStorage.setItem('access_token', dataOk.data.token);
+            localStorage.setItem('access_token', btoa(dataOk.data.token));
+            localStorage.setItem('data_user', JSON.stringify(dataOk.data));
 
             toast({
                 title: 'Login sukses!',
@@ -119,6 +120,7 @@ export const HeroSection = () => {
 
             // Opsional: redirect atau trigger state global (Zustand/Redux)
             // navigate('/dashboard');
+            navigate(`/member`);
 
             reset();
         } catch (err: unknown) {
@@ -303,8 +305,6 @@ export const HeroSection = () => {
 
     }
 
-
-
     // Update waktu setiap detik
     useEffect(() => {
         const updateTime = () => {
@@ -340,7 +340,7 @@ export const HeroSection = () => {
             {/* Background */}
             <motion.div className="absolute inset-0" style={{ y: bgY }}>
                 <img
-                    src="/assets/hero-bg.png"
+                    src={import.meta.env.VITE_FONT_END + "/assets/hero-bg.png"}
                     alt=""
                     className="w-full h-full object-cover opacity-100 scale-110"
                 />
@@ -579,6 +579,27 @@ export const HeroSection = () => {
                                     type="email"
                                     disabled={isSubmitting}
                                     {...regist('email')}
+                                    className={`w-full caret-black px-4 py-4 bg-background border-2 transition-colors focus:outline-none ${regist_errors.email
+                                        ? 'border-destructive focus:border-destructive'
+                                        : 'border-border focus:border-accent'
+                                        }`}
+                                    placeholder="your@email.com"
+                                />
+                                {regist_errors.email && (
+                                    <p className="mt-2 text-sm text-destructive">{regist_errors.email.message}</p>
+                                )}
+                            </div>
+
+                            {/* Email Perushaan Field */}
+                            <div>
+                                <label htmlFor="email" className="block text-sm font-medium mb-2">
+                                    Email Perushaan <span className="text-accent">*</span>
+                                </label>
+                                <input
+                                    id="email"
+                                    type="email"
+                                    disabled={isSubmitting}
+                                    {...regist('email_perusahaan')}
                                     className={`w-full caret-black px-4 py-4 bg-background border-2 transition-colors focus:outline-none ${regist_errors.email
                                         ? 'border-destructive focus:border-destructive'
                                         : 'border-border focus:border-accent'

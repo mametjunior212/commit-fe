@@ -2,37 +2,26 @@ import { Link } from 'react-router-dom';
 import { ArrowUpRight, ArrowRight } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import logo from '../../public/assets/logo-Web.png';
 import { useMenus } from '@/hooks/useMenu';
-import { mapApiToNav } from '@/lib/utils';
+import { mapApiToNav, toTelHref } from '@/lib/utils';
+import { getInParameterByName, getParameterByName, useParameter } from '@/hooks/useSetting';
 
 
-const footerLinks = {
-   services: [
-      { name: 'Web Design', href: '/services#web-design' },
-      { name: 'Branding', href: '/services#branding' },
-      { name: 'UI/UX Design', href: '/services#ui-ux' },
-      { name: 'Development', href: '/services#development' },
-   ],
-   social: [
-      { name: 'Instagram', href: 'https://www.instagram.com/commit_indonesia/' },
-      // { name: 'Twitter', href: '#' },
-      // { name: 'LinkedIn', href: '#' },
-      // { name: 'Dribbble', href: '#' },
-   ],
-   legal: [
-      // { name: 'Privacy Policy', href: '/privacy-policy' },
-      // { name: 'Terms of Service', href: '/terms-of-service' },
-   ],
-};
 
 export const Footer = () => {
    const [currentTime, setCurrentTime] = useState(new Date());
    // ---- React Query: cukup panggil hook yang sudah dipisah
    const { data: apiMenus = [], isLoading, error } = useMenus();
+   const { data: apiParam } = useParameter();
 
    // Derived links
    const navLinks = useMemo(() => mapApiToNav(apiMenus), [apiMenus]);
+   const lokasi = useMemo(() => getParameterByName(apiParam, "Lokasi"), [apiParam]);
+   const kontak = useMemo(() => getParameterByName(apiParam, "Kontak"), [apiParam]);
+   const email = useMemo(() => getParameterByName(apiParam, "email"), [apiParam]);
+   const sosmed = useMemo(() => getInParameterByName(apiParam, ["instagram", "Twitter", "Facebook", "Tiktok"]), [apiParam]);
+
+
    useEffect(() => {
       const interval = setInterval(() => setCurrentTime(new Date()), 1000);
       return () => clearInterval(interval);
@@ -51,7 +40,7 @@ export const Footer = () => {
                    STUDIO<span className="text-accent">.</span>
                  </span> */}
                      <motion.img
-                        src={logo}
+                        src={import.meta.env.VITE_FONT_END + "/assets/logo-Web.png"}
                         alt="Studio Logo"
                         className="w-32 h-auto"
                      />
@@ -143,28 +132,28 @@ export const Footer = () => {
             <div className="lg:col-span-1 border-r border-border flex flex-col">
                <div className="flex-1 p-8 border-b border-border">
                   <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground mb-6 block">Contact</span>
-                  <a href="mailto:commitjabar@gmail.com" className="block text-xl font-bold hover:text-accent transition-colors mb-2">commitjabar@gmail.com</a>
-                  <a href="tel:+6285182583624" className="block text-xl font-bold hover:text-accent transition-colors">+62 851-8258-3624</a>
+                  <a href={`mailto:${email.value_param}`} className="block text-xl font-bold hover:text-accent transition-colors mb-2">{email.value_param}</a>
+                  <a href={`tel:${toTelHref(kontak.value_param)}`} className="block text-xl font-bold hover:text-accent transition-colors">{kontak.value_param}</a>
                </div>
 
                <div className="flex-1 p-8 border-b border-border">
                   <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground mb-6 block">Location</span>
                   <address className="not-italic text-lg text-muted-foreground">
-                     Bandung, Indonesia
+                     {lokasi.value_param}
                   </address>
                </div>
 
                <div className="p-8">
                   <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground mb-6 block">Social</span>
                   <div className="grid grid-cols-2 gap-4">
-                     {footerLinks.social.map((link) => (
+                     {sosmed.map((link) => (link.value_param !== "" &&
                         <a
-                           key={link.name}
-                           href={link.href}
+                           key={link.uuid}
+                           href={link.value_param}
                            onClick={(e) => e.preventDefault()}
                            className="text-sm hover:text-accent transition-colors flex items-center gap-1 cursor-pointer"
                         >
-                           {link.name} <ArrowUpRight className="w-3 h-3" />
+                           {link.nama_param} <ArrowUpRight className="w-3 h-3" />
                         </a>
                      ))}
                   </div>
@@ -197,7 +186,7 @@ export const Footer = () => {
          </div>
 
          {/* Bottom Legal Bar */}
-         <div className="border-t border-border p-6 flex flex-col md:flex-row justify-between items-center gap-4 bg-background">
+         {/* <div className="border-t border-border p-6 flex flex-col md:flex-row justify-between items-center gap-4 bg-background">
             <p className="text-xs font-mono text-muted-foreground uppercase">
                © {new Date().getFullYear()} CommIT.
             </p>
@@ -212,7 +201,7 @@ export const Footer = () => {
                   </Link>
                ))}
             </div>
-         </div>
+         </div> */}
       </footer>
    );
 };

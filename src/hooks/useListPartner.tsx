@@ -1,25 +1,26 @@
 // src/hooks/useMenus.ts
-import { ApiMenu, MenuApiResponse } from '@/components/type/MenuType';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 // src/api/menu.ts
 import Url from '@/Uri/url';
+import { SuccessResponse } from '@/components/type/response';
+import { PartnerType } from '@/components/type/PartnerType';
 
 // Query key konsisten untuk dipakai di mana saja
-export const menuQueryKey = ['menu'] as const;
+export const menuQueryKey = ['list_partner'] as const;
 
-export async function fetchMenu(signal?: AbortSignal): Promise<ApiMenu[]> {
-    const res = await fetch(Url.MENU_API ?? '/landing-public-service/menu', { signal });
+export async function fetchMenu(signal?: AbortSignal): Promise<PartnerType[]> {
+    const res = await fetch(Url.LIST_PARTNER_API ?? '/landing-public-service/list-partner', { signal });
     if (!res.ok) {
         throw new Error(`Gagal mengambil menu: ${res.status} ${res.statusText}`);
     }
-    const json = (await res.json()) as MenuApiResponse | { data?: ApiMenu[] };
-    return Array.isArray((json as any)?.data) ? ((json as any).data as ApiMenu[]) : [];
+    const json = (await res.json()) as SuccessResponse | { data?: PartnerType[] };
+    return Array.isArray((json as any)?.data) ? ((json as any).data as PartnerType[]) : [];
 }
 
 
-export function useMenus() {
-    return useQuery<ApiMenu[]>({
+export function useListPartner() {
+    return useQuery<PartnerType[]>({
         queryKey: menuQueryKey,
         queryFn: ({ signal }) => fetchMenu(signal),
         staleTime: Infinity,          // data dianggap selalu fresh
@@ -29,7 +30,7 @@ export function useMenus() {
 }
 
 // Opsional: helper untuk refresh manual dari mana saja
-export function useRefreshMenus() {
+export function useRefreshListPartner() {
     const qc = useQueryClient();
     return {
         refresh: () => qc.invalidateQueries({ queryKey: menuQueryKey }),

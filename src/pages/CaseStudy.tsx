@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion, useScroll, useSpring } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
@@ -8,26 +8,66 @@ import Footer from '@/components/Footer';
 import { ViewFull } from '@/components/ViewGallery';
 import { Project } from '@/components/type/projectType';
 import { useEvent } from '@/hooks/useEvent';
-
-
-// Helper: ekstrak uuid dari URL /verifikasi/:id
-function getUuidFromPath(): string | null {
-  if (typeof window === 'undefined') return null;
-  const match = window.location.pathname.match(/\/event\/([^\/?#]+)/i);
-  return match ? decodeURIComponent(match[1]) : null;
-}
-
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import AttendancePie from '@/components/AttendancePie';
+import { COLORS_Chart, fmtDateTimeIndo } from '@/lib/utils';
+import RegisterPie from '@/components/RegisterPie';
+import Url from '@/Uri/url';
+import { format } from "date-fns";
+import { id as localeID } from "date-fns/locale";
+import * as Progress from "@radix-ui/react-progress";
+import { MenuApiResponse } from '@/components/type/MenuType';
+import { sumVotes, useLiveVotes } from './RealtimeVoting';
+import { Bar, BarChart, CartesianGrid, Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 // Helper murni (tanpa hooks)
 const getProjectById = (list: Project[], uuid?: string) =>
   uuid ? list.find((p) => p.uuid === uuid) : undefined;
+
+type Items = { name: string, value: number };
+type isiAbsen = {
+  registerRole: Items[]
+  registerPT: Items[]
+  absenRole: Items[]
+  absenPT: Items[]
+  updateAt: string
+}
+
+const EMPTY_ABSEN: isiAbsen = {
+  registerRole: [],
+  registerPT: [],
+  absenRole: [],
+  absenPT: [],
+  updateAt: "",
+};
+
+function isIsiAbsen(x: any): x is isiAbsen {
+  const isArrOfItem = (arr: any) =>
+    Array.isArray(arr) &&
+    arr.every(
+      (r) =>
+        r &&
+        typeof r === "object" &&
+        typeof r.name === "string" &&
+        typeof r.value === "number"
+    );
+
+  return (
+    x &&
+    typeof x === "object" &&
+    isArrOfItem(x.registerRole) &&
+    isArrOfItem(x.registerPT) &&
+    isArrOfItem(x.absenRole) &&
+    isArrOfItem(x.absenPT)
+  );
+}
 
 const CaseStudy = () => {
   // ✅ Hooks SELALU di atas dan tanpa syarat
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>(); // Kalau tetap pakai getUuidFromPath(), taruh dia DI LUAR hooks
 
-  const { data: apiMenus = [], isLoading, error } = useEvent();
+  const { data: apiEvent = [], isLoading, error } = useEvent();
 
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
@@ -37,21 +77,110 @@ const CaseStudy = () => {
   });
 
   // Semua derivasi pakai useMemo, TETAP dipanggil sebelum guard
-  const project = useMemo(() => getProjectById(apiMenus, id), [apiMenus, id]);
+  const project = useMemo(() => getProjectById(apiEvent, id), [apiEvent, id]);
 
   const nextProject = useMemo(
-    () => getProjectById(apiMenus, project?.nextProject),
-    [apiMenus, project?.nextProject]
+    () => getProjectById(apiEvent, project?.nextProject),
+    [apiEvent, project?.nextProject]
   );
 
   const prevProject = useMemo(
-    () => getProjectById(apiMenus, project?.prevProject),
-    [apiMenus, project?.prevProject]
+    () => getProjectById(apiEvent, project?.prevProject),
+    [apiEvent, project?.prevProject]
   );
 
+
+  const [dataAbsen, setDataAbsen] = useState<isiAbsen>(EMPTY_ABSEN);
+  const [loadingAbsen, setLoadingAbsen] = useState(true);
+  const [errorAbsen, setErrorAbsen] = useState<string | null>(null);
+
+
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [id]); // tidak perlu depend on project
+    const ac = new AbortController();
+
+    async function fetchAbsen(signal?: AbortSignal): Promise<isiAbsen> {
+      // Guard kalau id belum ada
+      if (!id) return EMPTY_ABSEN;
+
+      const endpoint = `${Url.Detail_Event ?? ""}${id ?? ""}`;
+      const res = await fetch(endpoint, { signal });
+      if (!res.ok) {
+        throw new Error(`Gagal mengambil data: ${res.status} ${res.statusText}`);
+      }
+      const json = (await res.json()) as MenuApiResponse;
+
+      // Pastikan json.data sesuai bentuk isiAbsen
+      const payload = (json as any)?.data;
+      return isIsiAbsen(payload) ? payload : EMPTY_ABSEN;
+    }
+
+    setLoadingAbsen(true);
+    setErrorAbsen(null);
+
+    fetchAbsen(ac.signal)
+      .then((arr) => setDataAbsen(arr))
+      .catch((err: any) => {
+        if (err?.name === "AbortError") return;
+        setErrorAbsen(err?.message ?? "Terjadi kesalahan saat mengambil data.");
+        setDataAbsen(EMPTY_ABSEN);
+      })
+      .finally(() => setLoadingAbsen(false));
+
+    return () => ac.abort();
+  }, [Url?.Detail_Event, id]);
+
+  // Helper: filter > 0 + (opsional) sort desc
+  const clean = (list: Items[]) =>
+    list
+      .filter((r) => (r?.value ?? 0) > 0)
+      .sort((a, b) => b.value - a.value);
+
+  // derived const
+  const registerRole = useMemo(() => clean(dataAbsen.registerRole), [dataAbsen]);
+  const registerPT = useMemo(() => clean(dataAbsen.registerPT), [dataAbsen]);
+  const absenRole = useMemo(() => clean(dataAbsen.absenRole), [dataAbsen]);
+  const absenPT = useMemo(() => clean(dataAbsen.absenPT), [dataAbsen]);
+
+  // Voting
+  const { data: dataVoting, isLoading: isLoadingVoting, error: errorVoting, usingSSE, refetch } = useLiveVotes(20000000000);
+  const totalVotes = useMemo(() => sumVotes(dataVoting?.data ?? []), [dataVoting]);
+  const totalUsers = dataVoting?.totaluser ?? 0; // NEW: total user aktif dari API
+  const votedUsers = useMemo(
+    () => Math.min(totalVotes, totalUsers), // NEW: batasi agar tidak melebihi total user
+    [totalVotes, totalUsers]
+  );
+
+  const lastUpdated = useMemo(() => {
+    if (dataVoting?.updatedAt) return new Date(dataVoting.updatedAt);
+    return new Date();
+  }, [dataVoting?.updatedAt]);
+
+  // enrich with percentage for UI
+  const rows = useMemo(() => {
+    const items = dataVoting?.data ?? [];
+    const total = Math.max(1, totalVotes); // avoid divide-by-zero
+    return items
+      .slice()
+      .sort((a, b) => b.votes - a.votes)
+      .map((it, idx) => ({
+        ...it,
+        percent: (it.votes / total) * 100,
+        color: COLORS_Chart[idx % COLORS_Chart.length],
+      }));
+  }, [dataVoting?.data, totalVotes]);
+
+  // chart mode toggle
+  const [chart, setChart] = useState<"bar" | "pie">("bar");
+
+  // subtle pointer reactive effect for the outer wrapper
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const { clientX, clientY, currentTarget } = e;
+    const { left, top, width, height } = currentTarget.getBoundingClientRect();
+    const x = (clientX - left) / width;
+    const y = (clientY - top) / height;
+    currentTarget.style.setProperty("--mouse-x", x.toString());
+    currentTarget.style.setProperty("--mouse-y", y.toString());
+  }, []);
 
   const VIDEO_EXTENSIONS = [".mp4", ".webm", ".ogg", ".ogv", ".mov", ".m4v"];
   const isVideoUrl = (url?: string) => {
@@ -61,7 +190,7 @@ const CaseStudy = () => {
   };
 
   // ⬇️ Setelah SEMUA hooks dipanggil, baru lakukan guard dan return
-  if (isLoading) {
+  if (isLoading && loadingAbsen) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
         <Navigation />
@@ -71,7 +200,7 @@ const CaseStudy = () => {
     );
   }
 
-  if (error) {
+  if (error && errorAbsen) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
         <Navigation />
@@ -81,7 +210,7 @@ const CaseStudy = () => {
     );
   }
 
-  if (!project) {
+  if (!project && !dataAbsen) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
         <Navigation />
@@ -184,7 +313,7 @@ const CaseStudy = () => {
                     className="aspect-[21/9] w-full relative"
                   >
                     <img
-                      src={project.heroImage ?? ''}
+                      src={import.meta.env.VITE_FONT_END + (project.heroImage ?? '')}
                       alt={project.title ?? ''}
                       className="w-full h-full object-cover"
                     />
@@ -199,13 +328,13 @@ const CaseStudy = () => {
                     className="aspect-[16/9] w-full relative md:grid md:grid-cols-12 gap-2"
                   >
                     <motion.img
-                      src={project.heroImage ?? ''}
+                      src={import.meta.env.VITE_FONT_END + (project.heroImage ?? '')}
                       alt={project.title ?? ''}
                       className="w-full h-full object-cover md:col-span-8 rounded-lg"
                     />
 
                     <motion.video
-                      src={project.herovideo ?? ''}
+                      src={import.meta.env.VITE_FONT_END + (project.herovideo ?? '')}
                       className="w-full h-full object-cover mt-5 md:mt-0 md:col-span-4 rounded-lg"
                       // autoPlay
                       loop
@@ -218,46 +347,9 @@ const CaseStudy = () => {
                   : <></>
             }
             {/* 4. Content Area Split */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[50vh]">
-
-              {/* Left Sidebar - Project Metadata */}
-              <div className="lg:col-span-3 border-r border-foreground/10 bg-background">
-                <div className="sticky top-24">
-                  <div className="flex flex-col">
-                    {/* Client Block */}
-                    {project.client && project.client !== '' && (
-                      <div className="p-6 border-b border-foreground/10 relative group hover:bg-foreground/5 transition-colors">
-                        <span className="absolute top-6 right-6 text-[10px] font-mono text-accent opacity-0 group-hover:opacity-100 transition-opacity">01</span>
-                        <h4 className="text-[10px] font-mono uppercase tracking-widest text-foreground/40 mb-3">Client</h4>
-                        <p className="text-lg font-syne font-bold leading-tight group-hover:translate-x-1 transition-transform duration-300">
-                          {project.client}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Services Block - Digital Tags */}
-                    {project.services && project.services.length !== 0 && (
-                      <div className="p-6 relative group hover:bg-foreground/5 transition-colors">
-                        <span className="absolute top-6 right-6 text-[10px] font-mono text-accent opacity-0 group-hover:opacity-100 transition-opacity">02</span>
-                        <h4 className="text-[10px] font-mono uppercase tracking-widest text-foreground/40 mb-4">Scope of Work</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {project.services.map((service, idx) => (
-                            <span
-                              key={idx}
-                              className="inline-block px-3 py-1 border border-foreground/10 text-[11px] font-mono uppercase tracking-wide rounded-sm text-foreground/70 hover:border-accent hover:text-accent hover:bg-background transition-colors cursor-default"
-                            >
-                              {service}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
+            <div className=" min-h-[50vh]">
               {/* Main Content */}
-              <div className="lg:col-span-9 p-6 md:p-12 lg:p-16">
+              <div className="w-full lg:col-span-9 p-6 md:p-12 lg:p-16">
                 <motion.article
                   initial={{ opacity: 0 }}
                   whileInView={{ opacity: 1 }}
@@ -307,23 +399,32 @@ const CaseStudy = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-                      {project.gallery.map((item: { uuid: string, path: string, alt?: string, grid: string | number, orderBy: number, type: string, show_gallery: string }, i: number) => {
+                      {project.gallery.map((item: { uuid: string, path: string, alt?: string, grid: string | number, orderBy: number, type: string, hyperlink: string, show_gallery: string }, i: number) => {
                         const isObj = typeof item === 'object' && item !== null;
                         const type = isObj ? item.path : undefined;
                         const poster = isObj ? item.path : undefined;
+                        const isHyperlink = item.hyperlink ?? "";
                         const isVideo = type ? item.type === 'video' : isVideoUrl(item.path);
-                        const aspectClass = item.grid === 3 ? 'aspect-[21/9]' : item.grid === 2 ? 'aspect-[18.8/9]' : 'aspect-square';
+
+                        const aspectClass = item.grid === 3 || item.grid === "3" ? 'aspect-[21/9]' : item.grid === 2 || item.grid === "2" ? 'aspect-[18.8/9]' : 'aspect-square';
                         if (item.show_gallery == 'y') {
                           return (
                             <ViewFull
                               key={item.uuid}
-                              src={item.path}
+                              src={isHyperlink !== "" ? isHyperlink : import.meta.env.VITE_FONT_END + item.path}
                               poster={poster}
                               title={project.title}
-                              className={`group ${item.grid === 3 ? 'md:col-span-3' : item.grid === 2 ? 'md:col-span-2' : 'md:col-span-1'} ${aspectClass} relative overflow-hidden rounded-lg cursor-pointer`}
+                              className={`group ${item.grid === 3 || item.grid === "3" ? 'md:col-span-3' : item.grid === 2 || item.grid === "2" ? 'md:col-span-2' : 'md:col-span-1'} ${aspectClass} relative overflow-hidden rounded-lg cursor-pointer`}
                               renderTrigger={(open) => (
                                 <div className={`relative overflow-hidden bg-foreground/5 ${aspectClass}`}>
-                                  {isVideo ? (
+                                  {isHyperlink !== "" ? (
+                                    <iframe
+                                      src={isHyperlink}
+                                      title={item.type}
+                                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                    ></iframe>
+                                  ) : (isVideo ? (
                                     // Preview video (muted loop) atau cukup poster
                                     // poster ? (
                                     //   <img
@@ -334,7 +435,7 @@ const CaseStudy = () => {
                                     //   />
                                     // ) : (
                                     <video
-                                      src={item.path}
+                                      src={isHyperlink !== "" ? item.hyperlink : import.meta.env.VITE_FONT_END + item.path}
                                       muted
                                       playsInline
                                       loop
@@ -344,12 +445,12 @@ const CaseStudy = () => {
                                     // )
                                   ) : (
                                     <img
-                                      src={item.path}
+                                      src={import.meta.env.VITE_FONT_END + item.path}
                                       alt={`Gallery image ${i + 1}`}
                                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                                       loading="lazy"
                                     />
-                                  )}
+                                  ))}
 
                                   {/* Overlay button */}
                                   <div
@@ -375,7 +476,7 @@ const CaseStudy = () => {
                               )}
                             />
                           );
-                        } 
+                        }
                       })}
                     </div>
                   </div>
@@ -396,7 +497,7 @@ const CaseStudy = () => {
                         return <motion.div key={index} className='rounded-xl border-[#f1f0f8] relative min-w-2 border-[3px]'>
                           <motion.img
                             key={index}
-                            src={e.img}
+                            src={import.meta.env.VITE_FONT_END + e.img}
                             alt={e.partner}
                             className="block w-full h-auto object-cover rounded-xl"
                           ></motion.img>
@@ -422,7 +523,7 @@ const CaseStudy = () => {
                         return <motion.a key={index} href={e.link} className='rounded-xl border-[#f1f0f8] relative min-w-2 border-[3px]'>
                           <motion.img
                             key={index}
-                            src={e.img}
+                            src={import.meta.env.VITE_FONT_END + e.img}
                             alt={e.media}
                             className="block w-full h-auto object-cover rounded-xl"
                           ></motion.img>
@@ -431,8 +532,138 @@ const CaseStudy = () => {
                     </motion.div>
                   </motion.div>
                 )}
-              </div>
 
+                {/* Absensi */}
+                {project.absen && project.absen.length !== 0 && (
+                  <>
+                    {/* Pendaftaran */}
+                    <motion.div>
+                      <Card >
+                        <CardHeader><CardTitle>Pendaftaran Event</CardTitle></CardHeader>
+                        <CardContent className="w-full h-full grid place-items-center">
+                          <RegisterPie
+                            attendance={registerPT}
+                            rolesPresent={registerRole}
+                            updateAt={fmtDateTimeIndo(dataAbsen.updateAt)}
+                          />
+
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                    {/* Absensi */}
+                    <motion.div>
+                      <Card >
+                        <CardHeader><CardTitle>Absensi Kehadiran</CardTitle></CardHeader>
+                        <CardContent className="w-full h-full grid place-items-center">
+                          <AttendancePie
+                            attendance={absenPT}
+                            rolesPresent={absenRole}
+                            updateAt={fmtDateTimeIndo(dataAbsen.updateAt)}
+                          />
+
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  </>
+                )}
+
+                {/* Voting */}
+                {dataVoting && (
+                  <>
+                    <div className="flex items-end justify-between mt-16">
+                      <div>
+                        <h3 className="text-3xl font-syne font-bold">Perolehan Voting</h3>
+                      </div>
+                    </div>
+                    <motion.div
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.25 }}
+                      onMouseMove={handleMouseMove}
+                      className="mx-auto max-w-7xl mt-12 grid gap-6 sm:grid-cols-2"
+                    >
+                      {/* Chart Card */}
+                      <div className="relative overflow-hidden rounded-2xl border bg-card p-4">
+                        <div className="mb-3 flex items-center justify-between">
+                          <div>
+                            <div className="text-sm text-muted-foreground">Total suara</div>
+                            <div className="text-2xl font-semibold tabular-nums">
+                              {totalVotes.toLocaleString("id-ID")}
+                            </div>
+                          </div>
+                          <div className="text-right text-xs text-muted-foreground">
+                            Terakhir diperbarui
+                            <br />
+
+                            <span className="font-medium">
+                              {format(lastUpdated, "dd MMM yyyy HH:mm:ss", { locale: localeID })}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="h-72">
+                          <ResponsiveContainer width="100%" height="100%">
+                            {(
+                              <BarChart data={rows} margin={{ top: 8, right: 16, bottom: 8, left: 0 }}>
+                                <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                                <XAxis dataKey="candidateName" tick={{ fontSize: 12 }} />
+                                <YAxis tick={{ fontSize: 12 }} allowDecimals={false} />
+                                <Tooltip
+                                  formatter={(value: any) => [Number(value).toLocaleString("id-ID"), "Suara"]}
+                                />
+                                <Legend />
+                                <Bar dataKey="votes" name="Suara">
+                                  {rows.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                  ))}
+                                </Bar>
+                              </BarChart>
+                            )}
+                          </ResponsiveContainer>
+                        </div>
+                      </div>
+
+                      {/* List Card */}
+                      <div className="overflow-hidden rounded-2xl border bg-card p-4">
+                        <div className="mb-3 text-sm font-medium">Rincian kandidat</div>
+                        <div className="space-y-4">
+                          {rows.map((it) => (
+                            <div key={it.candidateId} className="rounded-xl border p-3">
+                              <div className="mb-1 flex items-center justify-between gap-2">
+                                <div className="flex items-center gap-2">
+                                  <span
+                                    className="inline-block h-2.5 w-2.5 rounded-full"
+                                    style={{ backgroundColor: it.color }}
+                                  />
+                                  <span className="font-medium">{it.candidateName}</span>
+                                </div>
+                                <div className="tabular-nums text-sm text-muted-foreground">
+                                  {it.votes.toLocaleString("id-ID")}{" "}
+                                  <span className="opacity-70">({it.percent.toFixed(1)}%)</span>
+                                </div>
+                              </div>
+                              <Progress.Root className="relative h-2 w-full overflow-hidden rounded-full bg-muted">
+                                <Progress.Indicator
+                                  className="h-full w-full flex-1 rounded-full"
+                                  style={{
+                                    transform: `translateX(-${100 - it.percent}%)`,
+                                    backgroundColor: it.color,
+                                  }}
+                                />
+                              </Progress.Root>
+                            </div>
+                          ))}
+                          {rows.length === 0 && (
+                            <div className="rounded-xl border bg-muted/20 p-6 text-center text-sm text-muted-foreground">
+                              Belum ada data kandidat.
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  </>
+                )}
+              </div>
             </div>
           </div >
         </div >
@@ -457,7 +688,7 @@ const CaseStudy = () => {
                     <div className="grid md:grid-cols-2 gap-8 items-center">
                       <div className="aspect-[16/9] overflow-hidden bg-foreground/5">
                         <img
-                          src={nextProject.heroImage}
+                          src={import.meta.env.VITE_FONT_END + nextProject.heroImage}
                           alt={nextProject.title}
                           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                         />
@@ -504,7 +735,7 @@ const CaseStudy = () => {
                     <div className="grid md:grid-cols-2 gap-8 items-center">
                       <div className="aspect-[16/9] overflow-hidden bg-foreground/5">
                         <img
-                          src={prevProject.heroImage}
+                          src={import.meta.env.VITE_FONT_END + prevProject.heroImage}
                           alt={prevProject.title}
                           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                         />

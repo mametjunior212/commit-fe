@@ -1,7 +1,8 @@
 import { motion, useInView } from 'framer-motion';
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useMemo } from 'react';
 import { AnimatedLine } from '@/components/AnimatedText';
-import { ChevronLeft, ChevronRight, Quote } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, Link, Quote } from 'lucide-react';
+import { useListPartner } from '@/hooks/useListPartner';
 const testimonials = [
   {
     id: 1,
@@ -26,35 +27,35 @@ const testimonials = [
   // },
 ];
 
-const clients = [
-  'Bandung24jam',
-  'Businessinasia',
-  'Elshinta',
-  'Jabar Exspress',
-  'SWA',
-  'TribunJabarID',
-  'Biskom',
-  'IT works',
-  'Itech',
-  'Radarbandung',
-  'Trijaya',
-  'Info komputer',
-  'Ayo bandung',
-  'Bussines news',
-  'Berita kbb',
-  'Mahavira',
-  'CBN',
-  'Fibernet',
-  'Gadingnet',
-  'Iforte',
-  'Indosat',
-  'InfiniTV',
-  'Lintas Arta',
-  'Melvar Prima Solusi',
-  'Mynetfiber',
-  'Solusi Jaringan Integrasi',
-  'Zeus',
-];
+// const clients = [
+//   'Bandung24jam',
+//   'Businessinasia',
+//   'Elshinta',
+//   'Jabar Exspress',
+//   'SWA',
+//   'TribunJabarID',
+//   'Biskom',
+//   'IT works',
+//   'Itech',
+//   'Radarbandung',
+//   'Trijaya',
+//   'Info komputer',
+//   'Ayo bandung',
+//   'Bussines news',
+//   'Berita kbb',
+//   'Mahavira',
+//   'CBN',
+//   'Fibernet',
+//   'Gadingnet',
+//   'Iforte',
+//   'Indosat',
+//   'InfiniTV',
+//   'Lintas Arta',
+//   'Melvar Prima Solusi',
+//   'Mynetfiber',
+//   'Solusi Jaringan Integrasi',
+//   'Zeus',
+// ];
 
 export const TestimonialsSection = () => {
   const ref = useRef(null);
@@ -71,6 +72,42 @@ export const TestimonialsSection = () => {
   const nextSlide = () => setActiveIndex((prev) => (prev + 1) % testimonials.length);
   const prevSlide = () => setActiveIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
 
+  // Ambil Partner Dari DB
+  const { data: listPartner, isLoading: loadingList, error: errorList } = useListPartner();
+  const partner = useMemo(() => listPartner, [listPartner]);
+
+  // ⬇️ Setelah SEMUA hooks dipanggil, baru lakukan guard dan return
+  if (loadingList) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+
+        <div className="flex-1 flex items-center justify-center">Loading…</div>
+      </div>
+    );
+  }
+
+  if (errorList) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <div className="flex-1 flex items-center justify-center">Terjadi kesalahan memuat data.</div>
+      </div>
+    );
+  }
+
+  if (!partner) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <div className="flex-1 flex items-center justify-center min-h-full">
+          <div className="text-center">
+            <h1 className="text-4xl font-syne font-bold mb-4">Project Not Found</h1>
+            <Link to="/" className="text-accent hover:underline flex items-center justify-center gap-2">
+              <ArrowLeft className="w-4 h-4" /> Return Home
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <section ref={ref} className="section-padding bg-secondary/30 relative overflow-hidden">
       {/* Background elements */}
@@ -113,7 +150,7 @@ export const TestimonialsSection = () => {
             </motion.div>
 
             <AnimatedLine delay={0.3}>
-              <h2 className="font-syne font-bold text-4xl sm:text-5xl md:text-6xl tracking-tight leading-[1.1]">
+              <h2 className="font-syne font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight leading-[1.1]">
                 Apa kata member kami.
               </h2>
             </AnimatedLine>
@@ -229,12 +266,12 @@ export const TestimonialsSection = () => {
               transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
               className="flex gap-16 whitespace-nowrap py-4"
             >
-              {[...clients, ...clients].map((client, index) => (
+              {partner.map((client, index) => (
                 <span
                   key={index}
                   className="text-xl font-syne font-bold text-muted-foreground/40 hover:text-foreground transition-colors duration-1000 cursor-default"
                 >
-                  {client}
+                  {client.nama}
                 </span>
               ))}
             </motion.div>

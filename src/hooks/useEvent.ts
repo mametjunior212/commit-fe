@@ -9,7 +9,7 @@ import { Project } from '@/components/type/projectType';
 // Query key konsisten untuk dipakai di mana saja
 export const menuQueryKey = ['listEvent'] as const;
 
-export async function fetchMenu(signal?: AbortSignal): Promise<Project[]> {
+export async function fetchEvent(signal?: AbortSignal): Promise<Project[]> {
     const res = await fetch(Url.LIST_EVENT_API ?? '/landing-public-service/list-event', { signal });
     if (!res.ok) {
         throw new Error(`Gagal mengambil Event: ${res.status} ${res.statusText}`);
@@ -22,7 +22,7 @@ export async function fetchMenu(signal?: AbortSignal): Promise<Project[]> {
 export function useEvent() {
     return useQuery<Project[]>({
         queryKey: menuQueryKey,
-        queryFn: ({ signal }) => fetchMenu(signal),
+        queryFn: ({ signal }) => fetchEvent(signal),
         staleTime: Infinity,          // data dianggap selalu fresh
         gcTime: Infinity,             // tidak digarbage-collect selama sesi app
         refetchOnWindowFocus: false,  // sesuai kebutuhanmu
@@ -30,7 +30,7 @@ export function useEvent() {
 }
 
 // Opsional: helper untuk refresh manual dari mana saja
-export function useRefreshMenus() {
+export function useRefreshEvent() {
     const qc = useQueryClient();
     return {
         refresh: () => qc.invalidateQueries({ queryKey: menuQueryKey }),

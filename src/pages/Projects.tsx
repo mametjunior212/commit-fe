@@ -56,7 +56,7 @@ const ProjectCard = forwardRef<HTMLDivElement, ProjectCardProps>(({ project, ind
         <div className="relative overflow-hidden aspect-[4/3] mb-8 rounded-sm">
           {project.thumbnail && isImage ? (
             <motion.img
-              src={project.thumbnail}
+              src={import.meta.env.VITE_FONT_END + project.thumbnail}
               alt={project.title}
               className="w-full h-full object-cover"
               animate={{ scale: isHovered ? 1.05 : 1 }}
@@ -64,7 +64,7 @@ const ProjectCard = forwardRef<HTMLDivElement, ProjectCardProps>(({ project, ind
             />
           ) : project.thumbnail && isVideo ? (
             <video
-              src={project.thumbnail}
+              src={import.meta.env.VITE_FONT_END + project.thumbnail}
               poster={project.title}
               muted
               playsInline
@@ -73,7 +73,7 @@ const ProjectCard = forwardRef<HTMLDivElement, ProjectCardProps>(({ project, ind
               className="block w-full h-auto object-cover"
             />
           ) : (<motion.img
-            src={project.thumbnail}
+            src={import.meta.env.VITE_FONT_END + project.thumbnail}
             alt={project.title}
             className="w-full h-full object-cover"
             animate={{ scale: isHovered ? 1.05 : 1 }}
@@ -132,10 +132,10 @@ const ProjectCard = forwardRef<HTMLDivElement, ProjectCardProps>(({ project, ind
 const Projects = () => {
 
   // ---- React Query: cukup panggil hook yang sudah dipisah
-  const { data: apiMenus = [], isLoading, error } = useEvent();
+  const { data: apiEvent = [], isLoading, error } = useEvent();
 
   // Derived links
-  const event = useMemo(() => apiMenus, [apiMenus]);
+  const event = useMemo(() => apiEvent, [apiEvent]);
 
   const categories = ['All', ...Array.from(new Set(event.map(p => p.category)))];
 

@@ -14,7 +14,7 @@ export interface Project {
     results: string[];
     services: string[];
     gallery: {
-        uuid: string, path: string, alt?: string, grid: string | number, orderBy: number, type: string,show_gallery:string
+        uuid: string, path: string, alt?: string, grid: string | number, orderBy: number, type: string, hyperlink: string, show_gallery: string
     }[] | [];
     nextProject: string;
     prevProject: string;

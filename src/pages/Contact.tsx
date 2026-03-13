@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -8,37 +8,10 @@ import { Send, CheckCircle, Loader2, MapPin, Mail, Phone, ArrowUpRight } from 'l
 import { toast } from '@/hooks/use-toast';
 import Footer from '@/components/Footer';
 import Navigation from '@/components/Navigation';
+import { getInParameterByName, getParameterByName, useParameter } from '@/hooks/useSetting';
+import { toTelHref } from '@/lib/utils';
 
-const contactSchema = z.object({
-  name: z.string().trim().min(1, 'Name is required').max(100, 'Name must be less than 100 characters'),
-  email: z.string().trim().email('Please enter a valid email').max(255, 'Email must be less than 255 characters'),
-  company: z.string().trim().max(100, 'Company must be less than 100 characters').optional(),
-  budget: z.string().optional(),
-  message: z.string().trim().min(10, 'Message must be at least 10 characters').max(2000, 'Message must be less than 2000 characters'),
-});
 
-type ContactFormData = z.infer<typeof contactSchema>;
-
-const budgetOptions = [
-  { value: '', label: 'Select a budget range' },
-  { value: '5k-10k', label: ',000 - 0,000' },
-  { value: '10k-25k', label: '0,000 - 5,000' },
-  { value: '25k-50k', label: '5,000 - 0,000' },
-  { value: '50k+', label: '0,000+' },
-];
-
-const contactInfo = [
-  { icon: Mail, label: 'Email', value: 'commitjabar@gmail.com', href: 'commitjabar@gmail.com' },
-  { icon: Phone, label: 'Phone', value: '+62 851-8258-3624', href: 'tel:6285182583624' },
-  { icon: MapPin, label: 'Location', value: 'Bandung, Indonesia', href: null },
-];
-
-const social = [
-  { name: 'Instagram', href: 'https://www.instagram.com/commit_indonesia/' },
-  // { name: 'Twitter', href: '#' },
-  // { name: 'LinkedIn', href: '#' },
-  // { name: 'Dribbble', href: '#' },
-];
 
 const Contact = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -50,27 +23,12 @@ const Contact = () => {
   const heroInView = useInView(heroRef, { once: true });
   const formInView = useInView(formRef, { once: true, margin: '-100px' });
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm<ContactFormData>({
-    resolver: zodResolver(contactSchema),
-  });
+  const { data: apiParam } = useParameter();
 
-  const onSubmit = async (data: ContactFormData) => {
-    setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    console.log('Form submitted:', { ...data, email: '[REDACTED]' });
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-    toast({
-      title: "Message sent!",
-      description: "We'll get back to you within 24-48 hours.",
-    });
-    reset();
-  };
+  const lokasi = useMemo(() => getParameterByName(apiParam, "Lokasi"), [apiParam]);
+  const kontak = useMemo(() => getParameterByName(apiParam, "Kontak"), [apiParam]);
+  const email = useMemo(() => getParameterByName(apiParam, "email"), [apiParam]);
+  const sosmed = useMemo(() => getInParameterByName(apiParam, ["instagram", "Twitter", "Facebook", "Tiktok"]), [apiParam]);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     setMousePosition({
@@ -183,38 +141,93 @@ const Contact = () => {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
-                {contactInfo.map((item, index) => (
-                  <motion.a
-                    key={item.label}
-                    href={item.href || '#'}
-                    className={`group relative p-8 border border-border bg-background hover:border-accent transition-all duration-500 flex flex-col justify-between min-h-[200px] ${item.label === 'Location' ? 'sm:col-span-2' : ''
-                      }`}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={formInView ? { opacity: 1, y: 0 } : {}}
-                    transition={{ delay: 0.3 + index * 0.1 }}
-                  >
-                    <div className="flex justify-between items-start">
-                      <span className="font-mono text-xs text-muted-foreground uppercase tracking-wider group-hover:text-accent transition-colors">
-                        {item.label}
-                      </span>
-                      <item.icon className="w-6 h-6 text-muted-foreground/50 group-hover:text-accent group-hover:scale-110 transition-all duration-300" />
-                    </div>
+                {/* Email */}
+                <motion.a
+                  key={email.uuid}
+                  href={`mailto:${email.value_param}`}
+                  className={`group relative p-8 border border-border bg-background hover:border-accent transition-all duration-500 flex flex-col justify-between min-h-[200px] ${email.value_param === 'Location' ? 'sm:col-span-2' : ''}`}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={formInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ delay: 0.3 + 0 * 0.1 }}
+                >
+                  <div className="flex justify-between items-start">
+                    <span className="font-mono text-xs text-muted-foreground uppercase tracking-wider group-hover:text-accent transition-colors">
+                      {email.nama_param}
+                    </span>
+                    <Mail className="w-6 h-6 text-muted-foreground/50 group-hover:text-accent group-hover:scale-110 transition-all duration-300" />
+                  </div>
 
-                    <div>
-                      <span className="text-xl md:text-2xl font-syne font-bold leading-tight group-hover:text-accent transition-colors break-words">
-                        {item.value}
-                      </span>
-                      {item.href && (
-                        <div className="mt-4 w-8 h-8 rounded-full border border-border flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300">
-                          <ArrowUpRight className="w-4 h-4 text-accent" />
-                        </div>
-                      )}
-                    </div>
+                  <div>
+                    <span className="text-xl md:text-2xl font-syne font-bold leading-tight group-hover:text-accent transition-colors break-words">
+                      {email.value_param}
+                    </span>
+                    {email.value_param && (
+                      <div className="mt-4 w-8 h-8 rounded-full border border-border flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+                        <ArrowUpRight className="w-4 h-4 text-accent" />
+                      </div>
+                    )}
+                  </div>
 
-                    {/* Hover Fill Effect */}
-                    <div className="absolute inset-0 bg-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-                  </motion.a>
-                ))}
+                  {/* Hover Fill Effect */}
+                  <div className="absolute inset-0 bg-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                </motion.a>
+                {/* Kontak */}
+                <motion.a
+                  key={kontak.uuid}
+                  href={`tel:${toTelHref(kontak.value_param)}`}
+                  className={`group relative p-8 border border-border bg-background hover:border-accent transition-all duration-500 flex flex-col justify-between min-h-[200px] ${kontak.value_param === 'Location' ? 'sm:col-span-2' : ''}`}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={formInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ delay: 0.3 + 0 * 0.1 }}
+                >
+                  <div className="flex justify-between items-start">
+                    <span className="font-mono text-xs text-muted-foreground uppercase tracking-wider group-hover:text-accent transition-colors">
+                      {kontak.nama_param}
+                    </span>
+                    <Phone className="w-6 h-6 text-muted-foreground/50 group-hover:text-accent group-hover:scale-110 transition-all duration-300" />
+                  </div>
+
+                  <div>
+                    <span className="text-xl md:text-2xl font-syne font-bold leading-tight group-hover:text-accent transition-colors break-words">
+                      {kontak.value_param}
+                    </span>
+                    {kontak.value_param && (
+                      <div className="mt-4 w-8 h-8 rounded-full border border-border flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+                        <ArrowUpRight className="w-4 h-4 text-accent" />
+                      </div>
+                    )}
+                  </div>
+                </motion.a>
+                {/* Lokasi */}
+                <motion.a
+                  key={lokasi.uuid}
+                  href={`/#`}
+                  className={`group relative p-8 border border-border bg-background hover:border-accent transition-all duration-500 flex flex-col justify-between min-h-[200px] ${lokasi.value_param === 'Location' ? 'sm:col-span-2' : ''}`}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={formInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ delay: 0.3 + 0 * 0.1 }}
+                >
+                  <div className="flex justify-between items-start">
+                    <span className="font-mono text-xs text-muted-foreground uppercase tracking-wider group-hover:text-accent transition-colors">
+                      {lokasi.nama_param}
+                    </span>
+                    <MapPin className="w-6 h-6 text-muted-foreground/50 group-hover:text-accent group-hover:scale-110 transition-all duration-300" />
+                  </div>
+
+                  <div>
+                    <span className="text-xl md:text-2xl font-syne font-bold leading-tight group-hover:text-accent transition-colors break-words">
+                      {lokasi.value_param}
+                    </span>
+                    {lokasi.value_param && (
+                      <div className="mt-4 w-8 h-8 rounded-full border border-border flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+                        <ArrowUpRight className="w-4 h-4 text-accent" />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Hover Fill Effect */}
+                  <div className="absolute inset-0 bg-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                </motion.a>
               </div>
 
               {/* Social Links */}
@@ -226,16 +239,16 @@ const Contact = () => {
               >
                 <span className="text-xs font-mono text-muted-foreground block mb-6 uppercase tracking-wider">FOLLOW US</span>
                 <div className="flex flex-wrap gap-4">
-                  {social.map((social, index) => (
+                  {sosmed.map((social, index) => (social.value_param !== "" &&
                     <motion.a
-                      key={social.name}
-                      href={social.href}
+                      key={social.uuid}
+                      href={social.value_param}
                       className="px-8 py-4 border border-border text-sm font-bold font-syne hover:bg-foreground hover:text-background hover:border-foreground transition-all duration-300 min-w-[120px] text-center"
                       initial={{ opacity: 0, y: 10 }}
                       animate={formInView ? { opacity: 1, y: 0 } : {}}
                       transition={{ delay: 0.7 + index * 0.05 }}
                     >
-                      {social.name}
+                      {social.nama_param}
                     </motion.a>
                   ))}
                 </div>
@@ -243,7 +256,7 @@ const Contact = () => {
             </motion.div>
 
             {/* Right Column - Form */}
-            
+
           </div>
         </div>
       </section>

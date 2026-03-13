@@ -1,7 +1,10 @@
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'framer-motion';
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import MagneticButton from '@/components/MagneticButton';
+import { getParameterByName, useParameter } from '@/hooks/useSetting';
+import { Parameter } from '../type/Parameter';
+import { ArrowLeft } from 'lucide-react';
 
 const words = [
   { text: 'We', number: '01' },
@@ -9,6 +12,7 @@ const words = [
   { text: 'Digital', number: '03' },
   { text: 'Products', number: '04', accent: true },
 ];
+
 
 export const HeroSection = () => {
   const ref = useRef(null);
@@ -30,6 +34,20 @@ export const HeroSection = () => {
   const cursorY = useMotionValue(0);
   const springX = useSpring(cursorX, { stiffness: 100, damping: 20 });
   const springY = useSpring(cursorY, { stiffness: 100, damping: 20 });
+
+  // Memanggil Dari Hook DB
+  // ---- React Query: cukup panggil hook yang sudah dipisah
+  const { data: apiParameter = [], isLoading, error } = useParameter();
+
+  // Variabel Untuk Ngisi Data
+  const videoDepan = useMemo(() => getParameterByName(apiParameter, "Video Landing Page"), [apiParameter]);
+  const background = useMemo(() => getParameterByName(apiParameter, "Background Hero Landing Page"), [apiParameter]);
+  const deskripsi = useMemo(() => getParameterByName(apiParameter, "Deskripsi Landing Page"), [apiParameter]);
+  const buttonLabel1 = useMemo(() => getParameterByName(apiParameter, "Label Button 1 Landing Page"), [apiParameter]);
+  const buttonlink1 = useMemo(() => getParameterByName(apiParameter, "Link Button 1 Landing Page"), [apiParameter]);
+  const buttonLabel2 = useMemo(() => getParameterByName(apiParameter, "Label Button 2 Landing Page"), [apiParameter]);
+  const buttonlink2 = useMemo(() => getParameterByName(apiParameter, "Link Button 2 Landing Page"), [apiParameter]);
+
 
   useEffect(() => {
     const updateTime = () => {
@@ -56,6 +74,38 @@ export const HeroSection = () => {
     });
   };
 
+  // ⬇️ Setelah SEMUA hooks dipanggil, baru lakukan guard dan return
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+
+        <div className="flex-1 flex items-center justify-center">Loading…</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <div className="flex-1 flex items-center justify-center">Terjadi kesalahan memuat data.</div>
+      </div>
+    );
+  }
+
+  if (!apiParameter) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <div className="flex-1 flex items-center justify-center min-h-full">
+          <div className="text-center">
+            <h1 className="text-4xl font-syne font-bold mb-4">Project Not Found</h1>
+            <Link to="/" className="text-accent hover:underline flex items-center justify-center gap-2">
+              <ArrowLeft className="w-4 h-4" /> Return Home
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <motion.section
       ref={ref}
@@ -66,7 +116,7 @@ export const HeroSection = () => {
       {/* Background */}
       <motion.div className="absolute inset-0" style={{ y: bgY }}>
         <img
-          src="/assets/hero-bg.png"
+          src={import.meta.env.VITE_FONT_END + (background?.value_param ?? '')}
           alt=""
           className="w-full h-full object-cover opacity-100 scale-110"
         />
@@ -252,7 +302,7 @@ export const HeroSection = () => {
           </h1> */}
           {/* Video Commit */}
           <motion.video
-            src="/assets/dashboard.mp4"
+            src={import.meta.env.VITE_FONT_END + (videoDepan?.value_param ?? '')}
             // autoPlay
             loop
             muted
@@ -270,7 +320,7 @@ export const HeroSection = () => {
               className="max-w-md"
             >
               <p className="text-base sm:text-lg md:text-xl text-muted-foreground leading-relaxed">
-                CommIT Indonesia adalah Komunitas Perkumpulan IT Seluruh Indonesia yang didirikan pada tanggal 25 Agustus 2023.
+                {(deskripsi?.value_param ?? '')}
               </p>
             </motion.div>
 
@@ -282,10 +332,10 @@ export const HeroSection = () => {
             >
               <MagneticButton>
                 <Link
-                  to="/about"
+                  to={(buttonlink1?.value_param ?? '')}
                   className="group relative inline-flex items-center justify-center gap-3 px-6 sm:px-8 py-3 sm:py-4 bg-foreground text-background font-semibold rounded-full overflow-hidden text-sm sm:text-base w-full sm:w-auto"
                 >
-                  <span className="relative z-10">Tentang Kami</span>
+                  <span className="relative z-10">{(buttonLabel1?.value_param ?? '')}</span>
                   <motion.div
                     className="relative z-10 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-background/20 flex items-center justify-center"
                     whileHover={{ rotate: 45 }}
@@ -312,10 +362,10 @@ export const HeroSection = () => {
 
               <MagneticButton>
                 <Link
-                  to="/event"
+                  to={(buttonlink2?.value_param ?? '')}
                   className="group relative inline-flex items-center justify-center gap-3 px-6 sm:px-8 py-3 sm:py-4 border border-foreground/20 text-foreground font-semibold rounded-full overflow-hidden hover:border-accent/50 transition-colors duration-300 text-sm sm:text-base w-full sm:w-auto"
                 >
-                  <span className="relative z-10">Mulai Jelajahi</span>
+                  <span className="relative z-10">{(buttonLabel2?.value_param ?? '')}</span>
                   <motion.span
                     className="relative z-10 text-accent"
                     animate={{ x: [0, 5, 0] }}

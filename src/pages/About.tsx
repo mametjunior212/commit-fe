@@ -1,13 +1,12 @@
 import { motion, useInView } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { ArrowRight, Linkedin, Twitter } from 'lucide-react';
 import Footer from '@/components/Footer';
 import MagneticButton from '@/components/MagneticButton';
 import Navigation from '@/components/Navigation';
-import img_struktur from '../../public/assets/Struktur-Organisasi.png';
-import img_logo from '../../public/assets/CommIT-image-2.png';
 import "../index.css";
+import { getParameterByName, useParameter } from '@/hooks/useSetting';
 
 const teamMembers = [
   {
@@ -115,6 +114,12 @@ const About = () => {
   const valuesInView = useInView(valuesRef, { once: true, margin: '-100px' });
   const teamInView = useInView(teamRef, { once: true, margin: '-100px' });
 
+  // Ambil Dari DB
+  const { data: apiParameter } = useParameter();
+  const logo = useMemo(() => getParameterByName(apiParameter, "Logo About"), [apiParameter]);
+  const struktur = useMemo(() => getParameterByName(apiParameter, "Struktur Organisasi About"), [apiParameter]);
+  const deskripsi = useMemo(() => getParameterByName(apiParameter, "Deskripsi About"), [apiParameter]);
+
   const handleMouseMove = (e: React.MouseEvent) => {
     setMousePosition({
       x: (e.clientX - window.innerWidth / 2) / 30,
@@ -157,14 +162,8 @@ const About = () => {
               transition={{ duration: 0.8, delay: 0.4 }}
               className="space-y-6 text-lg text-muted-foreground leading-relaxed text-left"
             >
-              <p>
-                CommIT Indonesia adalah Komunitas Perkumpulan IT Seluruh Indonesia yang didirikan pada tanggal 25 Agustus 2023. Sebagai wadah bagi para profesional IT dari berbagai segmen industri seperti Hospitality, Pendidikan, Sistem Integrator, Instansi Pemerintahan, Theme Park, dan lainnya, kami bertekad untuk menciptakan platform yang memungkinkan kolaborasi dan pertukaran pengetahuan yang produktif.
-                <br></br>
-                <br></br>
-                Kami percaya bahwa melalui diskusi dan kolaborasi, kami dapat memperkuat industri IT di Indonesia serta meningkatkan kemampuan dan inovasi di bidang teknologi informasi. Dengan menghubungkan para profesional IT dari berbagai latar belakang, kami berharap dapat mendorong pertumbuhan dan kemajuan yang berkelanjutan dalam industri ini.
-                <br></br>
-                <br></br>
-                Bergabunglah dengan kami untuk menjadi bagian dari komunitas yang dinamis dan bersemangat untuk mengembangkan potensi teknologi informasi di Indonesia. Mari kita bersama-sama menciptakan masa depan yang lebih baik melalui kolaborasi, pembelajaran, dan inovasi dalam CommIT Indonesia.
+              <p style={{ whiteSpace: 'pre-line' }}>
+                {deskripsi.value_param}
               </p>
             </motion.div>
           </div>
@@ -188,7 +187,7 @@ const About = () => {
               className="text-lg text-muted-foreground leading-relaxed text-left"
             >
               <motion.img
-                src={img_struktur}
+                src={import.meta.env.VITE_FONT_END + struktur.value_param}
                 alt="Struktur Organisasi CommIT Indonesia"
                 className="mx-auto"
               />
@@ -213,7 +212,7 @@ const About = () => {
               className="text-lg text-muted-foreground leading-relaxed text-left"
             >
               <motion.img
-                src={img_logo}
+                src={import.meta.env.VITE_FONT_END + logo.value_param}
                 alt="Logo CommIT Indonesia"
                 className="mx-auto"
               />

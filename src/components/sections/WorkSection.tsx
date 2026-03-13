@@ -27,7 +27,7 @@ const ProjectCard = ({ project, index }: ProjectCardProps) => {
         {/* Image Container */}
         <div className="relative overflow-hidden aspect-[4/3] mb-8 rounded-none">
           <motion.img
-            src={project.thumbnail}
+            src={import.meta.env.VITE_FONT_END + project.thumbnail}
             alt={project.title}
             className="w-full h-full object-cover"
             animate={{ scale: isHovered ? 1.05 : 1 }}
@@ -103,7 +103,7 @@ export const WorkSection = () => {
               <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Featured Event</span>
             </div>
             <AnimatedLine>
-              <h2 className="font-syne font-bold text-5xl md:text-7xl tracking-tighter leading-[0.9]">
+              <h2 className="font-syne font-bold text-3xl md:text-5xl tracking-tighter leading-[0.9]">
                 Kegiatan<br />
                 <span className="text-accent">Yang sudah kami lakukan.</span>
               </h2>

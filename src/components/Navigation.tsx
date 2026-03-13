@@ -107,12 +107,12 @@ export const Navigation: React.FC = () => {
                 transition={{ type: 'spring', stiffness: 400, damping: 17 }}
               >
                 <motion.img
-                  src="/assets/logo-Web.png"
+                  src={import.meta.env.VITE_FONT_END + "/assets/logo-Web.png"}
                   alt="CommIT Logo"
                   className="relative h-full flex items-center justify-center"
                 />
                 <div className="hidden overflow-hidden">
-                  <motion.img src="/assets/logo-Web.png" alt="CommIT Logo" />
+                  <motion.img src={import.meta.env.VITE_FONT_END + "/assets/logo-Web.png"} alt="CommIT Logo" />
                 </div>
               </motion.div>
               <motion.div

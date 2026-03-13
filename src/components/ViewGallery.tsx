@@ -87,7 +87,12 @@ export const ViewFull: React.FC<ViewFullProps> = ({ src, alt = '', poster, child
                                 preload="metadata"
                                 className="block w-full h-auto object-cover"
                             />
-                        ) : (children ?? null)}
+                        ) : (src !== "" ? (
+                            <iframe
+                                src={src}
+                                title={alt}
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            ></iframe>) : null)}
                         <button onClick={handleOpen} className="absolute bottom-3 right-3 bg-black/70 text-white text-xs px-3 py-1.5 rounded">
                             View Full
                         </button>
@@ -138,9 +143,13 @@ export const ViewFull: React.FC<ViewFullProps> = ({ src, alt = '', poster, child
                                     <ImageZoomCanvas src={src} alt={alt} />
                                 ) : isVideo && src ? (
                                     <VideoPlayer src={src} poster={poster} />
-                                ) : (
-                                    <div style={{ color: '#fff' }}>{children}</div>
-                                )}
+                                ) : (src !== "" ? (
+                                    <iframe
+                                        src={src}
+                                        title={alt}
+                                        className="w-full h-[76vh]"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                    ></iframe>) : <div style={{ color: '#fff' }}>{children}</div>)}
                             </div>
                         </div>
                     </div>,
