@@ -4,6 +4,7 @@ const Url = {
     // Public
     MENU_API: `${import.meta.env.VITE_PUBLIC_GATEWAY}/landing-public-service/menu`,
     LIST_EVENT_API: `${import.meta.env.VITE_PUBLIC_GATEWAY}/landing-public-service/list-event`,
+    LIST_DETAIL_EVENT_API: `${import.meta.env.VITE_PUBLIC_GATEWAY}/landing-public-service/detail/`,
     LIST_PARTNER_API: `${import.meta.env.VITE_PUBLIC_GATEWAY}/landing-public-service/list-partner`,
     LIST_SETTING_PARAM: `${import.meta.env.VITE_PUBLIC_GATEWAY}/landing-public-service/settingParam`,
     Jobs_API: `${import.meta.env.VITE_PUBLIC_GATEWAY}/landing-public-service/listpekerjaan`,

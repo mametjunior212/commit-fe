@@ -48,7 +48,7 @@ export type VoteResponse = {
 };
 
 // ---- Config (from .env) ----
-const API_URL = Url.Voting_Realtime     || `/api/v1/votes`;
+const API_URL = Url.Voting_Realtime || `/api/v1/votes`;
 const SSE_URL = ""; // leave empty to disable SSE
 
 // ---- Helpers ----
@@ -69,7 +69,9 @@ function normalizeResponse(resp?: VoteResponse | null): VoteResponse {
 }
 
 // ---- Live data hook: SSE with polling fallback ----
-export function useLiveVotes(pollIntervalMs = 2000) {
+export function useLiveVotes(pollIntervalMs = 2000, options?: { enabled?: boolean }
+) {
+    const enabled = options?.enabled ?? true;
     const [sseData, setSseData] = useState<VoteResponse | null>(null);
     const [sseError, setSseError] = useState<Error | null>(null);
     const [usingSSE, setUsingSSE] = useState<boolean>(Boolean(SSE_URL));
@@ -119,7 +121,7 @@ export function useLiveVotes(pollIntervalMs = 2000) {
             return normalizeResponse(json);
         },
         refetchInterval: usingSSE ? false : pollIntervalMs,
-        enabled: !usingSSE, // only enable polling when not using SSE
+        enabled: enabled && !usingSSE, // 🔥 penting
         staleTime: 1000,
     });
 

@@ -22,6 +22,8 @@ export type EventItem = {
     created_by: string | number | null;
     updated_at: string;
     updated_by: string | number | null;
+    limitUser: number;
+    TotalRegist: number;
     DT_RowIndex: number;
     absen_personal?: {
         uuid: string;

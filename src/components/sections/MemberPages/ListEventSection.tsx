@@ -261,7 +261,6 @@ export default function ListEventSection({ params, onParamsChange }: Props) {
 
                                 const open = isOpen(now, r.close_regist);     // boolean
                                 const remain = open ? getRemaining(now, r.close_regist) : null;
-
                                 return (
                                     <tr key={r.uuid} className="border-t border-gray-100">
                                         <Td className="text-gray-500">{r.DT_RowIndex}</Td>
@@ -289,9 +288,9 @@ export default function ListEventSection({ params, onParamsChange }: Props) {
                                         ) : <Td>{fmtDateTimeIndo(r.close_regist)}</Td>}</Td>
                                         <Td>
                                             <div className="flex gap-2">
-                                                <a href={`/event/${r.uuid}`} className="px-2 py-1 rounded bg-indigo-50 text-indigo-700 hover:bg-indigo-100">Detail</a>
+                                                <a href={`/event/${r.uuid}`} target="_blank" className="px-2 py-1 rounded bg-indigo-50 text-indigo-700 hover:bg-indigo-100">Detail</a>
                                                 {r.absen_personal.length === 0 ? (
-                                                    open ? (
+                                                    open && r.limitUser != r.TotalRegist ? (
                                                         <button
                                                             className="px-2 py-1 rounded bg-indigo-50 text-green-600 hover:bg-indigo-100 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2"
                                                             onClick={() => registerMutation.mutate({ event_uuid: r.uuid })}

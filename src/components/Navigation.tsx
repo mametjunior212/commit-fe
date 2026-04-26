@@ -314,8 +314,8 @@ export const Navigation: React.FC = () => {
               {/* CTA */}
               <div className="flex items-center gap-2">
                 <MagneticButton className="group relative ml-2">
-                  <Link
-                    to="/login"
+                  <a
+                    href="/login"
                     className="relative flex items-center gap-3 px-5 py-2.5 bg-foreground text-background rounded-full overflow-hidden"
                   >
                     <motion.div
@@ -355,7 +355,7 @@ export const Navigation: React.FC = () => {
                       whileHover={{ y: 0 }}
                       transition={{ duration: 0.3, ease: [0.19, 1, 0.22, 1] }}
                     />
-                  </Link>
+                  </a>
                 </MagneticButton>
               </div>
             </div>

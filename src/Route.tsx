@@ -13,6 +13,7 @@ import AdminLayout from "./pages/MemberPages/Layouts/AdminLayout";
 import ListEvent from "./pages/MemberPages/ListEvent";
 import ListVote from "./pages/MemberPages/ListVote";
 import RealtimeVotingPage from "./pages/RealtimeVoting";
+import Maintenance from "./pages/Maintenance";
 
 const RoutePage = () => {
 
@@ -29,9 +30,10 @@ const RoutePage = () => {
             <Route path="/verifikasi/:id" element={<VerifyOtp />} />
             <Route path="/member" element={<AdminLayout />}>
                 <Route index element={<Navigate to="dashboard" replace />} />
-                <Route path="dashboard" element={<Dashboard />} />
+                {/* <Route path="dashboard" element={<Dashboard />} /> */}
                 <Route path="event" element={<ListEvent />} />
                 <Route path="vote" element={<ListVote />} />
+                <Route path="/member/*" element={<Maintenance />} />
             </Route>
             {/* <Route path="/blog" element={<Blog />} /> */}
             {/* <Route path="/blog/:id" element={<BlogPost />} /> */}

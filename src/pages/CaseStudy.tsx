@@ -7,7 +7,6 @@ import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { ViewFull } from '@/components/ViewGallery';
 import { Project } from '@/components/type/projectType';
-import { useEvent } from '@/hooks/useEvent';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AttendancePie from '@/components/AttendancePie';
 import { COLORS_Chart, fmtDateTimeIndo } from '@/lib/utils';
@@ -19,6 +18,7 @@ import * as Progress from "@radix-ui/react-progress";
 import { MenuApiResponse } from '@/components/type/MenuType';
 import { sumVotes, useLiveVotes } from './RealtimeVoting';
 import { Bar, BarChart, CartesianGrid, Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { useDetailEvent } from '@/hooks/useDetailEvent';
 
 // Helper murni (tanpa hooks)
 const getProjectById = (list: Project[], uuid?: string) =>
@@ -67,7 +67,11 @@ const CaseStudy = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>(); // Kalau tetap pakai getUuidFromPath(), taruh dia DI LUAR hooks
 
-  const { data: apiEvent = [], isLoading, error } = useEvent();
+  if (!id) {
+    return null; // atau Skeleton
+  }
+
+  const { data: apiEvent, isLoading, error } = useDetailEvent(id);
 
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
@@ -77,18 +81,22 @@ const CaseStudy = () => {
   });
 
   // Semua derivasi pakai useMemo, TETAP dipanggil sebelum guard
-  const project = useMemo(() => getProjectById(apiEvent, id), [apiEvent, id]);
+  const project = useMemo(() => apiEvent, [apiEvent, id]);
 
   const nextProject = useMemo(
-    () => getProjectById(apiEvent, project?.nextProject),
-    [apiEvent, project?.nextProject]
+    () => apiEvent?.detailnextProject,
+    [apiEvent, project?.detailnextProject]
   );
 
   const prevProject = useMemo(
-    () => getProjectById(apiEvent, project?.prevProject),
-    [apiEvent, project?.prevProject]
+    () => project?.detailprevProject,
+    [apiEvent, project?.detailprevProject]
   );
 
+  const isVoting = useMemo(
+    () => project?.category === "Voting",
+    [project?.category]
+  );
 
   const [dataAbsen, setDataAbsen] = useState<isiAbsen>(EMPTY_ABSEN);
   const [loadingAbsen, setLoadingAbsen] = useState(true);
@@ -142,7 +150,7 @@ const CaseStudy = () => {
   const absenPT = useMemo(() => clean(dataAbsen.absenPT), [dataAbsen]);
 
   // Voting
-  const { data: dataVoting, isLoading: isLoadingVoting, error: errorVoting, usingSSE, refetch } = useLiveVotes(20000000000);
+  const { data: dataVoting, isLoading: isLoadingVoting, error: errorVoting, usingSSE, refetch } = useLiveVotes(20000000000, { enabled: isVoting });
   const totalVotes = useMemo(() => sumVotes(dataVoting?.data ?? []), [dataVoting]);
   const totalUsers = dataVoting?.totaluser ?? 0; // NEW: total user aktif dari API
   const votedUsers = useMemo(
@@ -232,8 +240,8 @@ const CaseStudy = () => {
     <div className="min-h-screen bg-background selection:bg-accent/20 flex flex-col" >
       < Navigation />
       <Helmet>
-        <title>{project.title} | CommIT</title>
-        <meta name="description" content={project.description} />
+        <title>{project?.title ?? ""} | CommIT</title>
+        <meta name="description" content={project?.description} />
       </Helmet>
 
       {/* <CustomCursor /> */}
@@ -261,14 +269,14 @@ const CaseStudy = () => {
                   Back to Work
                 </Link>
                 <span className="mx-4 text-foreground/20">/</span>
-                <span className="text-sm text-foreground/40 uppercase tracking-wider">{project.category}</span>
+                <span className="text-sm text-foreground/40 uppercase tracking-wider">{project?.category}</span>
               </div >
 
               {/* Year Cell */}
               < div className="col-span-1 p-6 flex items-center justify-between lg:justify-center text-sm font-medium text-foreground/80" >
                 <span className="lg:hidden text-foreground/40 uppercase tracking-wider">Year</span>
                 <div className="flex items-center gap-2 font-mono">
-                  {project.year}
+                  {project?.year}
                 </div>
               </div >
             </div >
@@ -276,25 +284,25 @@ const CaseStudy = () => {
             {/* 2. Title Section */}
             < div className="grid grid-cols-1 lg:grid-cols-12" >
               <div className="lg:col-span-12 p-6 md:p-12 lg:p-16 border-b border-foreground/10">
-                {project.title && project.title !== '' && (
+                {project?.title && project?.title !== '' && (
                   <motion.h1
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
                     className="text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-syne font-bold leading-[0.9] tracking-tight text-foreground uppercase"
                   >
-                    {project.title}
+                    {project?.title}
                   </motion.h1>
                 )}
 
                 <div className="mt-8 md:mt-12 flex flex-col md:flex-row md:items-center justify-between gap-6">
                   <p className="text-lg md:text-xl text-foreground/60 max-w-4xl leading-relaxed">
-                    {project.description}
+                    {project?.description}
                   </p>
-                  {project.category && project.category !== '' && (
+                  {project?.category && project?.category !== '' && (
                     <div className="flex items-center gap-3">
                       <div className="px-4 py-2 rounded-full border border-foreground/10 text-xs font-bold uppercase tracking-widest bg-foreground/5">
-                        {project.category}
+                        {project?.category}
                       </div>
                     </div>
                   )}
@@ -304,7 +312,7 @@ const CaseStudy = () => {
 
             {/* 3. Hero Image - Full Grid Width */}
             {
-              project.template == 'Template 1' ?
+              project?.template == 'Template 1' ?
                 (<div className="w-full border-b border-foreground/10 overflow-hidden bg-foreground/5">
                   <motion.div
                     initial={{ scale: 1.05, opacity: 0 }}
@@ -314,13 +322,13 @@ const CaseStudy = () => {
                   >
                     <img
                       src={import.meta.env.VITE_FONT_END + (project.heroImage ?? '')}
-                      alt={project.title ?? ''}
+                      alt={project?.title ?? ''}
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
                   </motion.div>
                 </div>)
-                : project.template == 'Template 2' ? (<>
+                : project?.template == 'Template 2' ? (<>
                   <motion.div
                     initial={{ scale: 1.05, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
@@ -329,7 +337,7 @@ const CaseStudy = () => {
                   >
                     <motion.img
                       src={import.meta.env.VITE_FONT_END + (project.heroImage ?? '')}
-                      alt={project.title ?? ''}
+                      alt={project?.title ?? ''}
                       className="w-full h-full object-cover md:col-span-8 rounded-lg"
                     />
 
@@ -358,22 +366,22 @@ const CaseStudy = () => {
                   className="prose prose-lg md:prose-xl max-w-none prose-headings:font-syne prose-headings:font-bold prose-p:text-foreground/80 prose-p:leading-relaxed prose-a:text-accent prose-a:no-underline hover:prose-a:underline prose-img:rounded-none prose-img:border prose-img:border-foreground/10"
                 >
                   {/* About Section */}
-                  {project.about && project.about !== '' &&
+                  {project?.about && project?.about !== '' &&
                     <>
                       <h3 className="text-2xl md:text-3xl font-syne font-bold mb-6">Tentang Event</h3>
                       <p className="mb-12 text-foreground/80 leading-relaxed"
                         style={{ whiteSpace: 'pre-line' }}>
-                        {project.about}
+                        {project?.about}
                       </p>
                     </>
                   }
 
                   {/* Impact / Results Highlight */}
-                  {project.results[0] !== "" ? (
+                  {project?.results[0] !== "" ? (
                     <div className="my-16 p-8 border border-foreground/10 bg-foreground/5 rounded-none">
                       <h4 className="text-sm font-bold uppercase tracking-widest text-accent mb-8">Key Results</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 not-prose">
-                        {project.results.map((result, i) => (
+                        {project?.results.map((result, i) => (
                           <div key={i}>
                             <span className="block text-4xl md:text-5xl font-syne font-bold mb-2">{result.split(' ')[0]}</span>
                             <span className="text-xs font-mono uppercase tracking-widest text-foreground/60">{result.split(' ').slice(1).join(' ')}</span>
@@ -385,7 +393,7 @@ const CaseStudy = () => {
                 </motion.article>
 
                 {/* Gallery - Visual Archive Layout */}
-                {project.gallery.length !== 0 && (
+                {project?.gallery.length !== 0 && (
                   <div className="mt-12">
                     <div className="flex items-end justify-between mb-16">
                       <div>
@@ -393,13 +401,13 @@ const CaseStudy = () => {
                         <h3 className="text-3xl font-syne font-bold">Dokumentasi Acara</h3>
                       </div>
                       <span className="hidden md:block text-xs font-mono uppercase tracking-widest text-foreground/40">
-                        {project.gallery.length} Assets Processed
+                        {project?.gallery.length} Assets Processed
                       </span>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-                      {project.gallery.map((item: { uuid: string, path: string, alt?: string, grid: string | number, orderBy: number, type: string, hyperlink: string, show_gallery: string }, i: number) => {
+                      {project?.gallery.map((item: { uuid: string, path: string, alt?: string, grid: string | number, orderBy: number, type: string, hyperlink: string, show_gallery: string }, i: number) => {
                         const isObj = typeof item === 'object' && item !== null;
                         const type = isObj ? item.path : undefined;
                         const poster = isObj ? item.path : undefined;
@@ -413,7 +421,7 @@ const CaseStudy = () => {
                               key={item.uuid}
                               src={isHyperlink !== "" ? isHyperlink : import.meta.env.VITE_FONT_END + item.path}
                               poster={poster}
-                              title={project.title}
+                              title={project?.title}
                               className={`group ${item.grid === 3 || item.grid === "3" ? 'md:col-span-3' : item.grid === 2 || item.grid === "2" ? 'md:col-span-2' : 'md:col-span-1'} ${aspectClass} relative overflow-hidden rounded-lg cursor-pointer`}
                               renderTrigger={(open) => (
                                 <div className={`relative overflow-hidden bg-foreground/5 ${aspectClass}`}>
@@ -482,18 +490,18 @@ const CaseStudy = () => {
                   </div>
                 )}
                 {/* Partner */}
-                {project.partner && project.partner.length !== 0 && (
+                {project?.partner && project?.partner.length !== 0 && (
                   <motion.div>
                     <div className="flex items-end justify-between mt-16">
                       <div>
                         <h3 className="text-3xl font-syne font-bold">Partner</h3>
                       </div>
                       <span className="hidden md:block text-xs font-mono uppercase tracking-widest text-foreground/40">
-                        {project.partner.length}Partner
+                        {project?.partner.length}Partner
                       </span>
                     </div>
                     <motion.div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-10">
-                      {project.partner.map((e: { img: string; partner: string; link: string; }, index: number) => {
+                      {project?.partner.map((e: { img: string; partner: string; link: string; }, index: number) => {
                         return <motion.div key={index} className='rounded-xl border-[#f1f0f8] relative min-w-2 border-[3px]'>
                           <motion.img
                             key={index}
@@ -508,18 +516,18 @@ const CaseStudy = () => {
                 )}
 
                 {/* Media Partner */}
-                {project.media && project.media.length !== 0 && (
+                {project?.media && project?.media.length !== 0 && (
                   <motion.div>
                     <div className="flex items-end justify-between mt-16">
                       <div>
                         <h3 className="text-3xl font-syne font-bold">Media Partner</h3>
                       </div>
                       <span className="hidden md:block text-xs font-mono uppercase tracking-widest text-foreground/40">
-                        {project.media.length} Media Partner
+                        {project?.media.length} Media Partner
                       </span>
                     </div>
                     <motion.div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-10">
-                      {project.media.map((e: { img: string; media: string; link: string; }, index: number) => {
+                      {project?.media.map((e: { img: string; media: string; link: string; }, index: number) => {
                         return <motion.a key={index} href={e.link} className='rounded-xl border-[#f1f0f8] relative min-w-2 border-[3px]'>
                           <motion.img
                             key={index}
@@ -534,7 +542,7 @@ const CaseStudy = () => {
                 )}
 
                 {/* Absensi */}
-                {project.absen && project.absen.length !== 0 && (
+                {project?.absen && project?.absen.length !== 0 && (
                   <>
                     {/* Pendaftaran */}
                     <motion.div>
@@ -568,7 +576,7 @@ const CaseStudy = () => {
                 )}
 
                 {/* Voting */}
-                {dataVoting && (
+                {dataVoting && isVoting && (
                   <>
                     <div className="flex items-end justify-between mt-16">
                       <div>
@@ -670,7 +678,7 @@ const CaseStudy = () => {
 
         {/* Footer Navigation */}
         {
-          project.nextProject && project.nextProject !== '' && (
+          project?.nextProject && project?.nextProject !== '' && (
             <section className="border-t border-foreground/10 bg-foreground/5 py-20">
               <div className="container-wide max-w-[90rem] mx-auto px-4 sm:px-6">
                 <div className="flex items-end justify-between mb-12">
@@ -717,7 +725,7 @@ const CaseStudy = () => {
           )
         }
         {
-          project.prevProject && project.prevProject !== '' && (
+          project?.prevProject && project?.prevProject !== '' && (
             <section className="border-t border-foreground/10 bg-foreground/5 py-20">
               <div className="container-wide max-w-[90rem] mx-auto px-4 sm:px-6">
                 <div className="flex items-end justify-between mb-12">

@@ -124,7 +124,7 @@ export default function Header({
               email: user?.email ?? 'rahmat@example.com',
               avatarUrl:
                 user?.avatarUrl ??
-                `https://ui-avatars.com/api/?name=${user.initial}&background=0D8ABC&color=fff`,
+                `https://ui-avatars.com/api/?name=${user?.initial}&background=0D8ABC&color=fff`,
               online: user?.online ?? true,
             }}
             onOpenProfile={onOpenProfile}

@@ -2,16 +2,37 @@
 import Header, { HeaderProps } from './Header'
 import Sidebar from './Sidebar'
 import Headbar from './Headbar'
-import { ReactNode, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
-import { useMenuMember } from '@/hooks/menuMember'
 import { toast } from '@/hooks/use-toast';
+import { useQueryClient } from '@tanstack/react-query';
 
 
 export default function AdminLayout() {
+  const qc = useQueryClient();
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('data_user');
+
+    qc.removeQueries({ queryKey: ['listEventMember'] });
+    qc.removeQueries({ queryKey: ['listVotingMember'] });
+
+    toast({
+      title: 'Logout',
+      description: `Anda Berhasil Logout.`,
+    });
+
+    window.location.href = '/login';
+  };
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("data_user") || "null");
+    if (user == null) handleLogout();
+  }, []);
 
   const [dataMember, setdataMember] = useState<HeaderProps["user"]>(() => {
     try {
@@ -23,6 +44,7 @@ export default function AdminLayout() {
 
 
 
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
@@ -31,9 +53,11 @@ export default function AdminLayout() {
         localStorage.removeItem('data_user');
         toast({
           title: 'Logout',
-          description: `Adnda Berhasil Logout.`,
+          description: `Anda Berhasil Logout.`,
         });
-        navigate('/login', { replace: true });
+        qc.removeQueries({ queryKey: ['listEventMember'] })
+        qc.removeQueries({ queryKey: ['listVotingMember'] })
+        window.location.href = '/login';
       }
       } />
 

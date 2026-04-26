@@ -51,4 +51,18 @@ export interface Project {
         alamat: string | "";
         alamat_kantor?: string | "";
     }[] | [];
+    detailnextProject?: {
+        uuid: string;
+        heroImage: string;
+        title: string;
+        year: string;
+        category: string;
+    }
+    detailprevProject?: {
+        uuid: string;
+        heroImage: string;
+        title: string;
+        year: string;
+        category: string;
+    }
 }

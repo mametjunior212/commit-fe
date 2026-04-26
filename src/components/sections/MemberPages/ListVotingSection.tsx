@@ -63,7 +63,7 @@ export default function ListVotingSection({ params, onParamsChange }: Props) {
     }, [debouncedSearch]);
 
     const { data, isLoading, isFetching, isError, error, refetch } = useQuery({
-        queryKey: ["listEventMember", params],
+        queryKey: ["listVotingMember", params],
         queryFn: () => fetchPortfolio(params, COLUMNS, USE_DATATABLES_QUERY, Url.LIST_VOTE_MEMBER, "POST"),
         staleTime: 60_000,
     });
@@ -389,6 +389,7 @@ export default function ListVotingSection({ params, onParamsChange }: Props) {
                                             <div className="flex gap-2">
                                                 <a
                                                     href={`/event/${r.uuid}`}
+                                                    target="_blank"
                                                     className="px-2 py-1 rounded bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
                                                 >
                                                     Detail
