@@ -17,8 +17,10 @@ try {
 }
 const queryClient = new QueryClient();
 
-createRoot(document.getElementById("root")!).render(<HelmetProvider>
-  <QueryClientProvider client={queryClient}>
-    <App />
-  </QueryClientProvider >
-</HelmetProvider >);
+createRoot(document.getElementById("root")!).render(
+  <HelmetProvider>
+    <QueryClientProvider client={queryClient}>
+      <App />
+    </QueryClientProvider >
+  </HelmetProvider >
+);

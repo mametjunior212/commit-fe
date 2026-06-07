@@ -14,6 +14,7 @@ import ListEvent from "./pages/MemberPages/ListEvent";
 import ListVote from "./pages/MemberPages/ListVote";
 import RealtimeVotingPage from "./pages/RealtimeVoting";
 import Maintenance from "./pages/Maintenance";
+import UserPage from "./pages/MemberPages/UserPage";
 
 const RoutePage = () => {
 
@@ -31,8 +32,10 @@ const RoutePage = () => {
             <Route path="/member" element={<AdminLayout />}>
                 <Route index element={<Navigate to="dashboard" replace />} />
                 {/* <Route path="dashboard" element={<Dashboard />} /> */}
+                <Route path="dashboard" element={<Dashboard />} />
                 <Route path="event" element={<ListEvent />} />
                 <Route path="vote" element={<ListVote />} />
+                <Route path="user" element={<UserPage />} />
                 <Route path="/member/*" element={<Maintenance />} />
             </Route>
             {/* <Route path="/blog" element={<Blog />} /> */}

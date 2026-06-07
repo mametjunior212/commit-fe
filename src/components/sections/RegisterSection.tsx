@@ -3,7 +3,7 @@ import { useRef, useState, useEffect, useMemo } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2, LogIn, Send, UserPlus } from 'lucide-react';
+import { Eye, EyeOff, Loader2, LogIn, Send, UserPlus } from 'lucide-react';
 import Url from '@/Uri/url';
 import { ErrorResponse, SuccessResponse } from '../type/response';
 import { useQuery } from '@tanstack/react-query';
@@ -20,6 +20,9 @@ export const HeroSection = () => {
     const ref = useRef(null);
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const [currentTime, setCurrentTime] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [isAgree, setIsAgree] = useState(false);
+    const [showTerms, setShowTerms] = useState(false);
 
     const { scrollYProgress } = useScroll({
         target: ref,
@@ -168,6 +171,14 @@ export const HeroSection = () => {
     });
     // Submit Saat Register
     const onRegister = async (data: RegisterFormData) => {
+        if (isAgree == false) {
+            toast({
+                title: 'Kesalahan',
+                description: 'Mohon Baca dan Centang Terlebih dahulu Terms & Conditions',
+                variant: 'destructive',
+            });
+            return;
+        }
         setIsSubmitting(true);
         // Opsional: timeout supaya fetch nggak ngegantung
         const controller = new AbortController();
@@ -321,6 +332,7 @@ export const HeroSection = () => {
         return () => clearInterval(interval);
     }, []);
 
+
     const handleMouseMove = (e: React.MouseEvent) => {
         const rect = e.currentTarget.getBoundingClientRect();
         cursorX.set(e.clientX - rect.left);
@@ -377,12 +389,7 @@ export const HeroSection = () => {
             {/* Floating orb - hidden on mobile for performance */}
             <motion.div
                 className="absolute w-[300px] h-[300px] md:w-[600px] md:h-[600px] rounded-none bg-accent/10 blur-[80px] md:blur-[120px] hidden sm:block"
-                style={{
-                    x: springX,
-                    y: springY,
-                    translateX: '-50%',
-                    translateY: '-50%',
-                }}
+                style={{ x: springX, y: springY, translateX: '-50%', translateY: '-50%', }}
             />
 
             {/* Geometric shapes - hidden on mobile */}
@@ -516,7 +523,7 @@ export const HeroSection = () => {
                                     onClick={() => setIsRegistering(true)}
                                     className="text-accent hover:underline"
                                 >
-                                    Daftar sekarang
+                                    Sing Up Sekarang
                                 </button>
                             </p>
                         </motion.div>
@@ -625,7 +632,7 @@ export const HeroSection = () => {
                                         ? 'border-destructive focus:border-destructive'
                                         : 'border-border focus:border-accent'
                                         }`}
-                                    placeholder="Your WhatsApp number (optional)"
+                                    placeholder="Your WhatsApp number"
                                 />
                             </div>
 
@@ -643,13 +650,12 @@ export const HeroSection = () => {
                                         ? 'border-destructive focus:border-destructive'
                                         : 'border-border focus:border-accent'
                                         }`}
-                                    placeholder="Your company (optional)"
+                                    placeholder="Your company"
                                 />
                             </div>
 
                             {/* Pekerjaan Field */}
                             <div>
-
                                 <label htmlFor="pekerjaan_search" className="block text-sm font-medium mb-2">
                                     Pekerjaan
                                 </label>
@@ -666,29 +672,35 @@ export const HeroSection = () => {
                                         const filtered = useMemo(() => {
                                             const q = query.trim().toLowerCase();
                                             if (!q) return jobs;
-                                            return jobs.filter(j => j.label.toLowerCase().includes(q));
+                                            return jobs.filter(j =>
+                                                j.label.toLowerCase().includes(q)
+                                            );
                                         }, [jobs, query]);
 
-                                        // Sinkronkan query jika value sudah ada (ubah ke label)
                                         useEffect(() => {
-                                            const current = jobs.find(j => String(j.uuid) === String(field.value));
+                                            const current = jobs.find(
+                                                j => String(j.uuid) === String(field.value)
+                                            );
                                             if (current) setQuery(current.label);
                                         }, [field.value, jobs]);
 
-                                        // Tutup saat klik di luar
+                                        // close click outside
                                         useEffect(() => {
-                                            const onClickOutside = (e: MouseEvent) => {
-                                                if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+                                            const handle = (e: MouseEvent) => {
+                                                if (
+                                                    containerRef.current &&
+                                                    !containerRef.current.contains(e.target as Node)
+                                                ) {
                                                     setOpen(false);
                                                 }
                                             };
-                                            document.addEventListener('mousedown', onClickOutside);
-                                            return () => document.removeEventListener('mousedown', onClickOutside);
+                                            document.addEventListener('click', handle);
+                                            return () => document.removeEventListener('click', handle);
                                         }, []);
 
                                         const handleSelect = (jobId: string | number, jobLabel: string) => {
-                                            field.onChange(jobId);     // simpan ID ke form
-                                            setQuery(jobLabel);        // tampilkan label di input
+                                            field.onChange(jobId);
+                                            setQuery(jobLabel);
                                             setOpen(false);
                                         };
 
@@ -697,82 +709,145 @@ export const HeroSection = () => {
                                         return (
                                             <div ref={containerRef} className="relative">
                                                 <input
-                                                    id="jabatan_search"
+                                                    id="pekerjaan_search"
                                                     type="text"
                                                     value={query}
-                                                    placeholder={jobLoading ? 'Memuat pilihan…' : jobError ? 'Gagal memuat pilihan' : 'Ketik untuk mencari jabatan'}
+                                                    placeholder={
+                                                        jobLoading
+                                                            ? 'Memuat pilihan…'
+                                                            : jobError
+                                                                ? 'Gagal memuat pilihan'
+                                                                : 'Ketik untuk mencari jabatan'
+                                                    }
                                                     onChange={(e) => {
                                                         setQuery(e.target.value);
                                                         setOpen(true);
-                                                        // Jika user edit manual, kosongkan value id agar validasi konsisten
                                                         if (field.value) field.onChange('');
                                                     }}
                                                     onFocus={() => setOpen(true)}
                                                     disabled={disabled}
                                                     className="w-full caret-black px-4 py-4 bg-background border-2 border-border focus:border-accent transition-colors focus:outline-none"
-                                                    aria-autocomplete="list"
-                                                    role="combobox"
-                                                    aria-expanded={open}
-                                                    aria-controls="jabatan_listbox"
                                                 />
 
-                                                {/* Dropdown */}
+                                                {/* ✅ DROPDOWN FIX */}
                                                 {open && !disabled && (
-                                                    <div
-                                                        id="jabatan_listbox"
-                                                        role="listbox"
-                                                        className="absolute z-20 mt-1 w-full max-h-56 overflow-auto border border-border bg-background shadow"
-                                                    >
+                                                    <div className="absolute left-0 mt-1 w-full z-[9999] max-h-56 overflow-y-auto border border-border bg-background shadow overscroll-contain">
                                                         {filtered.length === 0 ? (
-                                                            <div className="px-4 py-3 text-sm text-muted-foreground">Tidak ada hasil</div>
+                                                            <div className="px-4 py-3 text-sm text-muted-foreground">
+                                                                Tidak ada hasil
+                                                            </div>
                                                         ) : (
                                                             filtered.map((job) => (
-                                                                <button
+                                                                <div
                                                                     key={job.uuid}
-                                                                    type="button"
-                                                                    role="option"
-                                                                    aria-selected={String(field.value) === String(job.uuid)}
-                                                                    className="w-full text-left px-4 py-2 hover:bg-accent/10 cursor-pointer bg-background text-foreground"
+                                                                    className="px-4 py-2 hover:bg-accent/10 cursor-pointer"
+                                                                    onMouseDown={(e) => e.preventDefault()}
                                                                     onClick={() => handleSelect(job.uuid, job.label)}
+                                                                    onWheel={(e) => {
+                                                                        e.stopPropagation();
+
+                                                                        const el = e.currentTarget;
+                                                                        const delta = e.deltaY;
+
+                                                                        const atTop = el.scrollTop === 0;
+                                                                        const atBottom =
+                                                                            el.scrollHeight - el.scrollTop === el.clientHeight;
+
+                                                                        // ✅ prevent page scroll kalau masih bisa scroll di dropdown
+                                                                        if (
+                                                                            (delta < 0 && !atTop) ||
+                                                                            (delta > 0 && !atBottom)
+                                                                        ) {
+                                                                            e.preventDefault();
+                                                                        }
+                                                                    }}
+
                                                                 >
                                                                     {job.label}
-                                                                </button>
+                                                                </div>
                                                             ))
                                                         )}
                                                     </div>
                                                 )}
-
-                                                {/* Simpan ID tersembunyi (untuk RHF & submit) */}
                                                 <input type="hidden" {...field} />
                                             </div>
                                         );
                                     }}
                                 />
+
                                 {regist_errors.pekerjaan && (
-                                    <p className="mt-2 text-sm text-destructive">{regist_errors.pekerjaan.message}</p>
+                                    <p className="mt-2 text-sm text-destructive">
+                                        {regist_errors.pekerjaan.message}
+                                    </p>
                                 )}
                             </div>
 
                             {/* Password Field */}
-                            <div>
+
+                            <div className="relative">
                                 <label htmlFor="login_password" className="block text-sm font-medium mb-2">
                                     Password <span className="text-accent">*</span>
                                 </label>
+
                                 <input
                                     id="login_password"
-                                    type="password"
+                                    type={showPassword ? "text" : "password"}
                                     disabled={isSubmitting}
-                                    {...regist('password')}
-                                    className={`w-full caret-black px-4 py-4 bg-background border-2 transition-colors focus:outline-none ${regist_errors.password
-                                        ? 'border-destructive focus:border-destructive'
-                                        : 'border-border focus:border-accent'
+                                    {...regist("password")}
+                                    className={`w-full caret-black px-4 py-4 pr-12 bg-background border-2 transition-colors focus:outline-none ${regist_errors.password
+                                        ? "border-destructive focus:border-destructive"
+                                        : "border-border focus:border-accent"
                                         }`}
                                     placeholder="your password"
                                 />
+
+                                {/* Button mata */}
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 px-4 py-4  text-gray-500 hover:text-black"
+                                    tabIndex={-1}
+                                >
+                                    {showPassword ? <EyeOff size={24} /> : <Eye size={24} />}
+                                </button>
+
                                 {regist_errors.password && (
-                                    <p className="mt-2 text-sm text-destructive">{regist_errors.password.message}</p>
+                                    <p className="mt-2 text-sm text-destructive">
+                                        {regist_errors.password.message}
+                                    </p>
                                 )}
                             </div>
+
+                            {/* Term And Condition */}
+                            <div className="space-y-3">
+                                <div className="flex items-start gap-3">
+                                    <input
+                                        type="checkbox"
+                                        id="terms"
+                                        checked={isAgree}
+                                        onChange={(e) => setIsAgree(e.target.checked)}
+                                        className="mt-1 w-4 h-4 accent-accent cursor-pointer"
+                                    />
+
+                                    <label htmlFor="terms" className="text-sm leading-relaxed cursor-pointer">
+                                        Saya telah membaca dan menyetujui{' '}
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowTerms(true)}
+                                            className="text-accent underline hover:opacity-80"
+                                        >
+                                            Terms & Conditions
+                                        </button>
+                                    </label>
+                                </div>
+
+                                {!isAgree && (
+                                    <p className="text-sm text-destructive">
+                                        Anda wajib menyetujui Terms & Conditions
+                                    </p>
+                                )}
+                            </div>
+
 
                             {/* Submit Button */}
                             <motion.button
@@ -803,13 +878,65 @@ export const HeroSection = () => {
                                     onClick={() => setIsRegistering(false)}
                                     className="text-accent hover:underline"
                                 >
-                                    Login sekarang
+                                    Sign In Sekarang
                                 </button>
                             </p>
                         </motion.div>
                     </div>)}
-
             </motion.div>
+
+            {showTerms && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                    <div className="bg-white max-w-md w-full p-6 rounded-xl shadow-lg relative">
+
+                        <h2 className="text-lg font-semibold mb-4">
+                            Terms & Conditions
+                        </h2>
+
+
+                        <div
+                            className="text-sm text-gray-600 space-y-3 max-h-64 overflow-auto"
+                            onWheel={(e) => { e.stopPropagation(); }}> // Cegah Naik Ke parent
+                            <p>
+                                Dengan mendaftar pada platform ini, Anda menyetujui bahwa:
+                            </p>
+
+                            <ul className="list-disc pl-5 space-y-2">
+                                <li>
+                                    Seluruh data yang diberikan akan dijaga kerahasiaannya dan digunakan hanya untuk keperluan
+                                    internal sesuai dengan tujuan pengumpulan data.
+                                </li>
+                                <li>
+                                    Anda tidak diperbolehkan menyebarluaskan data atau informasi
+                                    yang terdapat di dalam sistem tanpa izin resmi.
+                                </li>
+                                <li>
+                                    Anda bertanggung jawab atas keamanan akun Anda sendiri.
+                                </li>
+                                <li>
+                                    Data yang Anda masukkan harus valid dan benar.
+                                </li>
+                                <li>
+                                    Segala bentuk penyalahgunaan sistem dapat berakibat pada
+                                    penonaktifan akun.
+                                </li>
+                                <li>
+                                    Dengan melanjutkan proses pengisian data, pengguna dianggap telah memahami dan menyetujui
+                                    seluruh syarat dan ketentuan yang berlaku.
+                                </li>
+                            </ul>
+                        </div>
+
+                        <button
+                            onClick={() => setShowTerms(false)}
+                            className="mt-6 w-full py-2 bg-black text-white rounded-lg hover:opacity-90"
+                        >
+                            Tutup
+                        </button>
+
+                    </div>
+                </div>
+            )}
 
         </section>
     );

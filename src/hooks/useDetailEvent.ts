@@ -7,7 +7,6 @@ import { SuccessResponse } from '@/components/type/response';
 import { Project } from '@/components/type/projectType';
 
 // Query key konsisten untuk dipakai di mana saja
-export const menuQueryKey = ['DetailEvent'] as const;
 
 export async function fetchDetailEvent(id: string, signal?: AbortSignal): Promise<Project> {
     const res = await fetch(`${import.meta.env.VITE_PUBLIC_GATEWAY}/landing-public-service/detail/${id ?? ""}`, { signal });
@@ -21,7 +20,7 @@ export async function fetchDetailEvent(id: string, signal?: AbortSignal): Promis
 
 export function useDetailEvent(id: string) {
     return useQuery<Project>({
-        queryKey: menuQueryKey,
+        queryKey: ['DetailEvent', id],
         queryFn: ({ signal }) => fetchDetailEvent(id, signal),
         staleTime: Infinity,          // data dianggap selalu fresh
         gcTime: Infinity,             // tidak digarbage-collect selama sesi app
@@ -30,9 +29,9 @@ export function useDetailEvent(id: string) {
 }
 
 // Opsional: helper untuk refresh manual dari mana saja
-export function useRefreshEvent() {
+export function useRefreshEvent(id: string) {
     const qc = useQueryClient();
     return {
-        refresh: () => qc.invalidateQueries({ queryKey: menuQueryKey }),
+        refresh: () => qc.invalidateQueries({ queryKey: ['DetailEvent', id] }),
     };
 }

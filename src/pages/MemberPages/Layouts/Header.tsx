@@ -78,13 +78,23 @@ export default function Header({
         </button>
 
         {/* Logo */}
-        <a href='/member/dashboard' className="flex items-center gap-3">
+
+        <a href="/member/dashboard" className="flex items-center gap-3">
+          {/* Light mode */}
           <img
             src={(import.meta as any).env.VITE_FONT_END + '/assets/logo-Web.png'}
-            className="w-full h-6"
+            className="block dark:hidden h-6"
+            alt="Logo"
+          />
+
+          {/* Dark mode */}
+          <img
+            src={(import.meta as any).env.VITE_FONT_END + '/assets/logodark.png'}
+            className="hidden dark:block h-6"
             alt="Logo"
           />
         </a>
+
 
         {/* Search (opsional) */}
         <div className="hidden md:flex ml-6 flex-1 max-w-lg">
