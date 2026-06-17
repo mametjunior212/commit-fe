@@ -8,11 +8,11 @@ export interface ApiRoute {
 
 export interface ApiMenu {
     uuid: string;
-    parent_id: number | null;
+    parent_id?: number | null;
     name: string;
     order: number;
-    active: 'y' | 'n';
-    type: string;       // "landing" | dll
+    active?: 'y' | 'n';
+    type?: string;       // "landing" | dll
     route: ApiRoute | null; // parent bisa null
     children: ApiMenu[];    // nested
 }

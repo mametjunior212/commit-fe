@@ -375,13 +375,13 @@ export default function Sidebar({
       </motion.div>
 
       {/* Overlay untuk mobile */}
-      {open && (
+      {/* {open && (
         <div
           className="fixed inset-0 bg-black/40 backdrop-blur-sm md:hidden"
           onClick={onClose}
           aria-hidden="true"
         />
-      )}
+      )} */}
     </aside>
   );
 }

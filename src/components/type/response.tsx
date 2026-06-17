@@ -1,14 +1,14 @@
-export type ErrorResponse = {
+export type ErrorResponse<T> = {
     code: string;
     status: string;
     message: string;
     errors: string;
-    data: any; // Optional field for validation errors
+    data: T; // Optional field for validation errors
 };
 
-export type SuccessResponse = {
+export type SuccessResponse<T> = {
     code: string;
     status: string;
     message: string;
-    data: any; // Optional field for validation errors
+    data: T; // Optional field for validation errors
 };

@@ -29,7 +29,7 @@ export async function fetchMenuMember(signal?: AbortSignal): Promise<ApiMenuResp
     if (!res.ok) {
         const isExpired =
             res.status === 401 ||
-            (json && (json as ErrorResponse)?.errors === 'Expired token');
+            (json && (json as ErrorResponse<{}>)?.errors === 'Expired token');
 
         if (isExpired) {
             const err: TokenExpiredError = new Error('Token expired');

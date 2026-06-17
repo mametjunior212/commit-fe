@@ -14,7 +14,7 @@ export async function fetchEvent(signal?: AbortSignal): Promise<Project[]> {
     if (!res.ok) {
         throw new Error(`Gagal mengambil Event: ${res.status} ${res.statusText}`);
     }
-    const json = (await res.json()) as SuccessResponse | { data?: Project[] };
+    const json = (await res.json()) as SuccessResponse<Project[]> | { data?: Project[] };
     return Array.isArray((json as any)?.data) ? ((json as any).data as Project[]) : [];
 }
 

@@ -29,6 +29,7 @@ const Url = {
     VOTE_EVENT_MEMBER: `${baseURLMemberPage}/submit/vote`,
     REGISTER_EVENT_MEMBER: `${baseURLMemberPage}/register/event`,
     DETAIL_USER: `${baseURLMemberPage}/users/detail`,
+    EVENT_ABSEN_API: `${baseURLLanding}/event-absen/`,
     UPDATE_USER: `${baseURLMemberPage}/users/update`,
     RESET_PASSWORD: `${baseURLMemberPage}/users/resetPassword`,
     LIST_PERUSAHAAN_USER: `${baseURLMemberPage}/users/listPerusahaan`,

@@ -163,7 +163,7 @@ const About = () => {
               className="space-y-6 text-lg text-muted-foreground leading-relaxed text-left"
             >
               <p style={{ whiteSpace: 'pre-line' }}>
-                {deskripsi.value_param}
+                {deskripsi?.value_param}
               </p>
             </motion.div>
           </div>
@@ -187,7 +187,7 @@ const About = () => {
               className="text-lg text-muted-foreground leading-relaxed text-left"
             >
               <motion.img
-                src={import.meta.env.VITE_FONT_END + struktur.value_param}
+                src={import.meta.env.VITE_FONT_END + struktur?.value_param}
                 alt="Struktur Organisasi CommIT Indonesia"
                 className="mx-auto"
               />
@@ -212,7 +212,7 @@ const About = () => {
               className="text-lg text-muted-foreground leading-relaxed text-left"
             >
               <motion.img
-                src={import.meta.env.VITE_FONT_END + logo.value_param}
+                src={import.meta.env.VITE_FONT_END + logo?.value_param}
                 alt="Logo CommIT Indonesia"
                 className="mx-auto"
               />

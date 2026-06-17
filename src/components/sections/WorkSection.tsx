@@ -5,6 +5,7 @@ import { AnimatedLine } from '@/components/AnimatedText';
 import { ArrowUpRight } from 'lucide-react';
 import { Project } from '@/components/type/projectType'
 import { useEvent } from '@/hooks/useEvent';
+import { Event } from '@/mock/event';
 
 interface ProjectCardProps {
   project: Project;
@@ -80,10 +81,11 @@ export const WorkSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   // ---- React Query: cukup panggil hook yang sudah dipisah
-  const { data: apiMenus = [], isLoading, error } = useEvent();
+  // const { data: apiMenus = [], isLoading, error } = useEvent();
 
   // Derived links
-  const event = useMemo(() => apiMenus, [apiMenus]);
+  // const event = useMemo(() => apiMenus, [apiMenus]);
+  const event = useMemo(() => Event, []);
   return (
     <section id="work" ref={ref} className="section-padding bg-secondary/30 relative overflow-hidden">
 

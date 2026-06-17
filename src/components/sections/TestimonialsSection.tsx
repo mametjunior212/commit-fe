@@ -3,6 +3,7 @@ import { useRef, useState, useEffect, useMemo } from 'react';
 import { AnimatedLine } from '@/components/AnimatedText';
 import { ArrowLeft, ChevronLeft, ChevronRight, Link, Quote } from 'lucide-react';
 import { useListPartner } from '@/hooks/useListPartner';
+import { Partner } from '@/mock/partner';
 const testimonials = [
   {
     id: 1,
@@ -73,26 +74,26 @@ export const TestimonialsSection = () => {
   const prevSlide = () => setActiveIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
 
   // Ambil Partner Dari DB
-  const { data: listPartner, isLoading: loadingList, error: errorList } = useListPartner();
-  const partner = useMemo(() => listPartner, [listPartner]);
+  // const { data: listPartner, isLoading: loadingList, error: errorList } = useListPartner();
+  const partner = useMemo(() => Partner, []);
 
   // ⬇️ Setelah SEMUA hooks dipanggil, baru lakukan guard dan return
-  if (loadingList) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col">
+  // if (loadingList) {
+  //   return (
+  //     <div className="min-h-screen bg-background flex flex-col">
 
-        <div className="flex-1 flex items-center justify-center">Loading…</div>
-      </div>
-    );
-  }
+  //       <div className="flex-1 flex items-center justify-center">Loading…</div>
+  //     </div>
+  //   );
+  // }
 
-  if (errorList) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <div className="flex-1 flex items-center justify-center">Terjadi kesalahan memuat data.</div>
-      </div>
-    );
-  }
+  // if (errorList) {
+  //   return (
+  //     <div className="min-h-screen bg-background flex flex-col">
+  //       <div className="flex-1 flex items-center justify-center">Terjadi kesalahan memuat data.</div>
+  //     </div>
+  //   );
+  // }
 
   if (!partner) {
     return (

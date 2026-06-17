@@ -14,16 +14,23 @@ export function CalendarBody() {
   const { view, events } = useCalendar();
 
   const singleDayEvents = events.filter((event) => {
+    if (!event.startDate || !event.endDate) return false;
+
     const startDate = parseISO(event.startDate);
     const endDate = parseISO(event.endDate);
+
     return isSameDay(startDate, endDate);
   });
 
   const multiDayEvents = events.filter((event) => {
+    if (!event.startDate || !event.endDate) return false;
+
     const startDate = parseISO(event.startDate);
     const endDate = parseISO(event.endDate);
+
     return !isSameDay(startDate, endDate);
   });
+
 
   return (
     <div className="w-full h-full overflow-hidden relative">

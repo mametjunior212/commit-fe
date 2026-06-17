@@ -14,7 +14,7 @@ export async function fetchMenu(signal?: AbortSignal): Promise<Parameter[]> {
     if (!res.ok) {
         throw new Error(`Gagal mengambil menu: ${res.status} ${res.statusText}`);
     }
-    const json = (await res.json()) as SuccessResponse | { data?: Parameter[] };
+    const json = (await res.json()) as SuccessResponse<Parameter[]> | { data?: Parameter[] };
     return Array.isArray((json as any)?.data) ? ((json as any).data as Parameter[]) : [];
 }
 

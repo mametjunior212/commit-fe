@@ -14,24 +14,26 @@ export interface Project {
     results: string[];
     services: string[];
     gallery: {
-        uuid: string, path: string, alt?: string, grid: string | number, orderBy: number, type: string, hyperlink: string, show_gallery: string
+        uuid: string, path: string, alt?: string, grid: string | number, type: string, hyperlink: string, show_gallery: string, [key: string]: any;
     }[] | [];
     nextProject: string;
     prevProject: string;
     template: string;
-    startDate: string;
-    endDate: string;
+    startDate?: string;
+    endDate?: string;
     color: string | "blue";
     partner: {
         img: string,
-        partner: string,
+        partner?: string,
         link: string,
+        nama?: string;
     }[] | [];
     media:
     {
         img: string;
-        media: string;
+        media?: string;
         link: string;
+        nama?: string;
     }[] | [];
     user: {
         uuid: string;

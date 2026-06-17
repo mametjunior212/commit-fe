@@ -135,7 +135,7 @@ export default function ListVotingSection({ params, onParamsChange }: Props) {
                 const payload = isJson ? await resp.json() : null;
 
                 if (!resp.ok) {
-                    const dataError = (payload ?? {}) as ErrorResponse;
+                    const dataError = (payload ?? {}) as ErrorResponse<{}>;
                     const fieldErrors =
                         dataError && typeof dataError.data === "object" && dataError.data !== null
                             ? (dataError.data as Record<string, unknown>)
@@ -211,42 +211,67 @@ export default function ListVotingSection({ params, onParamsChange }: Props) {
 
     return (
         <div className="w-full space-y-4">
-            {/* Controls */}
-            <div className="flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
-                <div className="flex items-center gap-2 max-w-md w-full">
+
+            {/* ================= CONTROLS ================= */}
+            <div className="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between">
+
+                {/* SEARCH */}
+                <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xl">
                     <div className="relative w-full">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                         <input
                             value={searchInput}
                             onChange={(e) => setSearchInput(e.target.value)}
-                            placeholder="Cari judul/layanan/tahun…"
-                            className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            placeholder="Cari judul / layanan / tahun..."
+                            className="w-full pl-9 pr-3 py-2 rounded-lg border
+          bg-white text-black border-gray-200
+          focus:outline-none focus:ring-2 focus:ring-indigo-500
+          dark:bg-[hsl(var(--background))]
+          dark:text-white
+          dark:border-[hsl(var(--input))]"
                         />
                     </div>
+
                     <button
                         onClick={() => refetch()}
-                        className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-sm"
+                        className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm
+        bg-gray-100 hover:bg-gray-200
+        dark:bg-[hsl(var(--secondary))]
+        dark:hover:bg-[hsl(var(--accent))]"
                     >
-                        {isFetching ? <Loader2 className="h-4 w-4 animate-spin" /> : "Refresh"}
+                        {isFetching ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : "Refresh"}
                     </button>
                 </div>
 
-                <div className="flex items-center gap-3">
-                    <label className="text-sm text-gray-500">Tampilkan</label>
+                {/* PAGE SIZE */}
+                <div className="flex items-center justify-between sm:justify-end gap-3 w-full lg:w-auto">
+                    <label className="text-sm text-gray-500 dark:text-gray-400">
+                        Tampilkan
+                    </label>
+
                     <Select.Root
                         value={String(params.perPage ?? 10)}
-                        onValueChange={(v) => onParamsChange({ ...params, perPage: Number(v), page: 1 })}
+                        onValueChange={(v) =>
+                            onParamsChange({ ...params, perPage: Number(v), page: 1 })
+                        }
                     >
-                        <Select.Trigger className="inline-flex items-center justify-between rounded-lg border border-gray-200 px-3 py-2 min-w-[96px]">
+                        <Select.Trigger
+                            className="rounded-lg border px-3 py-2 min-w-[90px]
+          bg-white dark:bg-[hsl(var(--background))]
+          border-gray-200 dark:border-[hsl(var(--input))]"
+                        >
                             <Select.Value />
                         </Select.Trigger>
-                        <Select.Content className="rounded-lg border bg-white shadow-lg">
+
+                        <Select.Content className="rounded-lg border bg-white dark:bg-[hsl(var(--background))] shadow-lg">
                             <Select.Viewport className="p-1">
                                 {PAGE_SIZES.map((size) => (
                                     <Select.Item
                                         key={size}
                                         value={String(size)}
-                                        className="px-3 py-2 rounded hover:bg-gray-100 cursor-pointer"
+                                        className="px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-[hsl(var(--accent))] cursor-pointer"
                                     >
                                         <Select.ItemText>{size}</Select.ItemText>
                                     </Select.Item>
@@ -257,398 +282,147 @@ export default function ListVotingSection({ params, onParamsChange }: Props) {
                 </div>
             </div>
 
-            {/* Table */}
-            <div className="rounded-xl border border-gray-200 overflow-hidden">
-                <table className="w-full text-sm">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            <Th label="#" disabled />
-                            <Th
-                                label="Judul"
-                                onClick={() => toggleSort("title")}
-                                active={params.sortBy === "title"}
-                                order={params.sortOrder}
-                            />
-                            <Th
-                                label="Tipe Event"
-                                onClick={() => toggleSort("category")}
-                                active={params.sortBy === "category"}
-                                order={params.sortOrder}
-                            />
-                            <Th
-                                label="Tahun Pelaksaan"
-                                onClick={() => toggleSort("year")}
-                                active={params.sortBy === "year"}
-                                order={params.sortOrder}
-                            />
-                            <Th
-                                label="Mulai Event"
-                                onClick={() => toggleSort("start_date")}
-                                active={params.sortBy === "start_date"}
-                                order={params.sortOrder}
-                            />
-                            <Th
-                                label="Selesai Event"
-                                onClick={() => toggleSort("end_date")}
-                                active={params.sortBy === "end_date"}
-                                order={params.sortOrder}
-                            />
-                            <Th
-                                label="Aktif"
-                                onClick={() => toggleSort("active")}
-                                active={params.sortBy === "active"}
-                                order={params.sortOrder}
-                            />
-                            {/* Kolom info Window Voting (opsional untuk sort). Jika ingin sort, aktifkan toggleSort("open_regist") */}
-                            <Th label="Window Voting" />
-                            <th className="text-left px-4 py-3 text-gray-600">Aksi</th>
-                        </tr>
-                    </thead>
 
-                    <tbody>
-                        {isLoading ? (
-                            [...Array(5)].map((_, i) => (
-                                <tr key={i} className="animate-pulse">
-                                    {Array.from({ length: 9 }).map((__, j) => (
-                                        <Td key={j}>
-                                            <div className="h-3 w-24 bg-gray-200 rounded" />
-                                        </Td>
-                                    ))}
-                                </tr>
-                            ))
-                        ) : isError ? (
+            {/* ================= TABLE ================= */}
+            <div className="rounded-xl border border-gray-200 dark:border-[hsl(var(--input))] overflow-hidden">
+                <div className="w-full overflow-x-auto">
+                    <table className="min-w-[1000px] w-full text-sm">
+
+                        <thead className="bg-gray-50 dark:bg-[hsl(var(--secondary))]">
                             <tr>
-                                <td colSpan={9} className="px-4 py-6 text-red-600">
-                                    Terjadi kesalahan saat memuat data. {(error as Error)?.message}
-                                </td>
+                                <Th label="#" disabled />
+                                <Th label="Judul" onClick={() => toggleSort("title")} active={params.sortBy === "title"} order={params.sortOrder} />
+                                <Th label="Tipe Event" onClick={() => toggleSort("category")} active={params.sortBy === "category"} order={params.sortOrder} />
+                                <Th label="Tahun" onClick={() => toggleSort("year")} active={params.sortBy === "year"} order={params.sortOrder} />
+                                <Th label="Mulai" onClick={() => toggleSort("start_date")} active={params.sortBy === "start_date"} order={params.sortOrder} />
+                                <Th label="Selesai" onClick={() => toggleSort("end_date")} active={params.sortBy === "end_date"} order={params.sortOrder} />
+                                <Th label="Status" onClick={() => toggleSort("active")} active={params.sortBy === "active"} order={params.sortOrder} />
+                                <Th label="Voting Window" />
+                                <th className="px-4 py-3 text-left text-gray-600 dark:text-gray-300">Aksi</th>
                             </tr>
-                        ) : rows.length === 0 ? (
-                            <tr>
-                                <td colSpan={9} className="px-4 py-6 text-center text-gray-500">
-                                    Tidak ada data.
-                                </td>
-                            </tr>
-                        ) : (
-                            rows.map((raw) => {
-                                const r = raw as EventRow;
+                        </thead>
 
-                                // ==== WINDOW VOTING: open_regist .. end_date ====
-                                const startMs = r.open_regist ? new Date(r.open_regist).getTime() : NaN;
-                                const endMs = r.end_date ? new Date(r.end_date).getTime() : NaN;
-                                const isVotingOpen =
-                                    Number.isFinite(startMs) &&
-                                    Number.isFinite(endMs) &&
-                                    now >= startMs &&
-                                    now <= endMs;
-
-                                // Countdown ke end_date saat window sedang terbuka
-                                const remain = isVotingOpen ? getRemaining(now, r.end_date) : null;
-
-                                const options: { uuid: string; name: string; path: string; filename: string; }[] = Array.isArray(r.voting_option) ? r.voting_option : [];
-
-                                return (
-                                    <tr key={r.uuid} className="border-t border-gray-100">
-                                        <Td className="text-gray-500">{r.DT_RowIndex}</Td>
-                                        <Td className="font-medium">{decodeHTMLEntities(r.title)}</Td>
-                                        <Td>{r.category}</Td>
-                                        <Td>{r.year}</Td>
-                                        <Td>{fmtDateTimeIndo(r.start_date)}</Td>
-                                        <Td>{fmtDateTimeIndo(r.end_date)}</Td>
-                                        <Td>
-                                            {r.active === "y" ? (
-                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                                    <BadgeCheck className="h-3 w-3" /> Aktif
-                                                </span>
-                                            ) : (
-                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 border border-gray-200">
-                                                    Nonaktif
-                                                </span>
-                                            )}
-                                        </Td>
-
-                                        {/* Window Voting (info) */}
-                                        <Td>
-                                            {remain ? (
-                                                <span className="ml-2 text-xs text-gray-500">
-                                                    Voting ditutup dalam {remain.d}h {remain.h}j {remain.m}m {remain.sec}d
-                                                </span>
-                                            ) : (
-                                                <div className="flex flex-col">
-                                                    <span className="text-xs text-gray-600">
-                                                        Mulai: {fmtDateTimeIndo(r.open_regist as any)}
-                                                    </span>
-                                                    <span className="text-xs text-gray-600">
-                                                        Selesai: {fmtDateTimeIndo(r.end_date)}
-                                                    </span>
-                                                </div>
-                                            )}
-                                        </Td>
-
-                                        {/* Aksi */}
-                                        <Td>
-                                            <div className="flex gap-2">
-                                                <a
-                                                    href={`/event/${r.uuid}`}
-                                                    target="_blank"
-                                                    className="px-2 py-1 rounded bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
-                                                >
-                                                    Detail
-                                                </a>
-
-                                                {r.voting_personal.length !== 0 ? (
-                                                    <span className="px-2 py-1 rounded bg-green-100 text-green-700 border border-green-200">
-                                                        Voted
-                                                    </span>
-                                                ) : r.absen_personal?.length > 0 ? (
-                                                    <span className="px-2 py-1 rounded bg-gray-100 text-gray-500">Terdaftar</span>
-                                                ) : isVotingOpen ? (
-                                                    <button
-                                                        className="px-2 py-1 rounded bg-indigo-50 text-green-600 hover:bg-indigo-100 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2"
-                                                        onClick={() => openVoteModal(r)}
-                                                        disabled={options.length === 0}
-                                                        title={options.length === 0 ? "Belum ada pilihan voting" : "Daftar & Vote"}
-                                                    >
-                                                        Vote
-                                                    </button>
-                                                ) : (
-                                                    <span className="px-2 py-1 rounded bg-gray-100 text-gray-500">
-                                                        Voting belum dibuka / sudah ditutup
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </Td>
+                        <tbody>
+                            {isLoading ? (
+                                [...Array(5)].map((_, i) => (
+                                    <tr key={i} className="animate-pulse">
+                                        {Array.from({ length: 9 }).map((__, j) => (
+                                            <Td key={j}>
+                                                <div className="h-3 w-full max-w-[120px] bg-gray-200 dark:bg-gray-700 rounded" />
+                                            </Td>
+                                        ))}
                                     </tr>
-                                );
-                            })
-                        )}
-                    </tbody>
-                </table>
+                                ))
+                            ) : rows.length === 0 ? (
+                                <tr>
+                                    <td colSpan={9} className="px-4 py-6 text-center text-gray-500">
+                                        Tidak ada data
+                                    </td>
+                                </tr>
+                            ) : (
+                                rows.map((r) => {
+                                    const startMs = new Date(r.open_regist).getTime();
+                                    const endMs = new Date(r.end_date).getTime();
+                                    const isVotingOpen = now >= startMs && now <= endMs;
+                                    const remain = isVotingOpen ? getRemaining(now, r.end_date) : null;
+
+                                    return (
+                                        <tr key={r.uuid} className="border-t border-gray-100 dark:border-gray-700">
+                                            <Td>{r.DT_RowIndex}</Td>
+                                            <Td className="font-medium">{decodeHTMLEntities(r.title)}</Td>
+                                            <Td>{r.category}</Td>
+                                            <Td>{r.year}</Td>
+                                            <Td>{fmtDateTimeIndo(r.start_date)}</Td>
+                                            <Td>{fmtDateTimeIndo(r.end_date)}</Td>
+
+                                            {/* STATUS */}
+                                            <Td>
+                                                {r.active === "y" ? (
+                                                    <span className="badge-green">Aktif</span>
+                                                ) : (
+                                                    <span className="badge-gray">Nonaktif</span>
+                                                )}
+                                            </Td>
+
+                                            {/* VOTING WINDOW */}
+                                            <Td>
+                                                {remain ? (
+                                                    <span className="text-xs text-gray-500">
+                                                        Tutup {remain.d}h {remain.h}j {remain.m}m
+                                                    </span>
+                                                ) : (
+                                                    <div className="text-xs text-gray-500">
+                                                        <div>Mulai: {fmtDateTimeIndo(r.open_regist)}</div>
+                                                        <div>Selesai: {fmtDateTimeIndo(r.end_date)}</div>
+                                                    </div>
+                                                )}
+                                            </Td>
+
+                                            {/* ACTION */}
+                                            <Td>
+                                                <div className="flex flex-wrap gap-2">
+                                                    <a
+                                                        href={`/event/${r.uuid}`}
+                                                        target="_blank"
+                                                        className="btn-indigo"
+                                                    >
+                                                        Detail
+                                                    </a>
+
+                                                    {r.voting_personal.length !== 0 ? (
+                                                        <span className="badge-green">Voted</span>
+                                                    ) : r.absen_personal?.length > 0 ? (
+                                                        <span className="badge-gray">Terdaftar</span>
+                                                    ) : isVotingOpen ? (
+                                                        <button
+                                                            onClick={() => openVoteModal(r)}
+                                                            className="btn-green"
+                                                        >
+                                                            Vote
+                                                        </button>
+                                                    ) : (
+                                                        <span className="badge-gray">Closed</span>
+                                                    )}
+                                                </div>
+                                            </Td>
+                                        </tr>
+                                    );
+                                })
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-            {/* Pagination */}
-            <div className="flex items-center justify-between">
-                <div className="text-sm text-gray-600">
+
+            {/* ================= PAGINATION ================= */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div className="text-sm text-gray-600 dark:text-gray-400">
                     {meta ? (
-                        <>Menampilkan <b>{meta.from}-{meta.to}</b> dari <b>{meta.total}</b> data</>
-                    ) : (
-                        "—"
-                    )}
+                        <>Menampilkan <b>{meta.from}-{meta.to}</b> dari <b>{meta.total}</b></>
+                    ) : "-"}
                 </div>
 
-                <div className="flex items-center gap-2">
-                    <button
-                        disabled={!meta || (params.page ?? 1) === 1}
-                        onClick={() => onParamsChange({ ...params, page: 1 })}
-                        className="px-3 py-2 rounded-lg border disabled:opacity-50"
-                        title="First"
-                    >
-                        «
-                    </button>
-                    <button
-                        disabled={!meta || (params.page ?? 1) <= 1}
-                        onClick={() => onParamsChange({ ...params, page: (params.page ?? 1) - 1 })}
-                        className="px-3 py-2 rounded-lg border disabled:opacity-50"
-                        title="Previous"
-                    >
+                <div className="flex items-center gap-2 flex-wrap">
+                    <button onClick={() => onParamsChange({ ...params, page: 1 })} className="pagination-btn">«</button>
+                    <button onClick={() => onParamsChange({ ...params, page: (params.page ?? 1) - 1 })} className="pagination-btn">
                         <ChevronLeft className="h-4 w-4" />
                     </button>
+
                     <span className="text-sm">
-                        Halaman <b>{params.page ?? 1}</b> dari <b>{meta?.last_page ?? 1}</b>
+                        {params.page ?? 1} / {meta?.last_page ?? 1}
                     </span>
-                    <button
-                        disabled={!meta || (params.page ?? 1) >= (meta?.last_page ?? 1)}
-                        onClick={() => onParamsChange({ ...params, page: (params.page ?? 1) + 1 })}
-                        className="px-3 py-2 rounded-lg border disabled:opacity-50"
-                        title="Next"
-                    >
+
+                    <button onClick={() => onParamsChange({ ...params, page: (params.page ?? 1) + 1 })} className="pagination-btn">
                         <ChevronRight className="h-4 w-4" />
                     </button>
-                    <button
-                        disabled={!meta || (params.page ?? 1) >= (meta?.last_page ?? 1)}
-                        onClick={() => onParamsChange({ ...params, page: meta!.last_page })}
-                        className="px-3 py-2 rounded-lg border disabled:opacity-50"
-                        title="Last"
-                    >
-                        »
-                    </button>
+
+                    <button onClick={() => onParamsChange({ ...params, page: meta?.last_page })} className="pagination-btn">»</button>
                 </div>
             </div>
 
-            {/* ---------- MODAL VOTING ---------- */}
-            <Dialog.Root
-                open={voteModal.open}
-                onOpenChange={(o) => (o ? setVoteModal((s) => ({ ...s, open: true })) : closeVoteModal())}
-            >
-                <Dialog.Portal>
-                    {/* Overlay tetap ada, tetapi klik di luar TIDAK menutup modal */}
-                    <Dialog.Overlay className="fixed z-50 inset-0 bg-black/40 backdrop-blur-[1px]" />
-                    <Dialog.Content
-                        className="fixed left-1/2 z-[60] top-1/2 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-xl outline-none"
-                        onInteractOutside={(e) => e.preventDefault()}         // <<< cegah close via klik di background
-                    // onEscapeKeyDown={(e) => e.preventDefault()}        // <<< uncomment jika ingin cegah tombol Esc
-                    >
-                        <div className="flex items-start justify-between">
-                            <Dialog.Title className="text-lg font-semibold">Pilih Voting</Dialog.Title>
-                            <Dialog.Close asChild>
-                                <button className="p-2 rounded hover:bg-gray-100" disabled={isSavingVote}>
-                                    <X className="h-5 w-5" />
-                                </button>
-                            </Dialog.Close>
-                        </div>
-
-                        <p className="text-sm text-gray-500 mt-1">
-                            Event: <span className="font-medium">{voteModal.event?.title}</span>
-                        </p>
-
-                        <div className="mt-4 space-y-2 max-h-[50vh] overflow-auto pr-1">
-                            {Array.isArray(voteModal.event?.voting_option) &&
-                                (voteModal.event?.voting_option?.length ?? 0) > 0 ? (
-                                voteModal.event!.voting_option!.map((opt) => (
-                                    <label
-                                        key={opt.uuid}
-                                        className={`flex items-center gap-4 rounded-lg border p-3 cursor-pointer transition-colors
-                                        ${selectedOption === opt.uuid ? "border-indigo-500 bg-indigo-50" : "border-gray-200 hover:bg-gray-50"}`}
-                                    >
-                                        {/* ==== FOTO (dua opsi klik) ==== */}
-                                        <div className="relative">
-                                            {/* Opsi A: klik gambar -> buka tab baru */}
-                                            <a
-                                                href={decodeHtmlEntities(opt.path)}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                title="Buka gambar di tab baru"
-                                                onClick={(e) => e.stopPropagation()} // jangan trigger pilih radio saat klik gambar
-                                            >
-                                                <img
-                                                    src={decodeHtmlEntities(opt.path)}
-                                                    alt={decodeHtmlEntities(opt.name)}
-                                                    className="w-16 h-16 object-cover rounded-md border"
-                                                    loading="lazy"
-                                                />
-                                            </a>
-
-                                            {/* Opsi B: tombol kecil (ikon) untuk popup preview */}
-                                            <button
-                                                type="button"
-                                                className="absolute -bottom-2 -right-2 px-2 py-1 text-xs rounded bg-black/70 text-white hover:bg-black"
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    e.stopPropagation();
-                                                    openPreview(decodeHtmlEntities(opt.path), opt.name);
-                                                }}
-                                                title="Lihat pratinjau"
-                                            >
-                                                Preview
-                                            </button>
-                                        </div>
-
-                                        {/* RADIO & TITLE */}
-                                        <div className="flex-1">
-                                            <div className="font-medium">{opt.name}</div>
-                                            {/* Jika ingin tampilkan filename: */}
-                                            {/* <div className="text-xs text-gray-500">{opt.filename}</div> */}
-                                        </div>
-
-                                        <input
-                                            type="radio"
-                                            name="votingOption"
-                                            className="h-4 w-4 text-indigo-600"
-                                            checked={selectedOption === opt.uuid}
-                                            onChange={() => setSelectedOption(opt.uuid)}
-                                            disabled={isSavingVote}
-                                        />
-
-                                        {selectedOption === opt.uuid ? (
-                                            <Check className="h-4 w-4 text-indigo-600" />
-                                        ) : null}
-                                    </label>
-                                ))
-                            ) : (
-                                <div className="text-sm text-gray-500">Belum ada pilihan voting untuk event ini.</div>
-                            )}
-                        </div>
-
-                        <div className="mt-6 flex items-center justify-end gap-2">
-                            <Dialog.Close asChild disabled={isSavingVote}>
-                                <button className="px-3 py-2 rounded-lg border">Batal</button>
-                            </Dialog.Close>
-                            <button
-                                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed"
-                                onClick={() => {
-                                    if (!voteModal.event || !selectedOption) return;
-                                    voteMutation.mutate({
-                                        event_uuid: voteModal.event.uuid,
-                                        option_uuid: selectedOption,
-                                    });
-                                }}
-                                disabled={!selectedOption || isSavingVote || !voteModal.event}
-                            >
-                                {isSavingVote ? (
-                                    <>
-                                        <Loader2 className="h-4 w-4 animate-spin" />
-                                        Menyimpan…
-                                    </>
-                                ) : (
-                                    "Simpan"
-                                )}
-                            </button>
-                        </div>
-                    </Dialog.Content>
-                </Dialog.Portal>
-            </Dialog.Root>
-            {/* ===== IMAGE PREVIEW MODAL ===== */}
-            <Dialog.Root open={previewOpen} onOpenChange={(o) => (o ? setPreviewOpen(true) : closePreview())}>
-                <Dialog.Portal>
-                    <Dialog.Overlay className="fixed inset-0 bg-black/70" />
-                    <Dialog.Content
-                        className="fixed left-1/2 z-[61] top-1/2 w-[min(92vw,880px)] max-h-[90vh] -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-3 shadow-2xl outline-none"
-                    // onInteractOutside={(e) => e.preventDefault()} // aktifkan jika ingin overlay tidak bisa di klik
-                    >
-                        <div className="flex items-center justify-between mb-2">
-                            <Dialog.Title className="text-sm font-medium truncate pr-4">
-                                {previewAlt ?? "Pratinjau Gambar"}
-                            </Dialog.Title>
-                            <Dialog.Close asChild>
-                                <button className="p-2 rounded hover:bg-gray-100">
-                                    <X className="h-5 w-5" />
-                                </button>
-                            </Dialog.Close>
-                        </div>
-
-                        <div className="relative">
-                            {previewSrc ? (
-                                <img
-                                    src={previewSrc}
-                                    alt={previewAlt ?? ""}
-                                    className="max-h-[76vh] w-auto mx-auto object-contain rounded"
-                                    loading="eager"
-                                />
-                            ) : (
-                                <div className="h-[60vh] flex items-center justify-center text-gray-500">
-                                    Tidak ada gambar.
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="mt-3 flex items-center justify-end gap-2">
-                            <a
-                                href={previewSrc ?? "#"}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="px-3 py-2 rounded-lg border hover:bg-gray-50"
-                            >
-                                Buka di tab baru
-                            </a>
-                            <Dialog.Close asChild>
-                                <button className="px-3 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700">
-                                    Tutup
-                                </button>
-                            </Dialog.Close>
-                        </div>
-                    </Dialog.Content>
-                </Dialog.Portal>
-            </Dialog.Root>
         </div>
+
     );
 }
 

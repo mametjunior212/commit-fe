@@ -83,12 +83,18 @@ export function navigateDate(
 	return operations[view](date, 1);
 }
 
+const cache = new Map<string, number>();
+
 export function getEventsCount(
 	events: Project[],
 	date: Date,
 	view: TCalendarView,
 ): number {
-	const compareFns: Record<TCalendarView, (d1: Date, d2: Date) => boolean> = {
+	const key = `${view}_${date.toISOString()}_${events.length}`;
+
+	if (cache.has(key)) return cache.get(key)!;
+
+	const compareFns = {
 		day: isSameDay,
 		week: isSameWeek,
 		month: isSameMonth,
@@ -97,8 +103,15 @@ export function getEventsCount(
 	};
 
 	const compareFn = compareFns[view];
-	return events.filter((event) => compareFn(parseISO(event.startDate), date))
-		.length;
+	if (!compareFn) return 0;
+
+	const result = events.reduce((count, event) => {
+		if (!event.startDate) return count;
+		return compareFn(parseISO(event.startDate), date) ? count + 1 : count;
+	}, 0);
+
+	cache.set(key, result);
+	return result;
 }
 
 export function groupEvents(dayEvents: Project[]): Project[][] {

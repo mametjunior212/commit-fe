@@ -188,6 +188,25 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
+.btn-indigo {
+  @apply px-2 py-1 rounded bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-300;
+}
+
+.btn-green {
+  @apply px-2 py-1 rounded bg-green-50 text-green-700 hover:bg-green-100 dark:bg-green-900/30 dark:text-green-300;
+}
+
+.badge-green {
+  @apply inline-flex px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300;
+}
+
+.badge-gray {
+  @apply inline-flex px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 border border-gray-200 dark:bg-gray-800 dark:text-gray-300;
+}
+
+.pagination-btn {
+  @apply px-3 py-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800;
+}
 
 .shadow-andrika {
   box-shadow:

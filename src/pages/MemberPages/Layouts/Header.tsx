@@ -273,18 +273,36 @@ function UserMenu({
 
             {/* items */}
             <div className="p-1">
-              <div className="w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-md hover:bg-muted transition-colors focus:outline-none focus:bg-muted">
-                <span className="inline-flex items-center gap-3 text-sm">
-                  {<User className="w-4 h-4" />}
-                </span>
-                <select onChange={switchRole} name="role" id="role" className="w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-md hover:bg-muted transition-colors focus:outline-none focus:bg-muted">
-                  {
-                    role.map((e, i) =>
-                      <option value={e.uuid}>{e.name}</option>
-                    )
-                  }
+              <div className="w-full flex items-center gap-3 px-3 py-2 rounded-md border
+                          bg-white dark:bg-[hsl(var(--background))] 
+                          border-gray-200 dark:border-[hsl(var(--input))]
+                          transition-colors">
+
+                {/* Icon */}
+                <User className="w-4 h-4 text-gray-500 dark:text-gray-400 shrink-0" />
+
+                {/* Select */}
+                <select
+                  onChange={switchRole}
+                  name="role"
+                  id="role"
+                  className="w-full text-sm bg-transparent outline-none
+                          text-gray-700 dark:text-gray-200
+                            cursor-pointer"
+                >
+                  {role.map((e) => (
+                    <option
+                      key={e.uuid}
+                      value={e.uuid}
+                      className="text-black dark:text-white"
+                    >
+                      {e.name}
+                    </option>
+                  ))}
                 </select>
+
               </div>
+
               {/* <MenuItem
                 icon={<User className="w-4 h-4" />}
                 label="Profile"

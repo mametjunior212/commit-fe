@@ -3,8 +3,9 @@ import { useRef, useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import MagneticButton from '@/components/MagneticButton';
 import { getParameterByName, useParameter } from '@/hooks/useSetting';
-import { Parameter } from '../type/Parameter';
+// import { Parameter } from '../type/Parameter';
 import { ArrowLeft } from 'lucide-react';
+import { Parameter } from '@/mock/menu';
 
 const words = [
   { text: 'We', number: '01' },
@@ -35,18 +36,26 @@ export const HeroSection = () => {
   const springX = useSpring(cursorX, { stiffness: 100, damping: 20 });
   const springY = useSpring(cursorY, { stiffness: 100, damping: 20 });
 
-  // Memanggil Dari Hook DB
-  // ---- React Query: cukup panggil hook yang sudah dipisah
-  const { data: apiParameter = [], isLoading, error } = useParameter();
+  // // Memanggil Dari Hook DB
+  // // ---- React Query: cukup panggil hook yang sudah dipisah
+  // const { data: apiParameter = [], isLoading, error } = useParameter();
 
-  // Variabel Untuk Ngisi Data
-  const videoDepan = useMemo(() => getParameterByName(apiParameter, "Video Landing Page"), [apiParameter]);
-  const background = useMemo(() => getParameterByName(apiParameter, "Background Hero Landing Page"), [apiParameter]);
-  const deskripsi = useMemo(() => getParameterByName(apiParameter, "Deskripsi Landing Page"), [apiParameter]);
-  const buttonLabel1 = useMemo(() => getParameterByName(apiParameter, "Label Button 1 Landing Page"), [apiParameter]);
-  const buttonlink1 = useMemo(() => getParameterByName(apiParameter, "Link Button 1 Landing Page"), [apiParameter]);
-  const buttonLabel2 = useMemo(() => getParameterByName(apiParameter, "Label Button 2 Landing Page"), [apiParameter]);
-  const buttonlink2 = useMemo(() => getParameterByName(apiParameter, "Link Button 2 Landing Page"), [apiParameter]);
+  // // Variabel Untuk Ngisi Data
+  // const videoDepan = useMemo(() => getParameterByName(apiParameter, "Video Landing Page"), [apiParameter]);
+  // const background = useMemo(() => getParameterByName(apiParameter, "Background Hero Landing Page"), [apiParameter]);
+  // const deskripsi = useMemo(() => getParameterByName(apiParameter, "Deskripsi Landing Page"), [apiParameter]);
+  // const buttonLabel1 = useMemo(() => getParameterByName(apiParameter, "Label Button 1 Landing Page"), [apiParameter]);
+  // const buttonlink1 = useMemo(() => getParameterByName(apiParameter, "Link Button 1 Landing Page"), [apiParameter]);
+  // const buttonLabel2 = useMemo(() => getParameterByName(apiParameter, "Label Button 2 Landing Page"), [apiParameter]);
+  // const buttonlink2 = useMemo(() => getParameterByName(apiParameter, "Link Button 2 Landing Page"), [apiParameter]);
+
+  const videoDepan = useMemo(() => getParameterByName(Parameter, "Video Landing Page"), []);
+  const background = useMemo(() => getParameterByName(Parameter, "Background Hero Landing Page"), []);
+  const deskripsi = useMemo(() => getParameterByName(Parameter, "Deskripsi Landing Page"), []);
+  const buttonLabel1 = useMemo(() => getParameterByName(Parameter, "Label Button 1 Landing Page"), []);
+  const buttonlink1 = useMemo(() => getParameterByName(Parameter, "Link Button 1 Landing Page"), []);
+  const buttonLabel2 = useMemo(() => getParameterByName(Parameter, "Label Button 2 Landing Page"), []);
+  const buttonlink2 = useMemo(() => getParameterByName(Parameter, "Link Button 2 Landing Page"), []);
 
 
   useEffect(() => {
@@ -75,37 +84,37 @@ export const HeroSection = () => {
   };
 
   // ⬇️ Setelah SEMUA hooks dipanggil, baru lakukan guard dan return
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col">
+  // if (isLoading) {
+  //   return (
+  //     <div className="min-h-screen bg-background flex flex-col">
 
-        <div className="flex-1 flex items-center justify-center">Loading…</div>
-      </div>
-    );
-  }
+  //       <div className="flex-1 flex items-center justify-center">Loading…</div>
+  //     </div>
+  //   );
+  // }
 
-  if (error) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <div className="flex-1 flex items-center justify-center">Terjadi kesalahan memuat data.</div>
-      </div>
-    );
-  }
+  // if (error) {
+  //   return (
+  //     <div className="min-h-screen bg-background flex flex-col">
+  //       <div className="flex-1 flex items-center justify-center">Terjadi kesalahan memuat data.</div>
+  //     </div>
+  //   );
+  // }
 
-  if (!apiParameter) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <div className="flex-1 flex items-center justify-center min-h-full">
-          <div className="text-center">
-            <h1 className="text-4xl font-syne font-bold mb-4">Project Not Found</h1>
-            <Link to="/" className="text-accent hover:underline flex items-center justify-center gap-2">
-              <ArrowLeft className="w-4 h-4" /> Return Home
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // if (!apiParameter) {
+  //   return (
+  //     <div className="min-h-screen bg-background flex flex-col">
+  //       <div className="flex-1 flex items-center justify-center min-h-full">
+  //         <div className="text-center">
+  //           <h1 className="text-4xl font-syne font-bold mb-4">Project Not Found</h1>
+  //           <Link to="/" className="text-accent hover:underline flex items-center justify-center gap-2">
+  //             <ArrowLeft className="w-4 h-4" /> Return Home
+  //           </Link>
+  //         </div>
+  //       </div>
+  //     </div>
+  //   );
+  // }
   return (
     <motion.section
       ref={ref}

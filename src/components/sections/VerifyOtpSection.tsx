@@ -197,7 +197,7 @@ export default function VerifyOtpSection() {
             }
 
             if (!resp.ok) {
-                const apiErr = (payload ?? {}) as ErrorResponse;
+                const apiErr = (payload ?? {}) as ErrorResponse<{}>;
                 const msg =
                     (typeof apiErr?.message === 'string' && apiErr.message) ||
                     (typeof apiErr?.errors === 'string' && apiErr.errors) ||
@@ -209,7 +209,7 @@ export default function VerifyOtpSection() {
 
             // Verified → redirect ke "/"
             if (isVerifiedResponse(resp, payload)) {
-                const apiErr = (payload ?? {}) as SuccessResponse;
+                const apiErr = (payload ?? {}) as SuccessResponse<{}>;
                 const msg =
                     (typeof apiErr?.message === 'string' && apiErr.message) ||
                     'Message Tidak Ada';
@@ -251,7 +251,7 @@ export default function VerifyOtpSection() {
             const payload = isJson ? await resp.json() : null;
 
             if (!resp.ok) {
-                const apiErr = (payload ?? {}) as ErrorResponse;
+                const apiErr = (payload ?? {}) as ErrorResponse<{}>;
                 const msg =
                     (typeof apiErr?.message === 'string' && apiErr.message) ||
                     (typeof apiErr?.errors === 'string' && apiErr.errors) ||

@@ -13,6 +13,7 @@ import MagneticButton from './MagneticButton';
 import Url from '../Uri/url'; // pastikan Url.MENU_API tersedia
 import { useMenus } from '@/hooks/useMenu';
 import { mapApiToNav } from '@/lib/utils';
+import { Menu } from '@/mock/menu';
 
 // =====================
 // Komponen Navigation
@@ -71,10 +72,11 @@ export const Navigation: React.FC = () => {
   };
 
   // ---- React Query: cukup panggil hook yang sudah dipisah
-  const { data: apiMenus = [], isLoading, error } = useMenus();
+  // const { data: apiMenus = [], isLoading, error } = useMenus();
 
   // Derived links
-  const navLinks = useMemo(() => mapApiToNav(apiMenus), [apiMenus]);
+  // const navLinks = useMemo(() => mapApiToNav(apiMenus), [apiMenus]);
+  const navLinks = useMemo(() => mapApiToNav(Menu), []);
 
   // =====================
   // Render
@@ -135,16 +137,8 @@ export const Navigation: React.FC = () => {
               )}
 
               <div className="flex items-center">
-                {/* Loading / error state */}
-                {isLoading && (
-                  <span className="px-5 py-3 text-sm text-muted-foreground">Loading menu…</span>
-                )}
-                {error && (
-                  <span className="px-5 py-3 text-sm text-red-500">Gagal memuat menu</span>
-                )}
 
-                {!isLoading &&
-                  !error &&
+                {
                   navLinks.map((link, index) => {
                     const hasChildren =
                       Array.isArray(link.children) && link.children.length > 0;
@@ -433,11 +427,7 @@ export const Navigation: React.FC = () => {
 
             <nav className="relative z-10 h-full flex flex-col justify-center px-8 sm:px-12">
               <div className="space-y-2">
-                {isLoading && <div className="py-3 text-muted-foreground">Loading menu…</div>}
-                {error && <div className="py-3 text-red-500">Gagal memuat menu</div>}
-
-                {!isLoading &&
-                  !error &&
+                {
                   navLinks.map((link, i) => {
                     const hasChildren = Array.isArray(link.children) && link.children.length > 0;
                     const isOpen = mobileOpenIndex === i;

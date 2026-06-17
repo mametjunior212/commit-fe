@@ -13,7 +13,7 @@ export async function fetchDetailEvent(id: string, signal?: AbortSignal): Promis
     if (!res.ok) {
         throw new Error(`Gagal mengambil Event: ${res.status} ${res.statusText}`);
     }
-    const json = (await res.json()) as SuccessResponse | { data?: Project };
+    const json = (await res.json()) as SuccessResponse<Project> | { data?: Project };
     return json.data;
 }
 

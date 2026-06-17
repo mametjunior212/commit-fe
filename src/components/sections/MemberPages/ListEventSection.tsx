@@ -100,7 +100,7 @@ export default function ListEventSection({ params, onParamsChange }: Props) {
 
                 if (!resp.ok) {
                     // Normalisasi pesan error
-                    const dataError = (payload || {}) as ErrorResponse;
+                    const dataError = (payload || {}) as ErrorResponse<{}>;
                     const fieldErrors =
                         dataError && typeof dataError.data === "object" && dataError.data !== null
                             ? (dataError.data as Record<string, unknown>)
@@ -175,42 +175,65 @@ export default function ListEventSection({ params, onParamsChange }: Props) {
 
     return (
         <div className="w-full space-y-4">
+
             {/* Controls */}
-            <div className="flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
-                <div className="flex items-center gap-2 max-w-md w-full">
+            <div className="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between">
+
+                {/* Search */}
+                <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xl">
                     <div className="relative w-full">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                         <input
                             value={searchInput}
                             onChange={(e) => setSearchInput(e.target.value)}
-                            placeholder="Cari judul/layanan/tahun…"
-                            className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            placeholder="Cari judul / layanan / tahun..."
+                            className="w-full pl-9 pr-3 py-2 rounded-lg border 
+          bg-white text-black border-gray-200
+          focus:outline-none focus:ring-2 focus:ring-indigo-500
+          dark:bg-[hsl(var(--background))] dark:text-white dark:border-[hsl(var(--input))]"
                         />
                     </div>
+
                     <button
                         onClick={() => refetch()}
-                        className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-sm"
+                        className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm
+        bg-gray-100 hover:bg-gray-200 dark:bg-[hsl(var(--secondary))] dark:hover:bg-[hsl(var(--accent))]"
                     >
-                        {isFetching ? <Loader2 className="h-4 w-4 animate-spin" /> : "Refresh"}
+                        {isFetching ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                            "Refresh"
+                        )}
                     </button>
                 </div>
 
-                <div className="flex items-center gap-3">
-                    <label className="text-sm text-gray-500">Tampilkan</label>
+                {/* Page Size */}
+                <div className="flex items-center justify-between sm:justify-end gap-3 w-full lg:w-auto">
+                    <label className="text-sm text-gray-500 dark:text-gray-400">
+                        Tampilkan
+                    </label>
+
                     <Select.Root
                         value={String(params.perPage ?? 10)}
-                        onValueChange={(v) => onParamsChange({ ...params, perPage: Number(v), page: 1 })}
+                        onValueChange={(v) =>
+                            onParamsChange({ ...params, perPage: Number(v), page: 1 })
+                        }
                     >
-                        <Select.Trigger className="inline-flex items-center justify-between rounded-lg border border-gray-200 px-3 py-2 min-w-[96px]">
+                        <Select.Trigger
+                            className="inline-flex items-center justify-between rounded-lg border px-3 py-2 min-w-[90px]
+          bg-white dark:bg-[hsl(var(--background))]
+          border-gray-200 dark:border-[hsl(var(--input))]"
+                        >
                             <Select.Value />
                         </Select.Trigger>
-                        <Select.Content className="rounded-lg border bg-white shadow-lg">
+
+                        <Select.Content className="rounded-lg border bg-white dark:bg-[hsl(var(--background))] shadow-lg">
                             <Select.Viewport className="p-1">
                                 {PAGE_SIZES.map((size) => (
                                     <Select.Item
                                         key={size}
                                         value={String(size)}
-                                        className="px-3 py-2 rounded hover:bg-gray-100 cursor-pointer"
+                                        className="px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-[hsl(var(--accent))] cursor-pointer"
                                     >
                                         <Select.ItemText>{size}</Select.ItemText>
                                     </Select.Item>
@@ -222,174 +245,151 @@ export default function ListEventSection({ params, onParamsChange }: Props) {
             </div>
 
             {/* Table */}
-            <div className="rounded-xl border border-gray-200 overflow-hidden">
-                <table className="w-full text-sm">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            <Th label="#" disabled />
-                            <Th label="Judul" onClick={() => toggleSort("title")} active={params.sortBy === "title"} order={params.sortOrder} />
-                            <Th label="Tipe Event" onClick={() => toggleSort("category")} active={params.sortBy === "category"} order={params.sortOrder} />
-                            <Th label="Tahun Pelaksaan" onClick={() => toggleSort("year")} active={params.sortBy === "year"} order={params.sortOrder} />
-                            <Th label="Mulai Event" onClick={() => toggleSort("start_date")} active={params.sortBy === "start_date"} order={params.sortOrder} />
-                            <Th label="Selesai Event" onClick={() => toggleSort("end_date")} active={params.sortBy === "end_date"} order={params.sortOrder} />
-                            <Th label="Aktif" onClick={() => toggleSort("active")} active={params.sortBy === "active"} order={params.sortOrder} />
-                            <Th label="Akhir Registrasi" onClick={() => toggleSort("close_regist")} active={params.sortBy === "close_regist"} order={params.sortOrder} />
-                            <th className="text-left px-4 py-3 text-gray-600">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {isLoading ? (
-                            [...Array(5)].map((_, i) => (
-                                <tr key={i} className="animate-pulse">
-                                    {Array.from({ length: 9 }).map((__, j) => (
-                                        <Td key={j}><div className="h-3 w-24 bg-gray-200 rounded" /></Td>
-                                    ))}
-                                </tr>
-                            ))
-                        ) : isError ? (
+            <div className="rounded-xl border border-gray-200 dark:border-[hsl(var(--input))] overflow-hidden">
+                <div className="w-full overflow-x-auto">
+                    <table className="min-w-[900px] w-full text-sm">
+                        <thead className="bg-gray-50 dark:bg-[hsl(var(--secondary))]">
                             <tr>
-                                <td colSpan={9} className="px-4 py-6 text-red-600">
-                                    Terjadi kesalahan saat memuat data. {(error as Error)?.message}
-                                </td>
+                                <Th label="#" disabled />
+                                <Th label="Judul" onClick={() => toggleSort("title")} active={params.sortBy === "title"} order={params.sortOrder} />
+                                <Th label="Tipe Event" onClick={() => toggleSort("category")} active={params.sortBy === "category"} order={params.sortOrder} />
+                                <Th label="Tahun" onClick={() => toggleSort("year")} active={params.sortBy === "year"} order={params.sortOrder} />
+                                <Th label="Mulai" onClick={() => toggleSort("start_date")} active={params.sortBy === "start_date"} order={params.sortOrder} />
+                                <Th label="Selesai" onClick={() => toggleSort("end_date")} active={params.sortBy === "end_date"} order={params.sortOrder} />
+                                <Th label="Status" onClick={() => toggleSort("active")} active={params.sortBy === "active"} order={params.sortOrder} />
+                                <Th label="Registrasi" onClick={() => toggleSort("close_regist")} active={params.sortBy === "close_regist"} order={params.sortOrder} />
+                                <th className="px-4 py-3 text-left text-gray-600 dark:text-gray-300">Aksi</th>
                             </tr>
-                        ) : rows.length === 0 ? (
-                            <tr>
-                                <td colSpan={9} className="px-4 py-6 text-center text-gray-500">Tidak ada data.</td>
-                            </tr>
-                        ) : (
-                            rows.map((r) => {
+                        </thead>
 
-                                const open = isOpen(now, r.close_regist);     // boolean
-                                const remain = open ? getRemaining(now, r.close_regist) : null;
-                                return (
-                                    <tr key={r.uuid} className="border-t border-gray-100">
-                                        <Td className="text-gray-500">{r.DT_RowIndex}</Td>
-                                        <Td className="font-medium">{decodeHTMLEntities(r.title)}</Td>
-                                        <Td>{r.category}</Td>
-                                        <Td>{r.year}</Td>
-                                        <Td>{fmtDateTimeIndo(r.start_date)}</Td>
-                                        <Td>{fmtDateTimeIndo(r.end_date)}</Td>
-                                        <Td>
-                                            {r.active === "y" ? (
-                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                                    <BadgeCheck className="h-3 w-3" /> Aktif
-                                                </span>
-                                            ) : (
-                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 border border-gray-200">
-                                                    Nonaktif
-                                                </span>
-                                            )}
-                                        </Td>
-                                        {/* <Td>{fmtDateTimeIndo(r.close_regist)}</Td> */}
-                                        <Td>{remain ? (
-                                            <span className="ml-2 text-xs text-gray-500">
-                                                Tutup dalam {remain.d}h {remain.h}j {remain.m}m {remain.sec}d
-                                            </span>
-                                        ) : <Td>{fmtDateTimeIndo(r.close_regist)}</Td>}</Td>
-                                        <Td>
-                                            <div className="flex gap-2">
-                                                <a href={`/event/${r.uuid}`} target="_blank" className="px-2 py-1 rounded bg-indigo-50 text-indigo-700 hover:bg-indigo-100">Detail</a>
-                                                {r.absen_personal.length === 0 ? (
-                                                    open && r.limitUser != r.TotalRegist ? (
-                                                        <button
-                                                            className="px-2 py-1 rounded bg-indigo-50 text-green-600 hover:bg-indigo-100 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2"
-                                                            onClick={() => registerMutation.mutate({ event_uuid: r.uuid })}
-                                                            disabled={isRegistering(r.uuid)}
-                                                        >
-                                                            {isRegistering(r.uuid) ? (
-                                                                <>
-                                                                    <svg
-                                                                        className="h-4 w-4 animate-spin text-green-600"
-                                                                        xmlns="http://www.w3.org/2000/svg"
-                                                                        fill="none"
-                                                                        viewBox="0 0 24 24"
-                                                                    >
-                                                                        <circle
-                                                                            className="opacity-25"
-                                                                            cx="12"
-                                                                            cy="12"
-                                                                            r="10"
-                                                                            stroke="currentColor"
-                                                                            strokeWidth="4"
-                                                                        />
-                                                                        <path
-                                                                            className="opacity-75"
-                                                                            fill="currentColor"
-                                                                            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                                                                        />
-                                                                    </svg>
-                                                                    Mendaftar…
-                                                                </>
-                                                            ) : (
-                                                                "Register"
-                                                            )}
-                                                        </button>
-                                                    ) : (
-                                                        <span className="px-2 py-1 rounded bg-gray-100 text-gray-500">
-                                                            Pendaftaran ditutup
-                                                        </span>
-                                                    )
-                                                ) : (
-                                                    <span className="px-2 py-1 rounded bg-gray-100 text-gray-500">
-                                                        Terdaftar
-                                                    </span>
-                                                )}
-                                                {/* <button className="px-2 py-1 rounded bg-rose-50 text-rose-700 hover:bg-rose-100">Hapus</button> */}
-                                            </div>
-                                        </Td>
+                        <tbody>
+                            {isLoading ? (
+                                [...Array(5)].map((_, i) => (
+                                    <tr key={i} className="animate-pulse">
+                                        {Array.from({ length: 9 }).map((__, j) => (
+                                            <Td key={j}>
+                                                <div className="h-3 w-full max-w-[120px] bg-gray-200 dark:bg-gray-700 rounded" />
+                                            </Td>
+                                        ))}
                                     </tr>
-                                )
-                            })
-                        )}
-                    </tbody>
-                </table>
+                                ))
+                            ) : isError ? (
+                                <tr>
+                                    <td colSpan={9} className="px-4 py-6 text-red-600">
+                                        Terjadi kesalahan. {(error)?.message}
+                                    </td>
+                                </tr>
+                            ) : rows.length === 0 ? (
+                                <tr>
+                                    <td colSpan={9} className="px-4 py-6 text-center text-gray-500">
+                                        Tidak ada data
+                                    </td>
+                                </tr>
+                            ) : (
+                                rows.map((r) => {
+                                    const open = isOpen(now, r.close_regist);
+                                    const remain = open ? getRemaining(now, r.close_regist) : null;
+
+                                    return (
+                                        <tr key={r.uuid} className="border-t border-gray-100 dark:border-gray-700">
+                                            <Td>{r.DT_RowIndex}</Td>
+                                            <Td className="font-medium">{decodeHTMLEntities(r.title)}</Td>
+                                            <Td>{r.category}</Td>
+                                            <Td>{r.year}</Td>
+                                            <Td>{fmtDateTimeIndo(r.start_date)}</Td>
+                                            <Td>{fmtDateTimeIndo(r.end_date)}</Td>
+
+                                            {/* Status */}
+                                            <Td>
+                                                {r.active === "y" ? (
+                                                    <span className="badge-green">Aktif</span>
+                                                ) : (
+                                                    <span className="badge-gray">Nonaktif</span>
+                                                )}
+                                            </Td>
+
+                                            {/* Registrasi */}
+                                            <Td>
+                                                {remain ? (
+                                                    <span className="text-xs text-gray-500">
+                                                        Tutup {remain.d}h {remain.h}j {remain.m}m
+                                                    </span>
+                                                ) : (
+                                                    fmtDateTimeIndo(r.close_regist)
+                                                )}
+                                            </Td>
+
+                                            {/* Actions */}
+                                            <Td>
+                                                <div className="flex flex-wrap gap-2">
+                                                    <a
+                                                        href={`/event/${r.uuid}`}
+                                                        target="_blank"
+                                                        className="btn-indigo"
+                                                    >
+                                                        Detail
+                                                    </a>
+
+                                                    {r.absen_personal.length === 0 ? (
+                                                        open && r.limitUser !== r.TotalRegist ? (
+                                                            <button
+                                                                onClick={() => registerMutation.mutate({ event_uuid: r.uuid })}
+                                                                disabled={isRegistering(r.uuid)}
+                                                                className="btn-green disabled:opacity-60"
+                                                            >
+                                                                {isRegistering(r.uuid) ? "Loading..." : "Register"}
+                                                            </button>
+                                                        ) : (
+                                                            <span className="badge-gray">Ditutup</span>
+                                                        )
+                                                    ) : (
+                                                        <span className="badge-gray">Terdaftar</span>
+                                                    )}
+                                                </div>
+                                            </Td>
+                                        </tr>
+                                    );
+                                })
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             {/* Pagination */}
-            <div className="flex items-center justify-between">
-                <div className="text-sm text-gray-600">
-                    {meta ? (
-                        <>Menampilkan <b>{meta.from}-{meta.to}</b> dari <b>{meta.total}</b> data</>
-                    ) : "—"}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div className="text-sm text-gray-600 dark:text-gray-400 text-center sm:text-left">
+                    {meta
+                        ? <>Menampilkan <b>{meta.from}-{meta.to}</b> dari <b>{meta.total}</b></>
+                        : "-"}
                 </div>
-                <div className="flex items-center gap-2">
-                    <button
-                        disabled={!meta || (params.page ?? 1) === 1}
-                        onClick={() => onParamsChange({ ...params, page: 1 })}
-                        className="px-3 py-2 rounded-lg border disabled:opacity-50"
-                        title="First"
-                    >
-                        «
-                    </button>
-                    <button
-                        disabled={!meta || (params.page ?? 1) <= 1}
-                        onClick={() => onParamsChange({ ...params, page: (params.page ?? 1) - 1 })}
-                        className="px-3 py-2 rounded-lg border disabled:opacity-50"
-                        title="Previous"
-                    >
+
+                <div className="flex items-center gap-2 flex-wrap justify-center">
+                    <button onClick={() => onParamsChange({ ...params, page: 1 })}
+                        className="px-3 py-2 border rounded-lg">«</button>
+
+                    <button onClick={() =>
+                        onParamsChange({ ...params, page: (params.page ?? 1) - 1 })}
+                        className="px-3 py-2 border rounded-lg">
                         <ChevronLeft className="h-4 w-4" />
                     </button>
+
                     <span className="text-sm">
-                        Halaman <b>{params.page ?? 1}</b> dari <b>{meta?.last_page ?? 1}</b>
+                        {params.page ?? 1} / {meta?.last_page ?? 1}
                     </span>
-                    <button
-                        disabled={!meta || (params.page ?? 1) >= (meta?.last_page ?? 1)}
-                        onClick={() => onParamsChange({ ...params, page: (params.page ?? 1) + 1 })}
-                        className="px-3 py-2 rounded-lg border disabled:opacity-50"
-                        title="Next"
-                    >
+
+                    <button onClick={() =>
+                        onParamsChange({ ...params, page: (params.page ?? 1) + 1 })}
+                        className="px-3 py-2 border rounded-lg">
                         <ChevronRight className="h-4 w-4" />
                     </button>
-                    <button
-                        disabled={!meta || (params.page ?? 1) >= (meta?.last_page ?? 1)}
-                        onClick={() => onParamsChange({ ...params, page: meta!.last_page })}
-                        className="px-3 py-2 rounded-lg border disabled:opacity-50"
-                        title="Last"
-                    >
-                        »
-                    </button>
+
+                    <button onClick={() =>
+                        onParamsChange({ ...params, page: meta?.last_page })}
+                        className="px-3 py-2 border rounded-lg">»</button>
                 </div>
             </div>
+
         </div>
     );
 }

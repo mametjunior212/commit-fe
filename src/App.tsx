@@ -21,31 +21,32 @@ import { useMenus } from "./hooks/useMenu";
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
 
-  const { data: apiParameter = [], isLoading: isParameter } = useParameter();
-  const { data: apiEvent = [], isLoading: isEvent } = useEvent();
-  const { data: apiListPartner = [], isLoading: isListPartner } = useListPartner();
-  const { data: apiMenu = [], isLoading: isMenu } = useMenus();
+  // const { data: apiParameter = [], isLoading: isParameter } = useParameter();
+  // const { data: apiEvent = [], isLoading: isEvent } = useEvent();
+  // const { data: apiListPartner = [], isLoading: isListPartner } = useListPartner();
+  // const { data: apiMenu = [], isLoading: isMenu } = useMenus();
 
-  // (opsional) kalau ingin tetap memo
-  const Parameter = useMemo(() => apiParameter, [apiParameter]);
-  const Event = useMemo(() => apiEvent, [apiEvent]);
-  const ListPartner = useMemo(() => apiListPartner, [apiListPartner]);
-  const Menus = useMemo(() => apiMenu, [apiMenu]);
+  // // (opsional) kalau ingin tetap memo
+  // const Parameter = useMemo(() => apiParameter, [apiParameter]);
+  // const Event = useMemo(() => apiEvent, [apiEvent]);
+  // const ListPartner = useMemo(() => apiListPartner, [apiListPartner]);
+  // const Menus = useMemo(() => apiMenu, [apiMenu]);
 
-  // Anggap “siap” kalau SEMUA request selesai (tidak loading lagi)
-  const allFetched = !isParameter && !isEvent && !isListPartner && !isMenu;
+  // // Anggap “siap” kalau SEMUA request selesai (tidak loading lagi)
+  // const allFetched = !isParameter && !isEvent && !isListPartner && !isMenu;
 
   // Kalau kamu butuh data minimal ada (bukan kosong), pakai ini:
   // const hasRequiredData = Parameter.length > 0 && Menus.length > 0; // contoh: hanya wajib Parameter & Menus
   // const isReady = allFetched && hasRequiredData;
 
-  const isReady = allFetched; // kalau boleh kosong ya cukup begini
+  // const isReady = allFetched; // kalau boleh kosong ya cukup begini
 
   useEffect(() => {
-    if (isReady) {
+  //   if (isReady) {
       setIsLoading(false);
-    }
-  }, [isReady]);
+  //   }
+  }, []);
+  // }, [isReady]);
 
   return (
     <TooltipProvider>

@@ -83,7 +83,7 @@ export const HeroSection = () => {
 
             if (!resp.ok) {
                 // Tangani error dari server
-                const apiErr = (payload || {}) as ErrorResponse;
+                const apiErr = (payload || {}) as ErrorResponse<{}>;
 
                 const message =
                     apiErr.message ||
@@ -102,7 +102,7 @@ export const HeroSection = () => {
             }
 
             // Berhasil
-            const dataOk = payload as SuccessResponse;
+            const dataOk = payload as SuccessResponse<any>;
             if (!dataOk?.data?.token) {
                 // Kalau backend tidak kirim token
                 toast({
@@ -208,7 +208,7 @@ export const HeroSection = () => {
 
             // Tangani error dari server
             if (!resp.ok) {
-                const dataError = (payload || {}) as ErrorResponse;
+                const dataError = (payload || {}) as ErrorResponse<{}>;
                 // Normalisasi field errors (bisa object kosong)
                 const fieldErrors =
                     (dataError && typeof dataError.data === 'object' && dataError.data !== null
@@ -305,7 +305,7 @@ export const HeroSection = () => {
         if (!res.ok) {
             throw new Error(`Gagal mengambil menu: ${res.status} ${res.statusText}`);
         }
-        const json = (await res.json()) as SuccessResponse | { data?: JobItem[] };
+        const json = (await res.json()) as SuccessResponse<JobItem[]> | { data?: JobItem[] };
         if (Array.isArray(json)) {
             return json; // sudah array JobItem[]
         }
@@ -517,13 +517,13 @@ export const HeroSection = () => {
                         </form>
                         <motion.div className="mt-4 text-center">
                             <p className="text-sm text-muted-foreground">
-                                Belum punya akun?{' '}
+                                Don’t have an account yet?{' '}
                                 <button
                                     type="button"
                                     onClick={() => setIsRegistering(true)}
                                     className="text-accent hover:underline"
                                 >
-                                    Sing Up Sekarang
+                                    Please Sign Up
                                 </button>
                             </p>
                         </motion.div>
@@ -830,7 +830,7 @@ export const HeroSection = () => {
                                     />
 
                                     <label htmlFor="terms" className="text-sm leading-relaxed cursor-pointer">
-                                        Saya telah membaca dan menyetujui{' '}
+                                        I have read and agreed.{' '}
                                         <button
                                             type="button"
                                             onClick={() => setShowTerms(true)}
@@ -843,7 +843,7 @@ export const HeroSection = () => {
 
                                 {!isAgree && (
                                     <p className="text-sm text-destructive">
-                                        Anda wajib menyetujui Terms & Conditions
+                                        You are required to agree to the Terms & Conditions.
                                     </p>
                                 )}
                             </div>
@@ -872,13 +872,13 @@ export const HeroSection = () => {
                         </form>
                         <motion.div className="mt-4 text-center">
                             <p className="text-sm text-muted-foreground">
-                                Sudah punya akun?{' '}
+                                Already have an account?{' '}
                                 <button
                                     type="button"
                                     onClick={() => setIsRegistering(false)}
                                     className="text-accent hover:underline"
                                 >
-                                    Sign In Sekarang
+                                    Sign in now
                                 </button>
                             </p>
                         </motion.div>

@@ -14,7 +14,7 @@ export async function fetchMenu(signal?: AbortSignal): Promise<PartnerType[]> {
     if (!res.ok) {
         throw new Error(`Gagal mengambil menu: ${res.status} ${res.statusText}`);
     }
-    const json = (await res.json()) as SuccessResponse | { data?: PartnerType[] };
+    const json = (await res.json()) as SuccessResponse<PartnerType[]> | { data?: PartnerType[] };
     return Array.isArray((json as any)?.data) ? ((json as any).data as PartnerType[]) : [];
 }
 

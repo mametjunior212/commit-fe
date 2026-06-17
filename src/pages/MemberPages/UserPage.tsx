@@ -115,7 +115,7 @@ async function fetchJobs(
 
     const json =
         (await res.json()) as
-        | SuccessResponse
+        | SuccessResponse<JobItem[]>
         | { data?: JobItem[] };
 
     if (Array.isArray(json)) return json;
@@ -494,7 +494,7 @@ export default function UserPage() {
                 const json = isJson ? await resp.json() : null;
 
                 if (!resp.ok) {
-                    const error = json as ErrorResponse;
+                    const error = json as ErrorResponse<{}>;
 
                     const fieldErrors =
                         typeof error?.data === "object"
@@ -591,7 +591,7 @@ export default function UserPage() {
 
             if (!resp.ok) {
                 const error =
-                    json as ErrorResponse;
+                    json as ErrorResponse<{}>;
 
                 const fieldErrors =
                     typeof error?.data === "object" ? (error.data as Record<string, unknown>) : {};
@@ -670,103 +670,142 @@ export default function UserPage() {
             *                         USER
             * ===================================================== */}
             <Card>
-                <CardContent className="grid grid-cols-2 gap-4 p-6">
-                    <h2 className="col-span-2 text-lg font-bold">
-                        Profil User
-                    </h2>
+                <CardContent className="p-4 md:p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
 
-                    <div>
-                        <Label>Username</Label>
-                        <Input value={user.username} disabled />
-                    </div>
+                        <h2 className="md:col-span-2 text-lg font-semibold">
+                            Profil User
+                        </h2>
 
-                    <div>
-                        <Label>Nama</Label>
-                        <Input {...register("name")} />
+                        {/* Username */}
+                        <div>
+                            <Label>Username</Label>
+                            <Input value={user.username} disabled className="mt-1" />
+                        </div>
 
-                        {errors.name && (
-                            <p className="text-sm text-red-500">{errors.name.message}</p>
-                        )}
-                    </div>
+                        {/* Nama */}
+                        <div>
+                            <Label>Nama</Label>
+                            <Input {...register("name")} className="mt-1" />
+                            {errors.name && (
+                                <p className="mt-1 text-sm text-red-500">
+                                    {errors.name.message}
+                                </p>
+                            )}
+                        </div>
 
-                    <div>
-                        <Label>Email</Label>
-                        <Input {...register("email")} />
-                        {errors.email && (
-                            <p className="mt-2 text-sm text-destructive">{errors.email.message}</p>
-                        )}
-                    </div>
+                        {/* Email */}
+                        <div>
+                            <Label>Email</Label>
+                            <Input {...register("email")} className="mt-1" />
+                            {errors.email && (
+                                <p className="mt-1 text-sm text-red-500">
+                                    {errors.email.message}
+                                </p>
+                            )}
+                        </div>
 
-                    <div>
-                        <Label>Email Perusahaan</Label>
+                        {/* Email Perusahaan */}
+                        <div>
+                            <Label>Email Perusahaan</Label>
+                            <Input {...register("email_perusahaan")} className="mt-1" />
+                            {errors.email_perusahaan && (
+                                <p className="mt-1 text-sm text-red-500">
+                                    {errors.email_perusahaan.message}
+                                </p>
+                            )}
+                        </div>
 
-                        <Input
-                            {...register("email_perusahaan")}
-                        />
-                        {errors.email_perusahaan && (
-                            <p className="mt-2 text-sm text-destructive">{errors.email_perusahaan.message}</p>
-                        )}
-                    </div>
+                        {/* Nomor */}
+                        <div>
+                            <Label>Nomor</Label>
+                            <Input type="number" {...register("nomor")} className="mt-1" />
+                            {errors.nomor && (
+                                <p className="mt-1 text-sm text-red-500">
+                                    {errors.nomor.message}
+                                </p>
+                            )}
+                        </div>
 
-                    <div>
-                        <Label>Nomor</Label>
+                        {/* Tanggal Lahir */}
+                        <div>
+                            <Label>Tanggal Lahir</Label>
+                            <Input type="date" {...register("tgl_lahir")} className="mt-1" />
+                            {errors.tgl_lahir && (
+                                <p className="mt-1 text-sm text-red-500">
+                                    {errors.tgl_lahir.message}
+                                </p>
+                            )}
+                        </div>
 
-                        <Input
-                            type="number" {...register("nomor")}
-                        />
-                        {errors.nomor && (
-                            <p className="mt-2 text-sm text-destructive">{errors.nomor.message}</p>
-                        )}
-                    </div>
+                        {/* Jenis Kelamin */}
+                        <div>
+                            <Label>Jenis Kelamin</Label>
+                            <select
+                                {...register("jenis_kelamin")}
+                                className="mt-1 w-full rounded-md border px-3 py-2 text-sm 
+          bg-white text-black 
+          dark:bg-[hsl(var(--background))] 
+          dark:text-white 
+          dark:border-[hsl(var(--input))]"
+                            >
+                                <option value="">Pilih</option>
+                                <option value="L">Laki-laki</option>
+                                <option value="P">Perempuan</option>
+                            </select>
 
-                    <div>
-                        <Label>
-                            Tanggal Lahir
-                        </Label>
+                            {errors.jenis_kelamin && (
+                                <p className="mt-1 text-sm text-red-500">
+                                    {errors.jenis_kelamin.message}
+                                </p>
+                            )}
+                        </div>
 
-                        <Input
-                            type="date" {...register("tgl_lahir")}
-                        />
-                        {errors.tgl_lahir && (
-                            <p className="mt-2 text-sm text-destructive">{errors.tgl_lahir.message}</p>
-                        )}
-                    </div>
+                        {/* Pekerjaan */}
+                        <div>
+                            <Label>Pekerjaan</Label>
+                            <Controller
+                                name="pekerjaan"
+                                control={control}
+                                render={({ field }) => (
+                                    <JobSelect
+                                        jobs={jobs}
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                        loading={jobLoading}
+                                        error={!!jobError}
+                                        disabled={isSubmitting}
+                                    />
+                                )}
+                            />
+                            {errors.pekerjaan && (
+                                <p className="mt-1 text-sm text-red-500">
+                                    {errors.pekerjaan.message}
+                                </p>
+                            )}
+                        </div>
 
-                    <div>
-                        <Label>
-                            Jenis Kelamin
-                        </Label>
+                        {/* Buttons */}
+                        <div className="md:col-span-2 flex flex-col sm:flex-row justify-end gap-3 pt-4">
+                            <Button
+                                type="button"
+                                disabled={isSubmitting}
+                                onClick={handleSubmit(submitUpdate)}
+                                className="w-full sm:w-auto"
+                            >
+                                {isSubmitting ? "Loading..." : "Update Profile"}
+                            </Button>
 
-                        <select {...register("jenis_kelamin")} className="w-full rounded-md border px-4 py-2  bg-white text-black  dark:bg-[hsl(var(--background))]  dark:text-white  dark:border-[hsl(var(--input))">
-                            <option value="">Pilih</option>
-                            <option value="L">Laki-laki</option>
-                            <option value="P">Perempuan</option>
-                        </select>
-                        {errors.jenis_kelamin && (
-                            <p className="mt-2 text-sm text-destructive">{errors.jenis_kelamin.message}</p>
-                        )}
-                    </div>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setShowReset(true)}
+                                className="w-full sm:w-auto"
+                            >
+                                Reset Password
+                            </Button>
+                        </div>
 
-                    <div>
-                        <Label>Pekerjaan</Label>
-
-                        <Controller name="pekerjaan" control={control} render={({ field }) => (
-                            <JobSelect jobs={jobs} value={field.value} onChange={field.onChange} loading={jobLoading} error={!!jobError} disabled={isSubmitting} />
-                        )} />
-
-                        {errors.pekerjaan && (<p className="mt-1 text-sm text-red-500"> {errors.pekerjaan.message} </p>)}
-                    </div>
-
-                    <div className="col-span-2 flex justify-end gap-3">
-                        <Button type="button" disabled={isSubmitting} onClick={handleSubmit(submitUpdate)}>
-                            {isSubmitting
-                                ? "Loading..."
-                                : "Update Profile"}
-                        </Button>
-
-                        <Button type="button" variant="outline" onClick={() => setShowReset(true)}>
-                            Reset Password
-                        </Button>
                     </div>
                 </CardContent>
             </Card>

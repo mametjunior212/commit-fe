@@ -5,21 +5,27 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useMenus } from '@/hooks/useMenu';
 import { mapApiToNav, toTelHref } from '@/lib/utils';
 import { getInParameterByName, getParameterByName, useParameter } from '@/hooks/useSetting';
+import { Menu, Parameter } from '@/mock/menu';
 
 
 
 export const Footer = () => {
    const [currentTime, setCurrentTime] = useState(new Date());
    // ---- React Query: cukup panggil hook yang sudah dipisah
-   const { data: apiMenus = [], isLoading, error } = useMenus();
-   const { data: apiParam } = useParameter();
+   // const { data: apiMenus = [], isLoading, error } = useMenus();
+   // const { data: apiParam } = useParameter();
 
    // Derived links
-   const navLinks = useMemo(() => mapApiToNav(apiMenus), [apiMenus]);
-   const lokasi = useMemo(() => getParameterByName(apiParam, "Lokasi"), [apiParam]);
-   const kontak = useMemo(() => getParameterByName(apiParam, "Kontak"), [apiParam]);
-   const email = useMemo(() => getParameterByName(apiParam, "email"), [apiParam]);
-   const sosmed = useMemo(() => getInParameterByName(apiParam, ["instagram", "Twitter", "Facebook", "Tiktok"]), [apiParam]);
+   // const navLinks = useMemo(() => mapApiToNav(apiMenus), [apiMenus]);
+  const navLinks = useMemo(() => mapApiToNav(Menu), []);
+   // const lokasi = useMemo(() => getParameterByName(apiParam, "Lokasi"), [apiParam]);
+   // const kontak = useMemo(() => getParameterByName(apiParam, "Kontak"), [apiParam]);
+   // const email = useMemo(() => getParameterByName(apiParam, "email"), [apiParam]);
+   // const sosmed = useMemo(() => getInParameterByName(apiParam, ["instagram", "Twitter", "Facebook", "Tiktok"]), [apiParam]);
+   const lokasi = useMemo(() => getParameterByName(Parameter, "Lokasi"), []);
+   const kontak = useMemo(() => getParameterByName(Parameter, "Kontak"), []);
+   const email = useMemo(() => getParameterByName(Parameter, "email"), []);
+   const sosmed = useMemo(() => getInParameterByName(Parameter, ["instagram", "Twitter", "Facebook", "Tiktok"]), []);
 
 
    useEffect(() => {
@@ -63,8 +69,7 @@ export const Footer = () => {
 
             {/* Column 2: Navigation - Mega Type */}
             <div className="lg:col-span-1 border-r border-border">
-               {!isLoading &&
-                  !error &&
+               {
 
                   navLinks.map((link) => {
                      const hasChildren = Array.isArray(link.children) && link.children.length > 0;
