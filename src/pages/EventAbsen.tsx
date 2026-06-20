@@ -5,6 +5,7 @@ import { Helmet } from 'react-helmet-async';
 import Url from '@/Uri/url';
 import Footer from '@/components/Footer';
 import Navigation from '@/components/Navigation';
+import { formatDate } from '@/components/features/calendar/helpers';
 
 type EventAbsenResponse = {
     title: string;
@@ -49,74 +50,89 @@ const EventAbsen = () => {
     }, [data?.absen]);
 
     return (
-        <div className="min-h-screen bg-background selection:bg-accent/20 flex flex-col" >
+        <div className="min-h-screen bg-background flex flex-col">
             <Helmet>
                 <title>{data?.title || 'QR Event'}</title>
             </Helmet>
+            <Navigation />
 
-            < Navigation />
-            <main className="flex-1 pt-24 md:pt-32 flex md:items-center md:justify-center">
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="w-full max-w-5xl bg-card rounded-3xl shadow-xl p-6 md:p-10 grid md:grid-cols-2 gap-8"
-                >
-                    {/* LEFT: QR */}
-                    <div className="flex flex-col items-center justify-center text-center space-y-4">
-                        <h1 className="text-2xl md:text-3xl font-bold">
-                            {data?.title || 'Event'}
+            <main className="flex-1 pt-24 md:pt-28 px-4">
+                <div className="w-full max-w-6xl mx-auto grid md:grid-cols-2 gap-10">
+
+                    {/* LEFT */}
+                    <div className="flex flex-col justify-center items-center text-center">
+                        <p className="text-xs uppercase tracking-wider text-foreground/50">
+                            QR Attendance
+                        </p>
+
+                        <h1 className="text-xl md:text-2xl font-semibold mt-2 max-w-xs leading-snug">
+                            {data?.title}
                         </h1>
 
-                        {isLoading ? (
-                            <p>Loading QR...</p>
-                        ) : error ? (
-                            <p className="text-red-500">{error}</p>
-                        ) : (
-                            <div className="bg-white p-4 rounded-2xl shadow">
-                                <img src={qrImageUrl} alt="QR" className="w-60 md:w-80" />
+                        <div className="mt-6">
+                            <div className="bg-white p-4 rounded-xl border border-foreground/10">
+                                <img src={qrImageUrl} className="w-56 md:w-64" />
                             </div>
-                        )}
+                        </div>
 
-                        <p className="text-sm opacity-70">
-                            Scan QR untuk absensi
+                        <p className="text-xs text-foreground/60 mt-4 max-w-[220px]">
+                            Scan QR menggunakan perangkat resmi
                         </p>
                     </div>
 
-                    {/* RIGHT: DETAIL */}
-                    <div className="space-y-4">
+                    {/* RIGHT */}
+                    <div className="p-2 md:p-4 space-y-6">
                         <div>
-                            <h2 className="text-xl font-semibold">Detail Event</h2>
-                            <p className="text-sm opacity-70">{data?.description}</p>
+                            <h2 className="text-lg font-semibold">Detail Event</h2>
+                            <p className="text-sm text-foreground/70 mt-1 leading-relaxed">
+                                {data?.description}
+                            </p>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-sm">
                             <div>
-                                <p className="opacity-60">Tanggal</p>
+                                <p className="text-xs text-foreground/50">Tanggal</p>
                                 <p className="font-medium">{data?.year}</p>
                             </div>
+
                             <div>
-                                <p className="opacity-60">Peserta</p>
+                                <p className="text-xs text-foreground/50">Peserta</p>
                                 <p className="font-medium">{data?.nama_user}</p>
+                            </div>
+
+                            <div>
+                                <p className="text-xs text-foreground/50">Mulai</p>
+                                <p>{formatDate(data?.start_date)}</p>
+                            </div>
+
+                            <div>
+                                <p className="text-xs text-foreground/50">Selesai</p>
+                                <p>{formatDate(data?.end_date)}</p>
                             </div>
                         </div>
 
                         <div>
-                            <p className="opacity-60 text-sm">About</p>
-                            <p className="text-sm leading-relaxed">
+                            <p className="text-xs text-foreground/50 mb-1">About</p>
+                            <p className="text-sm text-foreground/80 leading-relaxed">
                                 {data?.about}
                             </p>
                         </div>
 
-                        <div className="bg-muted text-center p-4 rounded-xl text-xs break-all">
-                            {data?.absen}
+                        <div className="pt-4 border-t border-foreground/10">
+                            <p className="text-xs text-foreground/50 mb-2">Token</p>
+                            <div className="bg-muted rounded-lg p-3 text-xs text-center break-all">
+                                {data?.absen}
+                            </div>
                         </div>
                     </div>
-                </motion.div>
+
+                </div>
             </main>
+
             <Footer />
         </div>
 
     );
 };
-444
+
 export default EventAbsen;

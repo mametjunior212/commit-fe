@@ -19,9 +19,14 @@ export const perusahaanColumns = ({
             accessorKey: "logo_perusahaan",
             header: "Logo",
             cell: ({ row }) => {
+                const base = (import.meta as ImportMeta).env.VITE_FONT_END;
+                const rawPath = row.original.logo_perusahaan;
+                const fixedPath = rawPath.replace(/&amp;/g, "&");
+                const url = base + fixedPath
+
                 return (
                     <img
-                        src={import.meta.env.VITE_FONT_END + row.original.logo_perusahaan}
+                        src={url}
                         alt="logo"
                         className="w-10 h-10 rounded-xl border object-cover"
                     />
@@ -31,10 +36,22 @@ export const perusahaanColumns = ({
         {
             accessorKey: "nama_perusahaan",
             header: "Nama Perusahaan",
+            cell: ({ row }) => {
+                const rawPath = row.original.nama_perusahaan ?? "";
+                const fixedPath = rawPath.replace(/&amp;/g, "&");
+                const text = fixedPath
+                return (<b>{text}</b>)
+            }
         },
         {
             accessorKey: "alamat_perusahaan",
             header: "Alamat",
+            cell: ({ row }) => {
+                const rawPath = row.original.alamat_perusahaan ?? "";
+                const fixedPath = rawPath.replace(/&amp;/g, "&");
+                const text = fixedPath
+                return (<b>{text}</b>)
+            }
         },
         {
             accessorKey: "nomor_perusahaan",
@@ -43,6 +60,12 @@ export const perusahaanColumns = ({
         {
             accessorKey: "kategori_bidang_usaha_perusahaan",
             header: "Kategori",
+            cell: ({ row }) => {
+                const rawPath = row.original.kategori_bidang_usaha_perusahaan ?? "";
+                const fixedPath = rawPath.replace(/&amp;/g, "&");
+                const text = fixedPath
+                return (<b>{text}</b>)
+            }
         },
         {
             id: "action",

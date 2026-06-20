@@ -150,7 +150,7 @@ const CaseStudy = () => {
   const absenPT = useMemo(() => clean(dataAbsen.absenPT), [dataAbsen]);
 
   // Voting
-  const { data: dataVoting, isLoading: isLoadingVoting, error: errorVoting, usingSSE, refetch } = useLiveVotes(20000000000, { enabled: isVoting });
+  const { data: dataVoting, isLoading: isLoadingVoting, error: errorVoting, usingSSE, refetch } = useLiveVotes(20000000000, { enabled: false });
   const totalVotes = useMemo(() => sumVotes(dataVoting?.data ?? []), [dataVoting]);
   const totalUsers = dataVoting?.totaluser ?? 0; // NEW: total user aktif dari API
   const votedUsers = useMemo(

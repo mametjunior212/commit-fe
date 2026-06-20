@@ -53,8 +53,6 @@ export default function ListVotingSection({ params, onParamsChange }: Props) {
     const [searchInput, setSearchInput] = React.useState(params.search ?? "");
     const debouncedSearch = useDebouncedValue(searchInput, 500);
 
-
-
     React.useEffect(() => {
         if ((params.search ?? "") !== debouncedSearch) {
             onParamsChange({ ...params, page: 1, search: debouncedSearch });
@@ -82,7 +80,20 @@ export default function ListVotingSection({ params, onParamsChange }: Props) {
     // ------------------------
     // Voting Modal State
     // ------------------------
-    type EventRow = EventItem;
+    type VotingOption = {
+        uuid: string;
+        name: string;
+        path: string;
+        filename: string;
+        created_at: string | null;
+        updated_at: string | null;
+        created_by: string | null;
+        updated_by: string | null;
+    };
+
+    type EventRow = EventItem & {
+        voting_option: VotingOption[];
+    };
 
     type VoteModalState = {
         open: boolean;
@@ -161,7 +172,7 @@ export default function ListVotingSection({ params, onParamsChange }: Props) {
         },
         onSuccess: (_payload, { event_uuid }) => {
             // Update cache supaya tombol di list berubah jadi "Voted" tanpa refetch
-            queryClient.setQueryData<ListEventResponse>(["listEventMember", params], (old) => {
+            queryClient.setQueryData<ListEventResponse>(["listVotingMember", params], (old) => {
                 if (!old) return old as any;
                 const nextData = old.data.map((row) => {
                     if (row.uuid !== event_uuid) return row;
@@ -177,7 +188,7 @@ export default function ListVotingSection({ params, onParamsChange }: Props) {
 
             closeVoteModal();
             // Jika ingin memastikan sinkron dengan server, boleh aktifkan ini:
-            // queryClient.invalidateQueries({ queryKey: ["listEventMember"] });
+            // queryClient.invalidateQueries({ queryKey: ["listVotingMember"] });
         },
         onError: (err: unknown) => {
             const isAbort = (err as Error)?.name === "AbortError";
@@ -197,16 +208,19 @@ export default function ListVotingSection({ params, onParamsChange }: Props) {
     const [previewOpen, setPreviewOpen] = React.useState(false);
     const [previewSrc, setPreviewSrc] = React.useState<string | null>(null);
     const [previewAlt, setPreviewAlt] = React.useState<string | null>(null);
+    const [previewZoom, setPreviewZoom] = React.useState(1);
 
     function openPreview(src: string, alt?: string) {
         setPreviewSrc(src);
         setPreviewAlt(alt ?? "");
         setPreviewOpen(true);
+        setPreviewZoom(1);
     }
     function closePreview() {
         setPreviewOpen(false);
         setPreviewSrc(null);
         setPreviewAlt(null);
+        setPreviewZoom(1);
     }
 
     return (
@@ -420,6 +434,222 @@ export default function ListVotingSection({ params, onParamsChange }: Props) {
                     <button onClick={() => onParamsChange({ ...params, page: meta?.last_page })} className="pagination-btn">»</button>
                 </div>
             </div>
+
+            {/* ================= VOTING MODAL ================= */}
+            <Dialog.Root open={voteModal.open} onOpenChange={(open) => {
+                if (!open) closeVoteModal();
+            }}>
+                <Dialog.Portal>
+                    <Dialog.Overlay className="fixed inset-0 z-40 bg-black/50" />
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                        <Dialog.Content className="w-full max-w-2xl max-h-[90vh] overflow-auto rounded-2xl bg-white shadow-2xl animate-in fade-in-0 zoom-in-95 duration-200">
+                            {/* Header */}
+                            <div className="sticky top-0 z-10 bg-white dark:bg-[hsl(var(--background))] border-b border-gray-200 dark:border-gray-700 p-6">
+                                <div className="flex items-start justify-between">
+                                    <div>
+                                        <Dialog.Title className="text-xl font-bold text-gray-900 dark:text-white">
+                                            Pilih Opsi Voting
+                                        </Dialog.Title>
+                                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                            {voteModal.event?.title}
+                                        </p>
+                                    </div>
+                                    <Dialog.Close className="absolute right-4 top-4 rounded-lg p-1 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                                        <X className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                                    </Dialog.Close>
+                                </div>
+                            </div>
+
+                            {/* Content */}
+                            <div className="p-6 space-y-6">
+                                {/* Voting Info */}
+                                <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                                    <p className="text-sm text-blue-900 dark:text-blue-100">
+                                        <span className="font-semibold">Waktu Voting:</span> {voteModal.event?.open_regist} sampai {voteModal.event?.end_date}
+                                    </p>
+                                </div>
+
+                                {/* Options Grid */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {voteModal.event?.voting_option && voteModal.event.voting_option.length > 0 ? (
+                                        voteModal.event.voting_option.map((option) => {
+                                            const isSelected = selectedOption === option.uuid;
+                                            const imageUrl = (import.meta as ImportMeta).env.VITE_FONT_END + option.path;
+
+                                            return (
+                                                <div
+                                                    key={option.uuid}
+                                                    onClick={() => setSelectedOption(option.uuid)}
+                                                    className={`cursor-pointer rounded-xl border-2 transition-all duration-200 overflow-hidden ${isSelected
+                                                        ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950/30 ring-2 ring-indigo-500/20'
+                                                        : 'border-gray-200 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-700'
+                                                        }`}
+                                                >
+                                                    {/* Image Container */}
+                                                    <div className="relative h-40 bg-gray-100 dark:bg-gray-800 overflow-hidden group">
+                                                        <img
+                                                            src={imageUrl}
+                                                            alt={option.name}
+                                                            className="w-full h-full object-cover"
+                                                            onError={(e) => {
+                                                                (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="160" viewBox="0 0 400 160"%3E%3Crect fill="%23e5e7eb" width="400" height="160"/%3E%3Ctext x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui" font-size="14" fill="%236b7280"%3EImage not found%3C/text%3E%3C/svg%3E';
+                                                            }}
+                                                        />
+                                                        {/* Preview Button */}
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                openPreview(imageUrl, option.name);
+                                                            }}
+                                                            className="absolute inset-0 bg-black/0 group-hover:bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                                                        >
+                                                            <div className="text-white text-center">
+                                                                <svg className="w-8 h-8 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 13H7" />
+                                                                </svg>
+                                                                <span className="text-xs font-semibold">Zoom</span>
+                                                            </div>
+                                                        </button>
+
+                                                        {/* Selection Indicator */}
+                                                        {isSelected && (
+                                                            <div className="absolute top-2 right-2 bg-indigo-500 rounded-full p-1">
+                                                                <Check className="h-4 w-4 text-white" />
+                                                            </div>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Option Info */}
+                                                    <div className="p-4">
+                                                        <h4 className={`font-bold text-center transition-colors ${isSelected
+                                                            ? 'text-indigo-600 dark:text-indigo-400'
+                                                            : 'text-gray-900 dark:text-white'
+                                                            }`}>
+                                                            {option.name}
+                                                        </h4>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })
+                                    ) : (
+                                        <div className="col-span-full text-center py-8 text-gray-500 dark:text-gray-400">
+                                            Tidak ada opsi voting tersedia
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Footer */}
+                            <div className="sticky bottom-0 bg-white dark:bg-[hsl(var(--background))] border-t border-gray-200 dark:border-gray-700 p-6 flex justify-end gap-3">
+                                <button
+                                    onClick={closeVoteModal}
+                                    className="px-6 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors font-medium"
+                                >
+                                    Batal
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        if (voteModal.event && selectedOption) {
+                                            voteMutation.mutate({
+                                                event_uuid: voteModal.event.uuid,
+                                                option_uuid: selectedOption,
+                                            });
+                                        }
+                                    }}
+                                    disabled={!selectedOption || isSavingVote}
+                                    className={`px-6 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${!selectedOption || isSavingVote
+                                        ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                                        : 'bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white'
+                                        }`}
+                                >
+                                    {isSavingVote && <Loader2 className="h-4 w-4 animate-spin" />}
+                                    {isSavingVote ? 'Menyimpan...' : 'Konfirmasi Vote'}
+                                </button>
+                            </div>
+                        </Dialog.Content>
+                    </div>
+                </Dialog.Portal>
+            </Dialog.Root>
+
+            {/* ================= IMAGE PREVIEW MODAL ================= */}
+            <Dialog.Root open={previewOpen} onOpenChange={(open) => {
+                if (!open) closePreview();
+            }}>
+                <Dialog.Portal>
+                    <Dialog.Overlay className="fixed inset-0 z-40 bg-black/80" />
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                        <Dialog.Content
+                            className="w-full max-w-4xl max-h-[90vh] rounded-xl bg-gray-900 shadow-2xl animate-in fade-in-0 zoom-in-95 duration-200 flex flex-col overflow-hidden">
+                            <Dialog.Title className="sr-only">
+                                Preview Image
+                            </Dialog.Title>
+                            {/* Close Button */}
+                            <Dialog.Close className="absolute right-4 top-4 z-10 rounded-lg p-2 hover:bg-gray-700 transition-colors">
+                                <X className="h-6 w-6 text-white" />
+                            </Dialog.Close>
+
+                            {/* Image Container */}
+                            <div className="flex-1 flex items-center justify-center p-4 overflow-auto">
+                                <div className="flex flex-col items-center justify-center gap-4">
+                                    <img
+                                        src={previewSrc ?? ""}
+                                        alt={previewAlt ?? ""}
+                                        style={{
+                                            transform: `scale(${previewZoom})`,
+                                            transition: 'transform 0.2s ease-in-out',
+                                            maxHeight: 'calc(90vh - 150px)',
+                                            maxWidth: '100%',
+                                            objectFit: 'contain',
+                                        }}
+                                        className="rounded-lg"
+                                    />
+
+                                    {/* Zoom Controls */}
+                                    <div className="flex items-center gap-4 z-50 bg-gray-800 px-6 py-3 rounded-lg">
+                                        <button
+                                            onClick={() => setPreviewZoom(Math.max(1, previewZoom - 0.2))}
+                                            className="p-2 hover:bg-gray-700 rounded transition-colors"
+                                            title="Zoom Out"
+                                        >
+                                            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                                            </svg>
+                                        </button>
+
+                                        <span className="text-white font-semibold min-w-[60px] text-center">
+                                            {Math.round(previewZoom * 100)}%
+                                        </span>
+
+                                        <button
+                                            onClick={() => setPreviewZoom(Math.min(3, previewZoom + 0.2))}
+                                            className="p-2 hover:bg-gray-700 rounded transition-colors"
+                                            title="Zoom In"
+                                        >
+                                            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                            </svg>
+                                        </button>
+
+                                        <div className="w-px h-6 bg-gray-600" />
+
+                                        <button
+                                            onClick={() => setPreviewZoom(1)}
+                                            className="px-4 py-1 bg-gray-700 hover:bg-gray-600 text-white text-sm rounded transition-colors font-medium"
+                                        >
+                                            Reset
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Image Info */}
+                            <div className="bg-gray-800 px-6 py-3 text-center text-gray-300 text-sm">
+                                {previewAlt}
+                            </div>
+                        </Dialog.Content>
+                    </div>
+                </Dialog.Portal>
+            </Dialog.Root>
 
         </div>
 

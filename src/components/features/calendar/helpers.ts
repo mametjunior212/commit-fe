@@ -452,3 +452,18 @@ export const toCapitalize = (str: string): string => {
 	if (!str) return "";
 	return str.charAt(0).toUpperCase() + str.slice(1);
 };
+
+export const formatDate = (date?: string) => {
+	if (!date) return '-';
+	try {
+		return new Date(date).toLocaleString('id-ID', {
+			day: '2-digit',
+			month: 'long',
+			year: 'numeric',
+			hour: '2-digit',
+			minute: '2-digit',
+		});
+	} catch {
+		return date;
+	}
+};

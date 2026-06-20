@@ -16,244 +16,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Eye, EyeOff } from "lucide-react";
 import ModalPerusahaan from "@/components/modal/modal-perusahaan";
 import { Perusahaan } from "@/types/perusahaan.type";
-
-/* =========================================================
- * SCHEMA
- * ========================================================= */
-
-const resetSchema = z
-    .object({
-        current: z.string().trim().min(1, 'Password is Wajib Terisi').min(6, 'Password is Wajib Terisi minimal 6 karakter').max(191, 'Password harus kurang dari 191 karakter'),
-        password: z.string().trim().min(1, 'Password is Wajib Terisi').min(6, 'Password is Wajib Terisi minimal 6 karakter').max(191, 'Password harus kurang dari 191 karakter'),
-        confirm: z.string().trim().min(1, 'Password is Wajib Terisi').min(6, 'Password is Wajib Terisi minimal 6 karakter').max(191, 'Password harus kurang dari 191 karakter'),
-    })
-    .refine((d) => d.password === d.confirm, {
-        message: "Password tidak sama",
-        path: ["confirm"],
-    });
-
-const produkSchema = z.object({
-    jenis: z.string().min(1, "Wajib isi"),
-    keterangan: z.string().min(1, "Wajib isi"),
-    value: z.string().min(1, "Wajib isi"),
-});
-
-const ptSchema = z.object({
-    nama: z.string().min(1, "Wajib isi"),
-    alamat: z.string().min(1, "Wajib isi"),
-    nomor: z.string().min(1, "Wajib isi"),
-    kategori: z.string().min(1, "Wajib isi"),
-});
-
-const userSchema = z.object({
-    name: z.string().min(1, "Nama Wajib Isi Minimal 1 Huruf"),
-    email: z.string().email("Format Email Tidak Sesuai"),
-    email_perusahaan: z.string().email("Format Email Tidak Sesuai"),
-    nomor: z.string().min(10, "Nomor Telpon Wajib isi Minimal 10 digit"),
-    tgl_lahir: z.string().nullable(),
-    jenis_kelamin: z.string().nullable(),
-    pekerjaan: z.string().min(1, "Pekerjaan Wajib Terisi"),
-});
-
-/* =========================================================
- * TYPES
- * ========================================================= */
-
-type ResetInput = z.infer<typeof resetSchema>;
-type ProdukInput = z.infer<typeof produkSchema>;
-type PTInput = z.infer<typeof ptSchema>;
-type UpdateInput = z.infer<typeof userSchema>;
-
-type UserResponse = {
-    username: string;
-    name: string;
-    email: string;
-    email_perusahaan?: string;
-    nomor?: string;
-    tgl_lahir?: string;
-    jenis_kelamin?: string;
-    pekerjaan?: string;
-
-    nama_perusahaan?: string;
-    nomor_perusahaan?: string;
-    alamat_perusahaan?: string;
-    kategori_bidang_usaha_perusahaan?: string;
-    logo_perusahaan?: string;
-
-    has_produk?: string;
-};
-
-/* =========================================================
- * API HELPERS
- * ========================================================= */
-
-async function fetcher<T>(
-    url: string,
-    options?: RequestInit
-): Promise<T> {
-    const res = await fetch(url, options);
-
-    if (!res.ok) {
-        throw new Error(`Request gagal: ${res.status}`);
-    }
-
-    return res.json();
-}
-
-async function fetchJobs(
-    signal?: AbortSignal
-): Promise<JobItem[]> {
-    const res = await fetch(Url.Jobs_API ?? "/api/menu", {
-        signal,
-    });
-
-    if (!res.ok) {
-        throw new Error(
-            `Gagal mengambil pekerjaan: ${res.status}`
-        );
-    }
-
-    const json =
-        (await res.json()) as
-        | SuccessResponse<JobItem[]>
-        | { data?: JobItem[] };
-
-    if (Array.isArray(json)) return json;
-
-    if (Array.isArray(json?.data)) {
-        return json.data;
-    }
-
-    return [];
-}
-
-/* =========================================================
- * JOB SELECT COMPONENT
- * ========================================================= */
-
-type JobSelectProps = {
-    jobs: JobItem[];
-    value?: string | null;
-    onChange: (value: string) => void;
-    disabled?: boolean;
-    loading?: boolean;
-    error?: boolean;
-};
-
-function JobSelect({
-    jobs,
-    value,
-    onChange,
-    disabled,
-    loading,
-    error,
-}: JobSelectProps) {
-    const [open, setOpen] = useState(false);
-    const [query, setQuery] = useState("");
-
-    const containerRef = useRef<HTMLDivElement | null>(null);
-
-    const filteredJobs = useMemo(() => {
-        const q = query.trim().toLowerCase();
-
-        if (!q) return jobs;
-
-        return jobs.filter((job) =>
-            job.label.toLowerCase().includes(q)
-        );
-    }, [jobs, query]);
-
-    useEffect(() => {
-        const selected = jobs.find(
-            (j) => String(j.uuid) === String(value)
-        );
-
-        if (selected) {
-            setQuery(selected.label);
-        }
-    }, [jobs, value]);
-
-    useEffect(() => {
-        const handleOutside = (e: MouseEvent) => {
-            if (
-                containerRef.current &&
-                !containerRef.current.contains(e.target as Node)
-            ) {
-                setOpen(false);
-            }
-        };
-
-        document.addEventListener("click", handleOutside);
-
-        return () => {
-            document.removeEventListener(
-                "click",
-                handleOutside
-            );
-        };
-    }, []);
-
-    return (
-        <div ref={containerRef} className="relative">
-            <Input
-                value={query}
-                disabled={disabled || loading || error}
-                placeholder={
-                    loading
-                        ? "Memuat..."
-                        : error
-                            ? "Gagal memuat"
-                            : "Cari pekerjaan"
-                }
-                onFocus={() => setOpen(true)}
-                onChange={(e) => {
-                    setQuery(e.target.value);
-                    onChange("");
-                    setOpen(true);
-                }}
-                className="w-full caret-black px-4 py-4 bg-background border-2 border-border focus:border-accent transition-colors focus:outline-none"
-            />
-
-            {open && filteredJobs.length > 0 && (
-                <div className="absolute left-0 mt-1 w-full z-[9999] max-h-56 overflow-y-auto border border-border bg-background shadow overscroll-contain">
-                    {filteredJobs.map((job) => (
-                        <div
-                            key={job.uuid}
-                            className="cursor-pointer px-4 py-2 hover:bg-accent/10"
-                            onMouseDown={(e) => e.preventDefault()}
-                            onClick={() => {
-                                onChange(String(job.uuid));
-                                setQuery(job.label);
-                                setOpen(false);
-                            }}
-                            onWheel={(e) => {
-                                e.stopPropagation();
-
-                                const el = e.currentTarget;
-                                const delta = e.deltaY;
-
-                                const atTop = el.scrollTop === 0;
-                                const atBottom =
-                                    el.scrollHeight - el.scrollTop === el.clientHeight;
-
-                                // ✅ prevent page scroll kalau masih bisa scroll di dropdown
-                                if (
-                                    (delta < 0 && !atTop) ||
-                                    (delta > 0 && !atBottom)
-                                ) {
-                                    e.preventDefault();
-                                }
-                            }}
-                        >
-                            {job.label}
-                        </div>
-                    ))}
-                </div>
-            )}
-        </div>
-    );
-}
-
+import { ProdukInput, PTInput, ResetInput, UpdateInput, UserResponse } from "@/types/userType";
+import { fetcher, fetchJobs } from "@/services/api.user.service";
+import { produkSchema, ptSchema, resetSchema, userSchema } from "@/schemas/user.schema";
+import JobSelect from "@/components/sections/MemberPages/JobSelected";
+import ModalSetPerusahaan from "@/components/sections/MemberPages/ModalPerusahaan";
+import ResetPasswordModal from "@/components/sections/MemberPages/ResetPasswordModal";
 
 /* =========================================================
  * PAGE
@@ -814,102 +582,20 @@ export default function UserPage() {
             *                       PERUSAHAAN
             * ===================================================== */}
 
-            <Card>
-                <CardContent className="space-y-4 p-6">
-                    {user.nama_perusahaan && <>
-                        <h2 className="text-lg font-semibold">
-                            Perusahaan / Property
-                        </h2>
-
-                        <div className="flex items-center gap-4 border-b pb-4">
-                            <img
-                                src={(import.meta as ImportMeta).env.VITE_FONT_END + user.logo_perusahaan}
-                                alt="logo"
-                                className="h-16 w-16 rounded border object-contain"
-                            />
-
-                            <div>
-                                <h3 className="text-xl font-bold">
-                                    {user.nama_perusahaan}
-                                </h3>
-
-                                <p className="text-sm text-muted-foreground">
-                                    {user.kategori_bidang_usaha_perusahaan}
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <Label>
-                                    Nama Perusahaan/Nama Property
-                                </Label>
-
-                                <Input
-                                    value={user.nama_perusahaan ?? ""}
-                                    disabled
-                                />
-                            </div>
-
-                            <div>
-                                <Label>Nomor</Label>
-
-                                <Input
-                                    value={user.nomor_perusahaan ?? ""}
-                                    disabled
-                                />
-                            </div>
-
-                            <div className="col-span-2">
-                                <Label>Domisili</Label>
-                                <Textarea
-                                    disabled
-                                    value={user.alamat_perusahaan ?? ""}
-                                />
-                            </div>
-
-                            <div className="col-span-2">
-                                <Label>Kategori</Label>
-
-                                <Input
-                                    value={user.kategori_bidang_usaha_perusahaan ?? ""}
-                                    disabled
-                                />
-                            </div>
-                        </div>
-                    </>
-                    }
-                    <div className="flex items-center justify-between">
-                        {user.nama_perusahaan === null &&
-                            < p className="text-muted-foreground">
-                                Belum ada perusahaan
-                            </p>
-                        }
-
-                        <Button
-                            onClick={() =>
-                                setShowPT(true)
-                            }
-                        >
-                            Set Perusahaan
-                        </Button>
-                        <ModalPerusahaan
-                            open={showPT}
-                            onOpenChange={setShowPT}
-                            onSelect={(value) => {
-                                setSelected(value);
-                                setPerusahaanMutation.mutate(value);
-                            }}
-                        />
-                    </div>
-                </CardContent>
-            </Card>
+            <ModalSetPerusahaan user={user}
+                onClick={() => setShowPT(true)}
+                open={showPT}
+                onOpenChange={setShowPT}
+                onSelect={(value) => {
+                    setSelected(value);
+                    setPerusahaanMutation.mutate(value);
+                }} />
 
             {/* =====================================================
             *                       PRODUK
             * ===================================================== */}
 
-            <Card>
+            {/* <Card>
                 <CardContent className="p-6">
                     {user.nama_perusahaan &&
                         (
@@ -922,7 +608,7 @@ export default function UserPage() {
                             </Button>
                         )}
                 </CardContent>
-            </Card>
+            </Card> */}
 
 
             {/* =====================================================
@@ -1027,54 +713,13 @@ export default function UserPage() {
             {/* =====================================================
             *                   MODAL RESET PASSWORD
             * ===================================================== */}
-
-            <Modal
+            <ResetPasswordModal
                 open={showReset}
-                onClose={() =>
-                    setShowReset(false)
-                }
-                title="Reset Password"
-            >
-                <form
-                    className="space-y-3"
-                    onSubmit={resetForm.handleSubmit((data) => resetMutation.mutate(data))}
-                >
-                    {/* PASSWORD LAMA */}
-                    <div className="relative">
-                        <Input type={showCurrent ? "text" : "password"} placeholder="Password Lama Anda" {...resetForm.register("current")} />
-                        <button type="button" onClick={() => setShowCurrent(!showCurrent)} className="absolute right-3 top-1/2 -translate-y-1/2">
-                            {showCurrent ? <EyeOff size={18} /> : <Eye size={18} />}
-                        </button>
-                    </div>
+                onClose={() => setShowReset(false)}
+                form={resetForm}
+                onSubmit={(data) => resetMutation.mutate(data)}
+            />
 
-                    {/* PASSWORD BARU */}
-                    <div className="relative">
-                        <Input type={showPassword ? "text" : "password"} placeholder="Password"    {...resetForm.register("password")} />
-                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2">
-                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                        </button>
-                    </div>
-
-                    {/* CONFIRM */}
-                    <div className="relative">
-                        <Input type={showConfirm ? "text" : "password"} placeholder="Confirm Password"    {...resetForm.register("confirm")} />
-                        <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-3 top-1/2 -translate-y-1/2">
-                            {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
-                        </button>
-                    </div>
-
-                    {resetForm.formState.errors.confirm && (
-                        <p className="text-sm text-red-500">
-                            {resetForm.formState.errors.confirm.message}
-                        </p>
-                    )}
-
-                    <Button type="submit" className="w-full">
-                        Reset Password
-                    </Button>
-                </form>
-
-            </Modal>
         </div >
     );
 }
