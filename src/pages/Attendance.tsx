@@ -18,29 +18,58 @@ import {
 const PAGE_SIZES = [5, 10, 20, 50, 100] as const;
 
 const COLUMN_CONFIG: { key: AttendanceColumn; label: string }[] = [
-    { key: 'nama', label: 'Nama Tamu' },
-    { key: 'nomor', label: 'Nomor Tamu' },
-    { key: 'alamat', label: 'Alamat Tamu' },
-    { key: 'alamat_kantor', label: 'Alamat Kantor Tamu' },
-    { key: 'community', label: 'Community Tamu' },
-    { key: 'perusahaan', label: 'Perusahaan Tamu' },
-    { key: 'nama_pekerjaan2', label: 'Pekerjaan Tamu' },
-    { key: 'email', label: 'Email Tamu' },
-    { key: 'nama_user', label: 'Nama User' },
-    { key: 'nomor_hp', label: 'Nomer User' },
-    { key: 'nama_pekerjaan1', label: 'Pekerjaan User' },
-    { key: 'email_pribadi', label: 'Email Pribadi' },
-    { key: 'email_perusahaan', label: 'Email Perusahaan' },
+    { key: 'nama', label: 'Nama' },
+    { key: 'nomor', label: 'Nomor HP' },
+    { key: 'alamat', label: 'Alamat' },
+    { key: 'alamat_kantor', label: 'Alamat Kantor' },
+    { key: 'community', label: 'Community' },
+    { key: 'perusahaan', label: 'Perusahaan' },
+    { key: 'nama_pekerjaan2', label: 'Pekerjaan' },
+    { key: 'email', label: 'Email' },
     { key: 'hadir', label: 'Hadir' },
     { key: 'hall', label: 'Hall' },
     { key: 'tabletop', label: 'Tabletop' },
     { key: 'booth', label: 'Booth' },
-    { key: 'created_at', label: 'Waktu Absen' },
+    { key: 'created_at', label: 'Waktu Daftar' },
 ];
 
 const COLUMNS: AttendanceColumn[] = COLUMN_CONFIG.map((c) => c.key);
 
 const FLAG_COLUMNS: AttendanceColumn[] = ['hadir', 'hall', 'tabletop', 'booth'];
+
+type FallbackKey =
+    | 'nama_user'
+    | 'nomor_hp'
+    | 'email_pribadi'
+    | 'nama_pekerjaan1'
+    | 'alamat_lengkap'
+    | 'alamat_perusahaan'
+    | 'nama_perusahaan';
+
+// Kolom "tamu" jatuh balik ke data profil user/perusahaan saat kosong/null.
+const FALLBACK_SOURCE: Partial<Record<AttendanceColumn, FallbackKey>> = {
+    nama: 'nama_user',
+    nomor: 'nomor_hp',
+    email: 'email_pribadi',
+    nama_pekerjaan2: 'nama_pekerjaan1',
+    alamat: 'alamat_lengkap',
+    alamat_kantor: 'alamat_perusahaan',
+    perusahaan: 'nama_perusahaan',
+};
+
+function resolveCellValue(row: AttendanceItem, key: AttendanceColumn): AttendanceItem[AttendanceColumn] {
+    const primary = row[key];
+
+    if (primary !== null && primary !== undefined && primary !== '') {
+        return primary;
+    }
+
+    const fallbackKey = FALLBACK_SOURCE[key];
+
+    if (!fallbackKey) return primary;
+
+    return row[fallbackKey] ?? primary;
+}
 
 function renderAttendanceCell(key: AttendanceColumn, value: AttendanceItem[AttendanceColumn]) {
     if (FLAG_COLUMNS.includes(key)) {
@@ -52,6 +81,21 @@ function renderAttendanceCell(key: AttendanceColumn, value: AttendanceItem[Atten
     return value ?? '-';
 }
 
+// Field yang boleh dipakai backend untuk pencarian global (DataTables columns[].searchable).
+const SEARCHABLE_FIELDS = new Set<AttendanceColumn | 'title'>([
+    'title',
+    'nama',
+    'nomor',
+    'alamat',
+    'email',
+    'email_perusahaan',
+    'community',
+    'perusahaan',
+    'nama_pekerjaan2',
+]);
+
+const QUERY_COLUMNS: (AttendanceColumn | 'title')[] = [...COLUMNS, 'title'];
+
 function StatusBadge({ value }: { value: AttendanceItem[AttendanceColumn] }) {
     return value === 'y' ? (
         <span className="badge-green">Ya</span>
@@ -59,11 +103,6 @@ function StatusBadge({ value }: { value: AttendanceItem[AttendanceColumn] }) {
         <span className="badge-gray">Tidak</span>
     );
 }
-
-const EMPTY_COLUMN_FILTERS: Record<AttendanceColumn, string> = COLUMNS.reduce(
-    (acc, key) => ({ ...acc, [key]: '' }),
-    {} as Record<AttendanceColumn, string>
-);
 
 function useDebouncedValue<T>(value: T, delay = 500) {
     const [debounced, setDebounced] = React.useState(value);
@@ -87,17 +126,17 @@ function buildAttendanceQuery(params: AttendanceParams) {
     if (params.search) qs.set('search[value]', params.search);
     qs.set('search[regex]', 'false');
 
-    const sortColumn = params.sortBy || COLUMNS[0];
-    const sortIndex = Math.max(0, COLUMNS.indexOf(sortColumn as AttendanceColumn));
+    const sortColumn = (params.sortBy || COLUMNS[0]) as AttendanceColumn;
+    const sortIndex = Math.max(0, QUERY_COLUMNS.indexOf(sortColumn));
     qs.set('order[0][column]', String(sortIndex));
     qs.set('order[0][dir]', params.sortOrder ?? 'asc');
 
-    COLUMNS.forEach((column, idx) => {
+    QUERY_COLUMNS.forEach((column, idx) => {
         qs.set(`columns[${idx}][data]`, column);
         qs.set(`columns[${idx}][name]`, column);
-        qs.set(`columns[${idx}][searchable]`, 'true');
+        qs.set(`columns[${idx}][searchable]`, String(SEARCHABLE_FIELDS.has(column)));
         qs.set(`columns[${idx}][orderable]`, 'true');
-        qs.set(`columns[${idx}][search][value]`, params.columnFilters?.[column] ?? '');
+        qs.set(`columns[${idx}][search][value]`, '');
         qs.set(`columns[${idx}][search][regex]`, 'false');
     });
 
@@ -144,10 +183,8 @@ export default function Attendance() {
 
     const [params, setParams] = React.useState<AttendanceParams>({ page: 1, perPage: 10 });
     const [searchInput, setSearchInput] = React.useState('');
-    const [columnInputs, setColumnInputs] = React.useState<Record<AttendanceColumn, string>>(EMPTY_COLUMN_FILTERS);
 
     const debouncedSearch = useDebouncedValue(searchInput, 500);
-    const debouncedColumnInputs = useDebouncedValue(columnInputs, 500);
 
     React.useEffect(() => {
         if ((params.search ?? '') !== debouncedSearch) {
@@ -155,15 +192,6 @@ export default function Attendance() {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [debouncedSearch]);
-
-    React.useEffect(() => {
-        const current = JSON.stringify(params.columnFilters ?? EMPTY_COLUMN_FILTERS);
-        const next = JSON.stringify(debouncedColumnInputs);
-        if (current !== next) {
-            setParams((prev) => ({ ...prev, page: 1, columnFilters: debouncedColumnInputs }));
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [debouncedColumnInputs]);
 
     const endpoint = React.useMemo(() => `${Url.ATTENDANCE_API}${id ?? ''}`, [id]);
 
@@ -182,10 +210,6 @@ export default function Attendance() {
         const isSame = params.sortBy === column;
         const nextOrder: 'asc' | 'desc' = isSame && params.sortOrder === 'asc' ? 'desc' : 'asc';
         setParams((prev) => ({ ...prev, sortBy: column, sortOrder: nextOrder, page: 1 }));
-    }
-
-    function handleColumnFilterChange(column: AttendanceColumn, value: string) {
-        setColumnInputs((prev) => ({ ...prev, [column]: value }));
     }
 
     function goToPage(page: number) {
@@ -223,8 +247,6 @@ export default function Attendance() {
                         sortBy={params.sortBy as AttendanceColumn | undefined}
                         sortOrder={params.sortOrder}
                         onToggleSort={toggleSort}
-                        columnInputs={columnInputs}
-                        onColumnFilterChange={handleColumnFilterChange}
                     />
 
                     <AttendancePagination meta={meta} page={params.page ?? 1} onPageChange={goToPage} />
@@ -262,7 +284,7 @@ function AttendanceControls({
                     <input
                         value={searchInput}
                         onChange={(e) => onSearchChange(e.target.value)}
-                        placeholder="Cari nama / nomor / alamat..."
+                        placeholder="Cari nama / nomor / alamat / email / perusahaan..."
                         className="w-full pl-9 pr-3 py-2 rounded-lg border
                             bg-white text-black border-gray-200
                             focus:outline-none focus:ring-2 focus:ring-indigo-500
@@ -320,8 +342,6 @@ type AttendanceTableProps = {
     sortBy?: AttendanceColumn;
     sortOrder?: 'asc' | 'desc';
     onToggleSort: (column: AttendanceColumn) => void;
-    columnInputs: Record<AttendanceColumn, string>;
-    onColumnFilterChange: (column: AttendanceColumn, value: string) => void;
 };
 
 function AttendanceTable({
@@ -332,8 +352,6 @@ function AttendanceTable({
     sortBy,
     sortOrder,
     onToggleSort,
-    columnInputs,
-    onColumnFilterChange,
 }: AttendanceTableProps) {
     const colSpan = COLUMN_CONFIG.length + 1;
 
@@ -352,17 +370,6 @@ function AttendanceTable({
                                     sortBy={sortBy}
                                     sortOrder={sortOrder}
                                     onSort={onToggleSort}
-                                />
-                            ))}
-                        </tr>
-                        <tr className="bg-gray-50 dark:bg-[hsl(var(--secondary))]">
-                            <th className="px-2 py-2" />
-                            {COLUMN_CONFIG.map(({ key }) => (
-                                <ColumnFilterCell
-                                    key={key}
-                                    column={key}
-                                    value={columnInputs[key]}
-                                    onChange={onColumnFilterChange}
                                 />
                             ))}
                         </tr>
@@ -443,7 +450,7 @@ function AttendanceRow({ row, index }: { row: AttendanceItem; index: number }) {
             <Td>{row.DT_RowIndex ?? index}</Td>
             {COLUMN_CONFIG.map(({ key }) => (
                 <Td key={key} className={key === 'nama_user' ? 'font-medium' : ''}>
-                    {renderAttendanceCell(key, row[key])}
+                    {renderAttendanceCell(key, resolveCellValue(row, key))}
                 </Td>
             ))}
         </tr>
@@ -532,28 +539,6 @@ function Th({ label, column, sortBy, sortOrder, onSort }: ThProps) {
                 {label}
                 {indicator && <span className="text-xs">{indicator}</span>}
             </button>
-        </th>
-    );
-}
-
-type ColumnFilterCellProps = {
-    column: AttendanceColumn;
-    value?: string;
-    onChange: (column: AttendanceColumn, value: string) => void;
-};
-
-function ColumnFilterCell({ column, value, onChange }: ColumnFilterCellProps) {
-    return (
-        <th className="px-2 py-2 font-normal">
-            <input
-                value={value ?? ''}
-                onChange={(e) => onChange(column, e.target.value)}
-                placeholder="Filter..."
-                className="w-full px-2 py-1.5 text-xs rounded-md border
-                    bg-white text-black border-gray-200
-                    focus:outline-none focus:ring-2 focus:ring-indigo-500
-                    dark:bg-[hsl(var(--background))] dark:text-white dark:border-[hsl(var(--input))]"
-            />
         </th>
     );
 }

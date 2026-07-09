@@ -112,8 +112,11 @@ export type AttendanceItem = {
     nomor: string | null;
     alamat: string | null;
     alamat_kantor: string | null;
+    alamat_lengkap: string | null;
+    alamat_perusahaan: string | null;
     community: string | null;
     perusahaan: string | null;
+    nama_perusahaan: string | null;
     nama_pekerjaan1: string | null;
     nama_pekerjaan2: string | null;
     nama_user: string | null;
@@ -135,5 +138,4 @@ export type AttendanceParams = {
     search?: string;
     sortBy?: AttendanceColumn | "";
     sortOrder?: "asc" | "desc";
-    columnFilters?: Partial<Record<AttendanceColumn, string>>;
 };
