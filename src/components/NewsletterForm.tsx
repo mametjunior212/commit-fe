@@ -52,8 +52,6 @@ const NewsletterForm = ({ variant = 'inline', className = '' }: NewsletterFormPr
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1200));
 
-    console.log('Newsletter subscription:', '[REDACTED EMAIL]');
-
     setIsSubmitting(false);
     setIsSubscribed(true);
     setEmail('');

@@ -15,8 +15,10 @@ export type EventItem = {
     link: string | null;
     start_date: string;
     end_date: string;
-    close_regist?: string;
     open_regist?: string;
+    close_regist?: string;
+    close_voting?: string;
+    open_voting?: string;
     active: "y" | "n";
     created_at: string;
     created_by: string | number | null;
@@ -72,8 +74,66 @@ export type EventsParam = {
     | "category"
     | "start_date"
     | "end_date"
+    | "open_regist"
     | "close_regist"
+    | "close_voting"
+    | "open_voting"
     | "active"
     | "";
     sortOrder?: "asc" | "desc";
+};
+
+export type AttendanceFlag = "y" | "n" | null;
+
+export type AttendanceColumn =
+    | "nama"
+    | "nomor"
+    | "alamat"
+    | "alamat_kantor"
+    | "community"
+    | "perusahaan"
+    | "nama_pekerjaan1"
+    | "nama_pekerjaan2"
+    | "nama_user"
+    | "email"
+    | "email_pribadi"
+    | "email_perusahaan"
+    | "nomor_hp"
+    | "hadir"
+    | "hall"
+    | "tabletop"
+    | "booth"
+    | "created_at";
+
+export type AttendanceItem = {
+    title: string;
+    uuid: string;
+    nama: string | null;
+    nomor: string | null;
+    alamat: string | null;
+    alamat_kantor: string | null;
+    community: string | null;
+    perusahaan: string | null;
+    nama_pekerjaan1: string | null;
+    nama_pekerjaan2: string | null;
+    nama_user: string | null;
+    email: string | null;
+    email_pribadi: string | null;
+    email_perusahaan: string | null;
+    nomor_hp: string | null;
+    hadir: AttendanceFlag;
+    hall: AttendanceFlag;
+    tabletop: AttendanceFlag;
+    booth: AttendanceFlag;
+    created_at: string | null;
+    DT_RowIndex: number;
+};
+
+export type AttendanceParams = {
+    page?: number; // 1-based
+    perPage?: number;
+    search?: string;
+    sortBy?: AttendanceColumn | "";
+    sortOrder?: "asc" | "desc";
+    columnFilters?: Partial<Record<AttendanceColumn, string>>;
 };

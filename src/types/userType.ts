@@ -15,6 +15,11 @@ export type UserResponse = {
     tgl_lahir?: string;
     jenis_kelamin?: string;
     pekerjaan?: string;
+    uuid_prov?: string;
+    prov_id?: string;
+    kota?: string;
+    alamat_lengkap?: string;
+    ukuran_baju?: string;
 
     nama_perusahaan?: string;
     nomor_perusahaan?: string;

@@ -144,15 +144,36 @@ export function fmtDateTimeIndo(input?: string | null) {
 }
 
 
+export const isRegistrationOpen = (
+  nowTs: number,
+  openStr?: string | null,
+  closeStr?: string | null
+) => {
+  const openDate = parseLocal(openStr);
+  const closeDate = parseLocal(closeStr);
 
-export function parseLocal(input: string) {
-  // "2026-03-08 13:59:59" → local Date (Jakarta sudah lokal, aman)
+  if (!openDate || !closeDate) return false;
+
+  const now = nowTs;
+
+  return now >= openDate.getTime() && now <= closeDate.getTime();
+};
+
+
+export function parseLocal(input?: string | null) {
+  if (!input) return null;
+
   return new Date(input.replace(" ", "T"));
 }
 
-export function getRemaining(nowTs: number, closeStr: string) {
-  const closeTs = parseLocal(closeStr).getTime();
+export function getRemaining(nowTs: number, closeStr?: string | null) {
+  const parsed = parseLocal(closeStr);
+
+  if (!parsed) return null; // ✅ FIX
+
+  const closeTs = parsed.getTime();
   const diff = closeTs - nowTs;
+
   if (diff <= 0) return null;
 
   const s = Math.floor(diff / 1000);
@@ -160,8 +181,10 @@ export function getRemaining(nowTs: number, closeStr: string) {
   const h = Math.floor((s % 86400) / 3600);
   const m = Math.floor((s % 3600) / 60);
   const sec = s % 60;
+
   return { d, h, m, sec, closeTs };
 }
+
 
 export function isOpen(nowTs: number, closeStr: string) {
   return nowTs <= parseLocal(closeStr).getTime();

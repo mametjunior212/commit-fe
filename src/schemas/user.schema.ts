@@ -27,6 +27,20 @@ export const ptSchema = z.object({
     kategori: z.string().min(1, "Wajib isi"),
 });
 
+export const ukuranBajuOptions = [
+    "s",
+    "m",
+    "l",
+    "xl",
+    "2xl",
+    "3xl",
+    "4xl",
+    "5xl",
+    "6xl",
+    "7xl",
+    "8xl",
+] as const;
+
 export const userSchema = z.object({
     name: z.string().min(1, "Nama Wajib Isi Minimal 1 Huruf"),
     email: z.string().email("Format Email Tidak Sesuai"),
@@ -35,4 +49,8 @@ export const userSchema = z.object({
     tgl_lahir: z.string().nullable(),
     jenis_kelamin: z.string().nullable(),
     pekerjaan: z.string().min(1, "Pekerjaan Wajib Terisi"),
+    prov_id: z.string().nullable(),
+    kota: z.string().nullable(),
+    alamat_lengkap: z.string().nullable(),
+    ukuran_baju: z.string().nullable(),
 });

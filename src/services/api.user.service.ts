@@ -1,4 +1,5 @@
 import { JobItem } from "@/components/type/pekerjaanType";
+import { ProvinceItem } from "@/components/type/provinceType";
 import { SuccessResponse } from "@/components/type/response";
 import Url from "@/Uri/url";
 
@@ -32,6 +33,34 @@ export async function fetchJobs(
         (await res.json()) as
         | SuccessResponse<JobItem[]>
         | { data?: JobItem[] };
+
+    if (Array.isArray(json)) return json;
+
+    if (Array.isArray(json?.data)) {
+        return json.data;
+    }
+
+    return [];
+}
+
+export async function fetchProvinces(
+    signal?: AbortSignal
+): Promise<ProvinceItem[]> {
+    const res = await fetch(Url.Provincies_API, {
+        method: "POST",
+        signal,
+    });
+
+    if (!res.ok) {
+        throw new Error(
+            `Gagal mengambil provinsi: ${res.status}`
+        );
+    }
+
+    const json =
+        (await res.json()) as
+        | SuccessResponse<ProvinceItem[]>
+        | { data?: ProvinceItem[] };
 
     if (Array.isArray(json)) return json;
 

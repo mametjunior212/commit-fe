@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Input } from "../../ui/input";
-import { JobItem } from "@/components/type/pekerjaanType";
+import { ProvinceItem } from "@/components/type/provinceType";
 
 
-type JobSelectProps = {
-    jobs: JobItem[];
+type ProvinceSelectProps = {
+    provinces: ProvinceItem[];
     value?: string | null;
     onChange: (value: string) => void;
     disabled?: boolean;
@@ -12,38 +12,38 @@ type JobSelectProps = {
     error?: boolean;
 };
 
-export default function JobSelect({
-    jobs,
+export default function ProvinceSelect({
+    provinces,
     value,
     onChange,
     disabled,
     loading,
     error,
-}: JobSelectProps) {
+}: ProvinceSelectProps) {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
-    
+
     const containerRef = useRef<HTMLDivElement | null>(null);
 
-    const filteredJobs = useMemo(() => {
+    const filteredProvinces = useMemo(() => {
         const q = query.trim().toLowerCase();
 
-        if (!q) return jobs;
+        if (!q) return provinces;
 
-        return jobs.filter((job) =>
-            job.label.toLowerCase().includes(q)
+        return provinces.filter((prov) =>
+            prov.nama.toLowerCase().includes(q)
         );
-    }, [jobs, query]);
+    }, [provinces, query]);
 
     useEffect(() => {
-        const selected = jobs.find(
-            (j) => String(j.uuid) === String(value)
+        const selected = provinces.find(
+            (p) => String(p.uuid) === String(value)
         );
 
         if (selected) {
-            setQuery(selected.label);
+            setQuery(selected.nama);
         }
-    }, [jobs, value]);
+    }, [provinces, value]);
 
     useEffect(() => {
         const handleOutside = (e: MouseEvent) => {
@@ -75,7 +75,7 @@ export default function JobSelect({
                         ? "Memuat..."
                         : error
                             ? "Gagal memuat"
-                            : "Cari pekerjaan"
+                            : "Cari provinsi"
                 }
                 onFocus={() => setOpen(true)}
                 onChange={(e) => {
@@ -86,16 +86,16 @@ export default function JobSelect({
                 className="w-full caret-black px-4 py-4 bg-background border-2 border-border focus:border-accent transition-colors focus:outline-none"
             />
 
-            {open && filteredJobs.length > 0 && (
+            {open && filteredProvinces.length > 0 && (
                 <div className="absolute left-0 mt-1 w-full z-[9999] max-h-56 overflow-y-auto border border-border bg-background shadow overscroll-contain">
-                    {filteredJobs.map((job) => (
+                    {filteredProvinces.map((prov) => (
                         <div
-                            key={job.uuid}
+                            key={prov.uuid}
                             className="cursor-pointer px-4 py-2 hover:bg-accent/10"
                             onMouseDown={(e) => e.preventDefault()}
                             onClick={() => {
-                                onChange(String(job.uuid));
-                                setQuery(job.label);
+                                onChange(String(prov.uuid));
+                                setQuery(prov.nama);
                                 setOpen(false);
                             }}
                             onWheel={(e) => {
@@ -108,7 +108,6 @@ export default function JobSelect({
                                 const atBottom =
                                     el.scrollHeight - el.scrollTop === el.clientHeight;
 
-                                // ✅ prevent page scroll kalau masih bisa scroll di dropdown
                                 if (
                                     (delta < 0 && !atTop) ||
                                     (delta > 0 && !atBottom)
@@ -117,7 +116,7 @@ export default function JobSelect({
                                 }
                             }}
                         >
-                            {job.label}
+                            {prov.nama}
                         </div>
                     ))}
                 </div>

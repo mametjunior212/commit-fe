@@ -129,7 +129,7 @@ export function ModalTambahPerusahaan({
                     </div>
 
                     <div>
-                        <label>Nomor</label>
+                        <label>Nomor Telpon Perusahaan</label>
                         <Input {...register("nomor")} />
                         <p className="text-sm text-red-500">
                             {errors.nomor?.message}

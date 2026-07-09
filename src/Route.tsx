@@ -3,6 +3,7 @@ import About from "./pages/About";
 import CalendarPage from "./pages/CalendarPage";
 import CaseStudy from "./pages/CaseStudy";
 import EventAbsen from "./pages/EventAbsen";
+import Attendance from "./pages/Attendance";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Projects from "./pages/Projects";
@@ -25,6 +26,7 @@ const RoutePage = () => {
             <Route path="/event" element={<Projects />} />
             <Route path="/event/:id" element={<CaseStudy />} />
             <Route path="/event-absen/:id" element={<EventAbsen />} />
+            <Route path="/attendance/:id" element={<Attendance />} />
             <Route path="/realtime-voting/:id" element={<RealtimeVotingPage />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/calendar" element={<CalendarPage />} />

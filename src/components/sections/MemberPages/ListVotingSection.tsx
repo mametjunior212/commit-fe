@@ -308,8 +308,8 @@ export default function ListVotingSection({ params, onParamsChange }: Props) {
                                 <Th label="Judul" onClick={() => toggleSort("title")} active={params.sortBy === "title"} order={params.sortOrder} />
                                 <Th label="Tipe Event" onClick={() => toggleSort("category")} active={params.sortBy === "category"} order={params.sortOrder} />
                                 <Th label="Tahun" onClick={() => toggleSort("year")} active={params.sortBy === "year"} order={params.sortOrder} />
-                                <Th label="Mulai" onClick={() => toggleSort("start_date")} active={params.sortBy === "start_date"} order={params.sortOrder} />
-                                <Th label="Selesai" onClick={() => toggleSort("end_date")} active={params.sortBy === "end_date"} order={params.sortOrder} />
+                                <Th label="Mulai Voting" onClick={() => toggleSort("open_voting")} active={params.sortBy === "open_voting"} order={params.sortOrder} />
+                                <Th label="Selesai Voting" onClick={() => toggleSort("close_voting")} active={params.sortBy === "close_voting"} order={params.sortOrder} />
                                 <Th label="Status" onClick={() => toggleSort("active")} active={params.sortBy === "active"} order={params.sortOrder} />
                                 <Th label="Voting Window" />
                                 <th className="px-4 py-3 text-left text-gray-600 dark:text-gray-300">Aksi</th>
@@ -335,10 +335,11 @@ export default function ListVotingSection({ params, onParamsChange }: Props) {
                                 </tr>
                             ) : (
                                 rows.map((r) => {
-                                    const startMs = new Date(r.open_regist).getTime();
-                                    const endMs = new Date(r.end_date).getTime();
-                                    const isVotingOpen = now >= startMs && now <= endMs;
-                                    const remain = isVotingOpen ? getRemaining(now, r.end_date) : null;
+                                    const votingStartMs = new Date(r.open_voting).getTime();
+                                    const votingEndMs = new Date(r.close_voting).getTime();
+
+                                    const isVotingOpen = now >= votingStartMs && now <= votingEndMs;
+                                    const remain = isVotingOpen ? getRemaining(now, r.close_voting) : null;
 
                                     return (
                                         <tr key={r.uuid} className="border-t border-gray-100 dark:border-gray-700">
@@ -366,8 +367,8 @@ export default function ListVotingSection({ params, onParamsChange }: Props) {
                                                     </span>
                                                 ) : (
                                                     <div className="text-xs text-gray-500">
-                                                        <div>Mulai: {fmtDateTimeIndo(r.open_regist)}</div>
-                                                        <div>Selesai: {fmtDateTimeIndo(r.end_date)}</div>
+                                                        <div>Mulai: {fmtDateTimeIndo(r.open_voting)}</div>
+                                                        <div>Selesai: {fmtDateTimeIndo(r.close_voting)}</div>
                                                     </div>
                                                 )}
                                             </Td>
@@ -382,7 +383,6 @@ export default function ListVotingSection({ params, onParamsChange }: Props) {
                                                     >
                                                         Detail
                                                     </a>
-
                                                     {r.voting_personal.length !== 0 ? (
                                                         <span className="badge-green">Voted</span>
                                                     ) : r.absen_personal?.length > 0 ? (

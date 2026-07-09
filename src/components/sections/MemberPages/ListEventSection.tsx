@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import * as Select from "@radix-ui/react-select";
 import { DataTablesEnvelope, EventItem, EventsParam } from "@/components/type/Datatables";
-import { fetchJson, fmtDateTimeIndo, getRemaining, isOpen } from "@/lib/utils";
+import { fetchJson, fmtDateTimeIndo, getRemaining, isOpen, isRegistrationOpen } from "@/lib/utils";
 import Url from "@/Uri/url";
 import { toast } from "@/hooks/use-toast";
 import { ErrorResponse } from "@/components/type/response";
@@ -150,7 +150,7 @@ export default function ListEventSection({ params, onParamsChange }: Props) {
 
             toast({
                 title: "Register sukses!",
-                description: "Akun Berhasil dibuat. Silakan cek email untuk verifikasi.",
+                description: "Terimakasih dan tolong cek email untuk confirmation letter beserta terdapat QR-code untuk checkin di acara",
             });
 
             // Tidak perlu refetch / invalidate
@@ -257,7 +257,8 @@ export default function ListEventSection({ params, onParamsChange }: Props) {
                                 <Th label="Mulai" onClick={() => toggleSort("start_date")} active={params.sortBy === "start_date"} order={params.sortOrder} />
                                 <Th label="Selesai" onClick={() => toggleSort("end_date")} active={params.sortBy === "end_date"} order={params.sortOrder} />
                                 <Th label="Status" onClick={() => toggleSort("active")} active={params.sortBy === "active"} order={params.sortOrder} />
-                                <Th label="Registrasi" onClick={() => toggleSort("close_regist")} active={params.sortBy === "close_regist"} order={params.sortOrder} />
+                                <Th label="Mulai Registrasi" onClick={() => toggleSort("open_regist")} active={params.sortBy === "open_regist"} order={params.sortOrder} />
+                                <Th label="Berakhir Registrasi" onClick={() => toggleSort("close_regist")} active={params.sortBy === "close_regist"} order={params.sortOrder} />
                                 <th className="px-4 py-3 text-left text-gray-600 dark:text-gray-300">Aksi</th>
                             </tr>
                         </thead>
@@ -287,13 +288,25 @@ export default function ListEventSection({ params, onParamsChange }: Props) {
                                 </tr>
                             ) : (
                                 rows.map((r) => {
-                                    const open = isOpen(now, r.close_regist);
-                                    const remain = open ? getRemaining(now, r.close_regist) : null;
+                                    const isActiveReg = isRegistrationOpen(
+                                        now,
+                                        r.open_regist,
+                                        r.close_regist
+                                    );
+
+                                    const remain = isActiveReg
+                                        ? getRemaining(now, r.close_regist)
+                                        : null;
 
                                     return (
-                                        <tr key={r.uuid} className="border-t border-gray-100 dark:border-gray-700">
+                                        <tr
+                                            key={r.uuid}
+                                            className="border-t border-gray-100 dark:border-gray-700"
+                                        >
                                             <Td>{r.DT_RowIndex}</Td>
-                                            <Td className="font-medium">{decodeHTMLEntities(r.title)}</Td>
+                                            <Td className="font-medium">
+                                                {decodeHTMLEntities(r.title)}
+                                            </Td>
                                             <Td>{r.category}</Td>
                                             <Td>{r.year}</Td>
                                             <Td>{fmtDateTimeIndo(r.start_date)}</Td>
@@ -308,16 +321,18 @@ export default function ListEventSection({ params, onParamsChange }: Props) {
                                                 )}
                                             </Td>
 
-                                            {/* Registrasi */}
+                                            {/* Open Registrasi */}
                                             <Td>
                                                 {remain ? (
                                                     <span className="text-xs text-gray-500">
                                                         Tutup {remain.d}h {remain.h}j {remain.m}m
                                                     </span>
                                                 ) : (
-                                                    fmtDateTimeIndo(r.close_regist)
+                                                    fmtDateTimeIndo(r.open_regist)
                                                 )}
                                             </Td>
+                                            {/* Close Registrasi */}
+                                            <Td>{fmtDateTimeIndo(r.close_regist)}</Td>
 
                                             {/* Actions */}
                                             <Td>
@@ -331,13 +346,17 @@ export default function ListEventSection({ params, onParamsChange }: Props) {
                                                     </a>
 
                                                     {r.absen_personal.length === 0 ? (
-                                                        open && r.limitUser !== r.TotalRegist ? (
+                                                        isActiveReg && r.limitUser !== r.TotalRegist ? (
                                                             <button
-                                                                onClick={() => registerMutation.mutate({ event_uuid: r.uuid })}
+                                                                onClick={() =>
+                                                                    registerMutation.mutate({ event_uuid: r.uuid })
+                                                                }
                                                                 disabled={isRegistering(r.uuid)}
                                                                 className="btn-green disabled:opacity-60"
                                                             >
-                                                                {isRegistering(r.uuid) ? "Loading..." : "Register"}
+                                                                {isRegistering(r.uuid)
+                                                                    ? "Loading..."
+                                                                    : "Register"}
                                                             </button>
                                                         ) : (
                                                             <span className="badge-gray">Ditutup</span>

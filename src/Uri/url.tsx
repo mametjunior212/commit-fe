@@ -12,8 +12,10 @@ const Url = {
     LIST_PARTNER_API: `${baseURLLanding}/list-partner`,
     LIST_SETTING_PARAM: `${baseURLLanding}/settingParam`,
     Jobs_API: `${baseURLLanding}/listpekerjaan`,
+    Provincies_API: `${baseURLLanding}/provincies`,
     Voting_Realtime: `${baseURLLanding}/realtime-voting/`,
     Detail_Event: `${baseURLLanding}/detail-event/`,
+    ATTENDANCE_API: `${baseURLLanding}/attendance/`,
 
     // Auth
     Login_API: `${baseURLAuth}/login`,

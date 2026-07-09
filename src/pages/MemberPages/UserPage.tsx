@@ -17,11 +17,13 @@ import { Eye, EyeOff } from "lucide-react";
 import ModalPerusahaan from "@/components/modal/modal-perusahaan";
 import { Perusahaan } from "@/types/perusahaan.type";
 import { ProdukInput, PTInput, ResetInput, UpdateInput, UserResponse } from "@/types/userType";
-import { fetcher, fetchJobs } from "@/services/api.user.service";
-import { produkSchema, ptSchema, resetSchema, userSchema } from "@/schemas/user.schema";
+import { fetcher, fetchJobs, fetchProvinces } from "@/services/api.user.service";
+import { produkSchema, ptSchema, resetSchema, ukuranBajuOptions, userSchema } from "@/schemas/user.schema";
 import JobSelect from "@/components/sections/MemberPages/JobSelected";
+import ProvinceSelect from "@/components/sections/MemberPages/ProvinceSelect";
 import ModalSetPerusahaan from "@/components/sections/MemberPages/ModalPerusahaan";
 import ResetPasswordModal from "@/components/sections/MemberPages/ResetPasswordModal";
+import { ProvinceItem } from "@/components/type/provinceType";
 
 /* =========================================================
  * PAGE
@@ -83,6 +85,18 @@ export default function UserPage() {
         refetchOnWindowFocus: false,
     });
 
+    const {
+        data: provinces = [],
+        isLoading: provinceLoading,
+        error: provinceError,
+    } = useQuery<ProvinceItem[]>({
+        queryKey: ["provinces"],
+        queryFn: ({ signal }) => fetchProvinces(signal),
+        staleTime: Infinity,
+        gcTime: Infinity,
+        refetchOnWindowFocus: false,
+    });
+
     /* =========================================================
      * FORMS
      * ========================================================= */
@@ -114,6 +128,10 @@ export default function UserPage() {
             tgl_lahir: "",
             jenis_kelamin: "",
             pekerjaan: "",
+            prov_id: "",
+            kota: "",
+            alamat_lengkap: "",
+            ukuran_baju: "",
         },
     });
 
@@ -144,6 +162,10 @@ export default function UserPage() {
             jenis_kelamin:
                 user.jenis_kelamin ?? "",
             pekerjaan: user.pekerjaan ?? "",
+            prov_id: user.uuid_prov ?? "",
+            kota: user.kota ?? "",
+            alamat_lengkap: user.alamat_lengkap ?? "",
+            ukuran_baju: user.ukuran_baju ?? "",
         });
     }, [user, reset]);
 
@@ -391,6 +413,7 @@ export default function UserPage() {
             qc.invalidateQueries({
                 queryKey: ["user"],
             });
+            qc.invalidateQueries({ queryKey: ["DETAIL_USER"], });
         } catch (err: unknown) {
             if (
                 (err as Error).name ===
@@ -512,14 +535,14 @@ export default function UserPage() {
                             <select
                                 {...register("jenis_kelamin")}
                                 className="mt-1 w-full rounded-md border px-3 py-2 text-sm 
-          bg-white text-black 
-          dark:bg-[hsl(var(--background))] 
-          dark:text-white 
-          dark:border-[hsl(var(--input))]"
+                                        bg-white text-black 
+                                        dark:bg-[hsl(var(--background))] 
+                                        dark:text-white 
+                                        dark:border-[hsl(var(--input))]"
                             >
                                 <option value="">Pilih</option>
-                                <option value="L">Laki-laki</option>
-                                <option value="P">Perempuan</option>
+                                <option value="l">Laki-laki</option>
+                                <option value="p">Perempuan</option>
                             </select>
 
                             {errors.jenis_kelamin && (
@@ -549,6 +572,78 @@ export default function UserPage() {
                             {errors.pekerjaan && (
                                 <p className="mt-1 text-sm text-red-500">
                                     {errors.pekerjaan.message}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Provinsi */}
+                        <div>
+                            <Label>Provinsi</Label>
+                            <Controller
+                                name="prov_id"
+                                control={control}
+                                render={({ field }) => (
+                                    <ProvinceSelect
+                                        provinces={provinces}
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                        loading={provinceLoading}
+                                        error={!!provinceError}
+                                        disabled={isSubmitting}
+                                    />
+                                )}
+                            />
+                            {errors.prov_id && (
+                                <p className="mt-1 text-sm text-red-500">
+                                    {errors.prov_id.message}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Kota */}
+                        <div>
+                            <Label>Kota</Label>
+                            <Input {...register("kota")} className="mt-1" />
+                            {errors.kota && (
+                                <p className="mt-1 text-sm text-red-500">
+                                    {errors.kota.message}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Alamat Lengkap */}
+                        <div className="md:col-span-2">
+                            <Label>Alamat Lengkap</Label>
+                            <Textarea {...register("alamat_lengkap")} className="mt-1" />
+                            {errors.alamat_lengkap && (
+                                <p className="mt-1 text-sm text-red-500">
+                                    {errors.alamat_lengkap.message}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Ukuran Baju */}
+                        <div>
+                            <Label>Ukuran Baju</Label>
+                            <select
+                                {...register("ukuran_baju")}
+                                className="mt-1 w-full rounded-md border px-3 py-2 text-sm
+                                        bg-white text-black
+                                        dark:bg-[hsl(var(--background))]
+                                        dark:text-white
+                                        dark:border-[hsl(var(--input))]"
+                            >
+                                <option value="">Pilih</option>
+                                {ukuranBajuOptions.map((size) => (
+                                    <option key={size} value={size}>
+                                        {size.toUpperCase()}
+                                    </option>
+                                ))}
+                            </select>
+
+                            {errors.ukuran_baju && (
+                                <p className="mt-1 text-sm text-red-500">
+                                    {errors.ukuran_baju.message}
                                 </p>
                             )}
                         </div>
