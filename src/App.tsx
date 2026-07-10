@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence } from "framer-motion";
@@ -10,11 +10,7 @@ import BackToTop from "./components/BackToTop";
 import SmoothScroll from "./components/SmoothScroll";
 import CookieConsent from "./components/CookieConsent";
 import Preloader from "./components/Preloader";
-import RoutePage from "./Route";
-import { useParameter } from "./hooks/useSetting";
-import { useEvent } from "./hooks/useEvent";
-import { useListPartner } from "./hooks/useListPartner";
-import { useMenus } from "./hooks/useMenu";
+import RoutePage from "./app/routes";
 
 
 
@@ -62,7 +58,7 @@ const App = () => {
       {!isLoading && (
         <BrowserRouter>
           <SmoothScroll>
-            <RoutePage />
+            <RoutePage/>
             <BackToTop />
             <CookieConsent />
           </SmoothScroll>
