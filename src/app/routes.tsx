@@ -3,6 +3,7 @@ import AboutPage from "@/features/public/pages/AboutPage";
 import CalendarPage from "@/features/public/pages/CalendarPage";
 import CaseStudyPage from "@/features/event/pages/CaseStudyPage";
 import EventAbsenPage from "@/features/attendance/pages/EventAbsenPage";
+import EventRegisterPage from "@/features/attendance/pages/EventRegisterPage";
 import HomePage from "@/features/public/pages/HomePage";
 import NotFoundPage from "@/features/public/pages/NotFoundPage";
 import ProjectsPage from "@/features/public/pages/ProjectsPage";
@@ -16,6 +17,7 @@ import ListVotePage from "@/features/member/pages/ListVotePage";
 import RealtimeVotingPage from "@/features/public/pages/RealtimeVotingPage";
 import MaintenancePage from "@/features/public/pages/MaintenancePage";
 import MemberUserPage from "@/features/member/pages/UserPage";
+import AttendancePage from "@/features/attendance/pages/AttendancePage";
 
 const RoutePage = () => {
 
@@ -25,7 +27,8 @@ const RoutePage = () => {
             <Route path="/event" element={<ProjectsPage />} />
             <Route path="/event/:id" element={<CaseStudyPage />} />
             <Route path="/event-absen/:id" element={<EventAbsenPage />} />
-            <Route path="/attendance/:id" element={<EventAbsenPage />} />
+            <Route path="/attendance/:id" element={<AttendancePage />} />
+            <Route path="/event-register/:id" element={<EventRegisterPage />} />
             <Route path="/realtime-voting/:id" element={<RealtimeVotingPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/calendar" element={<CalendarPage />} />

@@ -16,6 +16,7 @@ const Url = {
     Voting_Realtime: `${baseURLLanding}/realtime-voting/`,
     Detail_Event: `${baseURLLanding}/detail-event/`,
     ATTENDANCE_API: `${baseURLLanding}/attendance/`,
+    ATTENDANCE_SAVE_API: `${baseURLLanding}/attendance/save`,
 
     // Auth
     Login_API: `${baseURLAuth}/login`,
